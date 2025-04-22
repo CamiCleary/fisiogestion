@@ -39,5 +39,5 @@ Su objetivo es facilitar el trabajo administrativo y clínico, centralizando la 
 1. Clona el repositorio:
 
 ```bash
-git clone https://github.com/tu-usuario/fisiogestion.git
+git clone https://github.com/CamiCleary/fisiogestion.git
 cd fisiogestion
