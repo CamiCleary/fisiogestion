@@ -1,0 +1,62 @@
+<style>
+    /* Estilos de relleno temporales */
+    .jumbotron {
+        background-color: #a7f1e1;
+        color: #000000;
+        padding: 2rem; /* Aumentar el padding */
+    }
+
+    .navbar-light .navbar-nav .nav-link {
+        color: #000000;
+        margin-right: 1rem; /* Espacio entre los enlaces */
+    }
+
+    .navbar-light .navbar-nav .nav-item:last-child {
+        margin-right: 0; /* Quitar margen del último elemento */
+    }
+
+    .placeholder-img {
+        background-color: #cccccc;
+        height: 200px;
+        width: 100%;
+        margin-bottom: 1rem;
+        border-radius: 10px; /* Bordes redondeados */
+    }
+
+    .service-box {
+        background-color: #f8f9fa;
+        padding: 1.5rem; /* Aumentar el padding */
+        margin-bottom: 1rem;
+        text-align: center;
+        border-radius: 10px; /* Bordes redondeados */
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra suave */
+        transition: transform 0.2s; /* Transición suave */
+    }
+
+    .service-box:hover {
+        transform: translateY(-5px); /* Elevación al pasar el mouse */
+    }
+
+    .service-box i {
+        font-size: 2rem; /* Tamaño de los iconos */
+        margin-bottom: 1rem;
+        color: #007bff; /* Color de los iconos (azul) */
+    }
+
+    .service-box h4 {
+        font-size: 1.25rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .footer {
+        background-color: #343a40; /* Gris oscuro */
+        color: #ffffff;
+        padding: 2rem 0; /* Ajustar el padding */
+    }
+
+    .social-icons a {
+        color: #ffffff;
+        font-size: 1.5rem;
+        margin: 0 0.5rem;
+    }
+</style>
