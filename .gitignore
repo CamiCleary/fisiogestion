@@ -1,3 +1,4 @@
 .env
 AppWeb/templates/venv
-
+AppWeb/__pycache__
+fisiogestion/__pycache__
