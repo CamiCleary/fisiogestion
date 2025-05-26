@@ -76,14 +76,11 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'fisiogestion',
-        'USER': 'root',
-        'PASSWORD': 'jJUNIOR*27',
-        'HOST': 'localhost',
-        'PORT': '3306',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
 
 
 # Password validation

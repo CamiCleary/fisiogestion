@@ -1,13 +1,3 @@
 .env
 AppWeb/templates/venv
 
-# Ignora todo
-*
-
-# Pero permite lo que nos interesa
-!/AppWeb/
-!/AppWeb/templates/
-!/AppWeb/templates/index.html
-!/AppWeb/fisiogestion/
-!/AppWeb/fisiogestion/static/
-!/AppWeb/fisiogestion/static/**/*
