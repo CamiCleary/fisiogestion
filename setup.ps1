@@ -22,7 +22,7 @@ if (Test-Path ".\AppWeb\requirements.txt") {
 } else {
     Write-Host "No se encontro el archivo requirements.txt"
 }
-
+cd .\AppWeb
 # Instalar dependencias de npm en la carpeta "AppWeb"
 
 Write-Host "Instalacion completada. ¡Ya estas listo para trabajar!"
