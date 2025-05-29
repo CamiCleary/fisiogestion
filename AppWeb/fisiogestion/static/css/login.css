@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* Estilo botón */
+.btn-teal {
+  background-color: #20c997;
+  color: white;
+  font-weight: 600;
+  border: none;
+  transition: all 0.3s ease-in-out;
+}
+
+.btn-teal:hover {
+  background-color: #0ca678;
+  transform: scale(1.03);
+}
+
+/* Caja de login */
+.card {
+  border-radius: 1rem;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+}
+
+/* Fondo de bienvenida */
+.bg-teal-light {
+  background-color: #e0f7f5;
+}
+
+/* Colores personalizados */
+.text-teal {
+  color: #0ca678;
+}
+
+/* Placeholder bonito */
+input::placeholder {
+  color: #b0b0b0;
+  font-style: italic;
+}
