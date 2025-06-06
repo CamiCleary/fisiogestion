@@ -128,28 +128,36 @@
         <div class="form-container">
             <h2>Registrar paciente</h2>
             <div class="form-section-title">Datos personales</div>
-            <div class="form-group">
-                <input type="text" placeholder="Ingrese nombre">
-            </div>
-            <div class="form-group">
-                <input type="text" placeholder="Ingrese apellido">
-            </div>
-            <div class="form-group">
-                <input type="text" placeholder="Ej: V-12345678">
-            </div>
-            <div class="form-group">
-                <input type="text" placeholder="Ej: +58 414-1234567">
-            </div>
-            <div class="form-group">
-                <input type="email" placeholder="correo@ejemplo.com">
-            </div>
-            <div class="form-group">
-                <input type="text" placeholder="Dirección completa">
-            </div>
-            <div class="button-group">
-                <button class="button-save">Guardar</button>
-                <button class="button-cancel">Cancelar</button>
-            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="nombre" placeholder="Ingrese nombre" value="{{ form.nombre.value|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="apellido" placeholder="Ingrese apellido" value="{{ form.apellido.value|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="cedula" placeholder="Ej: V-12345678" value="{{ form.cedula.value|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="telefono" placeholder="Ej: +58 414-1234567" value="{{ form.telefono.value|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                    <input type="email" name="email" placeholder="correo@ejemplo.com" value="{{ form.email.value|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                    <input type="text" name="direccion" placeholder="Dirección completa" value="{{ form.direccion.value|default_if_none:'' }}">
+                </div>
+                {% if form.errors %}
+                <div style="color:red; margin-bottom:10px;">
+                    {{ form.errors }}
+                </div>
+                {% endif %}
+                <div class="button-group">
+                    <button type="submit" class="button-save">Guardar</button>
+                    <a href="{% url 'lista_pacientes' %}" class="button-cancel">Cancelar</a>
+                </div>
+            </form>
         </div>
     </div>
 </body>

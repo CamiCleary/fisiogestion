@@ -193,34 +193,32 @@ tr:hover {
                 <th>Teléfono</th>
                 <th>Email</th>
                 <th>Direccion</th>
+                <th>Acciones</th>
             </tr>
         </thead>
         <tbody>
+            {% for paciente in pacientes %}
             <tr>
-                <td>1</td>
-                <td>Juan</td>
-                <td>Pérez</td>
-                <td>30626548</td>
-                <td>1234567890</td>
-                <td>juan.perez@example.com</td>
-                <td>Puerto la Cruz</td>
+                <td>{{ paciente.id }}</td>
+                <td>{{ paciente.nombre }}</td>
+                <td>{{ paciente.apellido }}</td>
+                <td>{{ paciente.cedula }}</td>
+                <td>{{ paciente.telefono }}</td>
+                <td>{{ paciente.email }}</td>
+                <td>{{ paciente.direccion }}</td>
+                <td style="display: flex; gap: 10px;">
+                  <a href="{% url 'editar_paciente' paciente.id %}" class="button-submit" style="background:#ffc107;color:#333;">Editar</a>
+                  <a href="{% url 'eliminar_paciente' paciente.id %}" class="button-submit" style="background:#e74c3c;">Eliminar</a>
+                </td>
             </tr>
-            <tr>
-                <td>2</td>
-                <td>Ana</td>
-                <td>López</td>
-                <td>25487964</td>
-                <td>0987654321</td>
-                <td>ana.lopez@example.com</td>
-                <td>San juan de los morros</td>
-            </tr>
-            <!-- Agrega más filas según sea necesario -->
+            {% empty %}
+            <tr><td colspan="8">No hay pacientes registrados.</td></tr>
+            {% endfor %}
         </tbody>
     </table>
-    
-      <div class="button-group">
-        <button class="button-submit">Nuevo Paciente</button>
-      </div>
+    <div class="button-group">
+      <a href="{% url 'crear_paciente' %}" class="button-submit">Nuevo Paciente</a>
+    </div>
     </div>
 
    
