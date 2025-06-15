@@ -1,5 +1,5 @@
 # Ruta del entorno virtual
-$venvPath = ".\AppWeb\templates\venv"
+$venvPath = ".\AppWeb\AppWeb\venv"
 
 # Verificar si el entorno virtual ya existe
 if (Test-Path $venvPath) {

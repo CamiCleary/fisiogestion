@@ -12,18 +12,24 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+from dotenv import load_dotenv  # 1️⃣
+
+# 1️⃣ Carga el .env
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# cargar sin ruta explícita, busca en la carpeta de trabajo
+load_dotenv()
+# Load environment variables from .env file
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-z^b2146#c$g@ll!4fp4%bw%_^_=ppu^#xi#t4xp+l!s9jqx=&&'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+SECRET_KEY = os.getenv('SECRET_KEY', '…')
+DEBUG      = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = []
 
@@ -73,11 +79,16 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
+print("DB PASS ➞", repr(os.getenv('KEYDB')))
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE':   'django.db.backends.mysql',
+        'NAME':     os.getenv('DB_NAME',     'fisiogestion'),
+        'USER':     os.getenv('DB_USER',     'root'),
+        'PASSWORD': os.getenv('KEYDB',       ''),   # ③
+        'HOST':     os.getenv('DB_HOST',     'localhost'),
+        'PORT':     os.getenv('DB_PORT',     '3306'),
     }
 }
 
