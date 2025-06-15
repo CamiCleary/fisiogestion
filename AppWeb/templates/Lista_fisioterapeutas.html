@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -54,6 +55,7 @@
     .main {
       flex-grow: 1;
       padding: 40px;
+      overflow-y: auto;
     }
     .breadcrumb {
       font-size: 14px;
@@ -82,8 +84,7 @@
       gap: 10px;
     }
     .form-group input,
-    .form-group select,
-    .form-group textarea {
+    .form-group select {
       flex: 1;
       padding: 10px;
       border: 1px solid #ccc;
@@ -103,41 +104,40 @@
       background-color: #00b89f;
       color: white;
       cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
     }
 
-
     table {
-    width: 100%;
-    border-collapse: collapse;
-}
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
 
-th, td {
-    border: 1px solid #ddd;
-    padding: 8px;
-    text-align: left;
-}
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
 
-th {
-    background-color: #f2f2f2;
-}
+    th {
+      background-color: #f2f2f2;
+    }
 
-tr:hover {
-    background-color: #f1f1f1;
-}
-
-
-
+    tr:hover {
+      background-color: #f1f1f1;
+    }
   </style>
 </head>
 <body>
   <div class="sidebar">
     <div>
       <div class="logo">
-        <img src="logo.png" alt="Fisiogestión">
+<img src="{% static 'images/logo.png' %}" alt="Fisiogestión">
       </div>
       <div class="nav">
-        <a href="#">Pacientes</a>
-        <a href="#" class="active">Fisioterapeutas</a>
+        <a href="{% url 'lista_pacientes' %}">Pacientes</a>
+        <a href="{% url 'lista_fisioterapeutas' %}" class="active">Fisioterapeutas</a>
         <a href="#">Agenda</a>
         <a href="#">Reportes</a>
       </div>
@@ -149,89 +149,55 @@ tr:hover {
   </div>
 
   <div class="main">
-    <div class="breadcrumb">Fisioterapeutas </div>
-
-
-   
-
-
-
+    <div class="breadcrumb">Fisioterapeutas</div>
     <div class="form-container">
-
-
-      
-
-
-
-
       <h2>Fisioterapeutas</h2>
       <div class="form-section-title">Buscar Fisioterapeutas</div>
-      
       <div class="form-group">
         <input type="text" placeholder="Buscar fisioterapeuta...">
         <select>
-            <option value="">Filtrar por rol</option>
-            <option value="administrador">Administrador</option>
-            <option value="fisioterapeuta">Fisioterapeuta</option>
-            <option value="asistente">Asistente</option>
+          <option value="">Filtrar por rol</option>
+          <option value="Administrador">Administrador</option>
+          <option value="Fisioterapeuta">Fisioterapeuta</option>
+          <option value="Asistente">Asistente</option>
         </select>
-    </div>
+      </div>
 
       <div class="form-section-title">Fisioterapeutas registrados</div>
-      
-    
-
-
-
-     
-
-
-
 
       <table>
         <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Rol</th>
-                <th>Teléfono</th>
-                <th>Email</th>
-            </tr>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Rol</th>
+            <th>Teléfono</th>
+            <th>Email</th>
+          </tr>
         </thead>
         <tbody>
-            <tr>
-                <td>1</td>
-                <td>Juan</td>
-                <td>Pérez</td>
-                <td>Administrador</td>
-                <td>1234567890</td>
-                <td>juan.perez@example.com</td>
-            </tr>
-            <tr>
-                <td>2</td>
-                <td>Ana</td>
-                <td>López</td>
-                <td>Usuario</td>
-                <td>0987654321</td>
-                <td>ana.lopez@example.com</td>
-            </tr>
-            <!-- Agrega más filas según sea necesario -->
+          {% for fisioterapeuta in fisioterapeutas %}
+          <tr>
+            <td>{{ fisioterapeuta.id }}</td>
+            <td>{{ fisioterapeuta.nombre }}</td>
+            <td>{{ fisioterapeuta.apellido }}</td>
+            <td>{{ fisioterapeuta.rol }}</td>
+            <td>{{ fisioterapeuta.telefono }}</td>
+            <td>{{ fisioterapeuta.email }}</td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6">No hay fisioterapeutas registrados.</td>
+          </tr>
+          {% endfor %}
         </tbody>
-    </table>
-    
+      </table>
+
       <div class="button-group">
-        <button class="button-submit">Nuevo fisioterapeuta</button>
+        <a href="{% url 'registro_fisioterapeuta' %}" class="button-submit">Nuevo fisioterapeuta</a>
       </div>
     </div>
-
-   
-
-
-
-  
-
-
   </div>
 </body>
 </html>
