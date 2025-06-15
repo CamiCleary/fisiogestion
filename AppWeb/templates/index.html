@@ -25,11 +25,11 @@
                 <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Sobre Nosotros</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">Servicios</a></li>
-                <li class="nav-item"><a class="nav-link" href="Registro fisioterapeuta.html">Telemedicina</a></li>
-                <li class="nav-item"><a class="nav-link" href="Registro paciente.html">Pagos</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registro_fisioterapeuta' %}">Telemedicina</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'registro_paciente' %}">Pagos</a></li>
             </ul>
             <div>
-                <a class="btn btn-outline-primary me-2" href="#">Iniciar Sesión</a>
+                <a class="btn btn-outline-primary me-2" href="{% url 'login' %}">Iniciar Sesión</a>
                 <a class="btn btn-primary" href="#">Regístrate</a>
             </div>
         </div>

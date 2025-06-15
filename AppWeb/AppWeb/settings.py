@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-print("DB PASS ➞", repr(os.getenv('KEYDB')))
+
 
 DATABASES = {
     'default': {

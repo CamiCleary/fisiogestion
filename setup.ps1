@@ -7,7 +7,7 @@ if (Test-Path $venvPath) {
     & "$venvPath\Scripts\Activate.ps1"
 } else {
     # Crear el entorno virtual si no existe
-    Write-Host "El entorno virtual no existe. Creandolo en la carpeta 'templates'..."
+    Write-Host "El entorno virtual no existe. Creandolo en la carpeta 'AppWeb'..."
     python -m venv $venvPath
 
     # Activar el entorno virtual después de crearlo
