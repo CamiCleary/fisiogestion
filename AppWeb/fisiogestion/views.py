@@ -6,17 +6,18 @@ from .forms import FisioterapeutaForm
 
 def inicio(request):
     return render(request, 'index.html')
-
+def lista_fisioterapeutas(request):
+    fisioterapeutas = Fisioterapeuta.objects.all()
+    return render(request, 'Lista_fisioterapeutas.html', {'fisioterapeutas': fisioterapeutas})
 def crear_fisioterapeuta(request):
     if request.method == 'POST':
         form = FisioterapeutaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('inicio')  # Puedes cambiar a una lista de fisioterapeutas luego
+            return redirect('lista_fisioterapeutas')  # Puedes cambiar a una lista de fisioterapeutas luego
     else:
         form = FisioterapeutaForm()
     return render(request, 'registro_fisioterapeuta.html', {'form': form})
-
 
 def lista_pacientes(request):
     pacientes = Paciente.objects.all()

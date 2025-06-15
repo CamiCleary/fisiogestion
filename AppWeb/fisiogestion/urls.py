@@ -10,4 +10,5 @@ urlpatterns = [
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
     path('registro_paciente/', views.crear_paciente, name='registro_paciente'),
     path('registro_fisioterapeuta/', views.crear_fisioterapeuta, name='registro_fisioterapeuta'),
+    path('fisioterapeutas/', views.lista_fisioterapeutas, name='lista_fisioterapeutas'),  # ← Nueva ruta
 ]
