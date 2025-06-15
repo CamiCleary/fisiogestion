@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Consulta - Fisioterapeuta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f0faf9;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #eaf8f6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .fisioterapeuta { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; }
+        .header { margin-bottom: 30px; }
+        .header h1 { color: #333; margin-bottom: 10px; }
+        .breadcrumb { font-size: 14px; color: #888; }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .sidebar-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #00b89f, #009688);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card-content {
+            padding: 25px;
+        }
+
+        .consultation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .consultation-id {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .consultation-date {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .status-programada { background: #e3f2fd; color: #1976d2; }
+        .status-confirmada { background: #e8f5e8; color: #388e3c; }
+        .status-completada { background: #e1f5fe; color: #0277bd; }
+        .status-cancelada { background: #ffebee; color: #d32f2f; }
+
+        .info-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .treatment-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .treatment-item {
+            background: #e8f7f4;
+            color: #00b89f;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .priority-indicator {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+        }
+
+        .priority-low { background: #e8f5e8; color: #388e3c; }
+        .priority-medium { background: #fff3e0; color: #f57c00; }
+        .priority-high { background: #ffebee; color: #d32f2f; }
+
+        .notes-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .patient-summary {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+        }
+
+        .patient-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .patient-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00b89f, #009688);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            margin-right: 15px;
+        }
+
+        .patient-info h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .patient-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .quick-actions {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 10px;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #00b89f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #009688;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00b89f;
+            border: 2px solid #00b89f;
+        }
+
+        .btn-outline:hover {
+            background: #00b89f;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 8px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e9ecef;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -16px;
+            top: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00b89f;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .timeline-date {
+            font-size: 11px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .timeline-text {
+            font-size: 13px;
+            color: #333;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00b89f;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+
+        .attachment-list {
+            margin-top: 15px;
+        }
+
+        .attachment-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            transition: background-color 0.2s;
+        }
+
+        .attachment-item:hover {
+            background: #e9ecef;
+        }
+
+        .attachment-icon {
+            width: 32px;
+            height: 32px;
+            background: #00b89f;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .attachment-info {
+            flex: 1;
+        }
+
+        .attachment-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .attachment-meta {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_fisioterapeuta.html">Dashboard</a>
+                <a href="mis_pacientes.html">Mis Pacientes</a>
+                <a href="mis_consultas.html" class="active">Mis Consultas</a>
+                <a href="horarios.html">Horarios</a>
+                <a href="pagos_fisioterapeuta.html">Pagos</a>
+                <a href="telemedicina_fisioterapeuta.html">Telemedicina</a>
+                <a href="perfil_fisioterapeuta.html">Mi Perfil</a>
+            </div>
+        </div>
+        <div class="fisioterapeuta">
+            <p><strong>Dr. Martínez</strong></p>
+            <p>Fisioterapeuta</p>
+            <p style="font-size: 12px; color: #666;">Traumatología</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Detalle de Consulta</h1>
+            <div class="breadcrumb">Inicio > Mis Consultas > Consulta #CON-2024-156</div>
+        </div>
+
+        <div class="detail-grid">
+            <div class="main-content">
+                <div class="detail-card">
+                    <div class="card-header">
+                        <div>
+                            <div class="consultation-id">Consulta #CON-2024-156</div>
+                            <div class="consultation-date">Viernes, 25 de Octubre 2024 - 10:00</div>
+                        </div>
+                        <div class="status-badge status-completada">Completada</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-section">
+                            <div class="section-title">Información General</div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Tipo de Consulta</div>
+                                    <div class="info-value">Seguimiento</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Duración</div>
+                                    <div class="info-value">60 minutos</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Modalidad</div>
+                                    <div class="info-value">Presencial</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Prioridad</div>
+                                    <div class="info-value">
+                                        <span class="priority-indicator priority-medium">Media</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Detalles Clínicos</div>
+                            <div class="info-grid">
+                                <div class="info-item">
+                                    <div class="info-label">Motivo de Consulta</div>
+                                    <div class="info-value">Rehabilitación rodilla derecha post-operatoria</div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-label">Diagnóstico</div>
+                                    <div class="info-value">Rotura de ligamento cruzado anterior - S83.5</div>
+                                </div>
+                            </div>
+                            <div class="info-item" style="margin-top: 15px;">
+                                <div class="info-label">Tratamientos Realizados</div>
+                                <div class="treatment-list">
+                                    <span class="treatment-item">Terapia Manual</span>
+                                    <span class="treatment-item">Ejercicio Terapéutico</span>
+                                    <span class="treatment-item">Estiramientos</span>
+                                    <span class="treatment-item">Fortalecimiento</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Evolución y Notas</div>
+                            <div class="notes-section">
+                                <p><strong>Evaluación:</strong> Paciente presenta mejora significativa en rango de movimiento. Flexión de rodilla alcanza 120° sin dolor. Fuerza muscular en cuádriceps ha mejorado considerablemente.</p>
+                                <br>
+                                <p><strong>Tratamiento realizado:</strong> Sesión de movilización articular, ejercicios de fortalecimiento progresivo y trabajo propioceptivo. Se ha aumentado la intensidad de los ejercicios según tolerancia del paciente.</p>
+                                <br>
+                                <p><strong>Recomendaciones:</strong> Continuar con ejercicios domiciliarios 2 veces al día. Evitar actividades de alto impacto por 2 semanas más. Próxima cita en 1 semana para evaluar progreso.</p>
+                            </div>
+                        </div>
+
+                        <div class="info-section">
+                            <div class="section-title">Archivos Adjuntos</div>
+                            <div class="attachment-list">
+                                <div class="attachment-item">
+                                    <div class="attachment-icon">📄</div>
+                                    <div class="attachment-info">
+                                        <div class="attachment-name">Informe de Progreso - Sesión 5</div>
+                                        <div class="attachment-meta">PDF • 245 KB • 25/10/2024</div>
+                                    </div>
+                                </div>
+                                <div class="attachment-item">
+                                    <div class="attachment-icon">📊</div>
+                                    <div class="attachment-info">
+                                        <div class="attachment-name">Mediciones Goniométricas</div>
+                                        <div class="attachment-meta">Excel • 89 KB • 25/10/2024</div>
+                                    </div>
+                                </div>
+                                <div class="attachment-item">
+                                    <div class="attachment-icon">📷</div>
+                                    <div class="attachment-info">
+                                        <div class="attachment-name">Fotos evolución rodilla</div>
+                                        <div class="attachment-meta">JPG • 1.2 MB • 25/10/2024</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="patient-summary">
+                    <div class="patient-header">
+                        <div class="patient-avatar">MG</div>
+                        <div class="patient-info">
+                            <h3>María González</h3>
+                            <div class="patient-meta">32 años • F • 12345678A</div>
+                            <div class="patient-meta">+34 612 345 678</div>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number">8</div>
+                            <div class="stat-label">Consultas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">5</div>
+                            <div class="stat-label">Completadas</div>
+                        </div>
+                    </div>
+                    <a href="detalle_paciente_fisioterapeuta.html" class="action-btn btn-outline">Ver Perfil Completo</a>
+                </div>
+
+                <div class="quick-actions">
+                    <h4 style="margin-bottom: 15px; color: #333;">Acciones Rápidas</h4>
+                    <a href="editar_consulta_fisioterapeuta.html" class="action-btn btn-primary">Editar Consulta</a>
+                    <button class="action-btn btn-secondary" onclick="printConsultation()">Imprimir Informe</button>
+                    <button class="action-btn btn-outline" onclick="exportPDF()">Exportar PDF</button>
+                    <button class="action-btn btn-outline" onclick="scheduleNext()">Programar Siguiente</button>
+                    <button class="action-btn btn-danger" onclick="cancelConsultation()">Cancelar Consulta</button>
+                </div>
+
+                <div class="detail-card">
+                    <div class="card-header">
+                        <div class="card-title">Historial Reciente</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">25/10/2024 11:00</div>
+                                    <div class="timeline-text">Consulta completada - Evolución favorable</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">25/10/2024 09:45</div>
+                                    <div class="timeline-text">Paciente confirmó asistencia</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">18/10/2024 10:30</div>
+                                    <div class="timeline-text">Consulta anterior completada</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">11/10/2024 11:15</div>
+                                    <div class="timeline-text">Inicio del tratamiento rehabilitador</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function printConsultation() {
+            window.print();
+        }
+
+        function exportPDF() {
+            alert('Generando PDF del informe de consulta...');
+            // Simulación de exportación
+            setTimeout(() => {
+                alert('PDF generado exitosamente');
+            }, 2000);
+        }
+
+        function scheduleNext() {
+            if (confirm('¿Deseas programar la siguiente consulta con este paciente?')) {
+                window.location.href = 'crear_consulta_fisioterapeuta.html?patient=maria-gonzalez';
+            }
+        }
+
+        function cancelConsultation() {
+            if (confirm('¿Estás seguro de que deseas cancelar esta consulta? Esta acción no se puede deshacer.')) {
+                alert('Consulta cancelada exitosamente');
+                window.location.href = 'mis_consultas.html';
+            }
+        }
+
+        // Funciones para interactuar con archivos adjuntos
+        document.querySelectorAll('.attachment-item').forEach(item => {
+            item.addEventListener('click', function() {
+                const fileName = this.querySelector('.attachment-name').textContent;
+                alert(`Abriendo: ${fileName}`);
+            });
+        });
+    </script>
+</body>
+</html>

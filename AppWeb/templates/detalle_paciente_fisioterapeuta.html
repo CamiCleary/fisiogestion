@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil del Paciente - Fisioterapeuta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { display: flex; background-color: #f0faf9; min-height: 100vh; color: #333; }
+        .sidebar { width: 220px; background-color: #eaf8f6; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a { text-decoration: none; color: #000; padding: 10px; border-radius: 5px; transition: background-color 0.3s; }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .fisioterapeuta { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; }
+        .header { margin-bottom: 30px; }
+        .header h1 { color: #333; margin-bottom: 10px; }
+        .breadcrumb { font-size: 14px; color: #888; }
+
+        .patient-header { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 30px; margin-bottom: 30px; }
+        .header-content { display: flex; align-items: center; gap: 25px; }
+        .patient-avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #00b89f, #009688); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 32px; }
+        .patient-info h2 { font-size: 28px; color: #333; margin-bottom: 8px; }
+        .patient-meta { font-size: 14px; color: #666; margin-bottom: 5px; }
+
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        .main-content, .sidebar-content { display: flex; flex-direction: column; gap: 20px; }
+
+        .info-card { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); overflow: hidden; }
+        .card-header { background: linear-gradient(135deg, #00b89f, #009688); color: white; padding: 20px; }
+        .card-title { font-size: 18px; font-weight: 600; }
+        .card-content { padding: 25px; }
+
+        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .info-item { display: flex; flex-direction: column; }
+        .info-label { font-size: 12px; color: #666; margin-bottom: 5px; text-transform: uppercase; }
+        .info-value { font-size: 14px; font-weight: 500; color: #333; }
+
+        .consultation-item { background: #f8f9fa; border-radius: 8px; padding: 15px; margin-bottom: 15px; border-left: 4px solid #00b89f; }
+        .consultation-date { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 5px; }
+        .consultation-type { font-size: 12px; color: #666; margin-bottom: 8px; }
+        .consultation-notes { font-size: 13px; color: #555; }
+
+        .status-badge { padding: 4px 12px; border-radius: 15px; font-size: 11px; font-weight: 500; text-transform: uppercase; }
+        .status-activo { background: #e8f5e8; color: #388e3c; }
+        .status-completado { background: #e1f5fe; color: #0277bd; }
+        .status-cancelado { background: #ffebee; color: #d32f2f; }
+
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-item { background: #f8f9fa; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-number { font-size: 24px; font-weight: 600; color: #00b89f; margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: #666; text-transform: uppercase; }
+
+        .action-btn { width: 100%; padding: 12px; border: none; border-radius: 6px; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.2s; margin-bottom: 10px; text-decoration: none; display: block; text-align: center; }
+        .btn-primary { background: #00b89f; color: white; }
+        .btn-primary:hover { background: #009688; transform: translateY(-1px); }
+        .btn-outline { background: transparent; color: #00b89f; border: 2px solid #00b89f; }
+        .btn-outline:hover { background: #00b89f; color: white; }
+
+        .timeline { position: relative; padding-left: 20px; }
+        .timeline::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: #e9ecef; }
+        .timeline-item { position: relative; margin-bottom: 20px; }
+        .timeline-item::before { content: ''; position: absolute; left: -16px; top: 5px; width: 8px; height: 8px; border-radius: 50%; background: #00b89f; }
+        .timeline-content { background: white; padding: 12px; border-radius: 6px; border: 1px solid #e9ecef; }
+        .timeline-date { font-size: 11px; color: #666; margin-bottom: 5px; }
+        .timeline-text { font-size: 13px; color: #333; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; padding: 20px; } .content-grid { grid-template-columns: 1fr; } .info-grid { grid-template-columns: 1fr; } .stats-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_fisioterapeuta.html">Dashboard</a>
+                <a href="mis_pacientes.html" class="active">Mis Pacientes</a>
+                <a href="mis_consultas.html">Mis Consultas</a>
+                <a href="horarios.html">Horarios</a>
+                <a href="pagos_fisioterapeuta.html">Pagos</a>
+                <a href="telemedicina_fisioterapeuta.html">Telemedicina</a>
+                <a href="perfil_fisioterapeuta.html">Mi Perfil</a>
+            </div>
+        </div>
+        <div class="fisioterapeuta">
+            <p><strong>Dr. Martínez</strong></p>
+            <p>Fisioterapeuta</p>
+            <p style="font-size: 12px; color: #666;">Traumatología</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Perfil del Paciente</h1>
+            <div class="breadcrumb">Inicio > Mis Pacientes > María González</div>
+        </div>
+
+        <div class="patient-header">
+            <div class="header-content">
+                <div class="patient-avatar">MG</div>
+                <div class="patient-info">
+                    <h2>María González Ruiz</h2>
+                    <div class="patient-meta">32 años • Femenino • DNI: 12345678A</div>
+                    <div class="patient-meta">Teléfono: +34 612 345 678 • Email: maria.gonzalez@email.com</div>
+                    <div class="patient-meta">Dirección: Calle Mayor 123, 28001 Madrid</div>
+                    <div class="patient-meta" style="margin-top: 10px;">
+                        <span class="status-badge status-activo">Paciente Activo</span>
+                        <span style="margin-left: 10px; color: #666;">Desde: 15 Sept 2024</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-grid">
+            <div class="main-content">
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Información Médica</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Edad</div>
+                                <div class="info-value">32 años</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Peso</div>
+                                <div class="info-value">65 kg</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Altura</div>
+                                <div class="info-value">168 cm</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Grupo Sanguíneo</div>
+                                <div class="info-value">A+</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Diagnóstico Principal</div>
+                            <div class="info-value">Rotura de ligamento cruzado anterior rodilla derecha - S83.5</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-label">Alergias</div>
+                            <div class="info-value">Penicilina, Ibuprofeno</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-label">Medicación Actual</div>
+                            <div class="info-value">Paracetamol 500mg (según necesidad)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Historial de Consultas</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="consultation-item">
+                            <div class="consultation-date">25 Octubre 2024 - 10:00</div>
+                            <div class="consultation-type">Seguimiento • 60 min • Presencial</div>
+                            <div class="consultation-notes">Mejora significativa en ROM. Flexión 120° sin dolor. Continuar ejercicios domiciliarios.</div>
+                        </div>
+                        <div class="consultation-item">
+                            <div class="consultation-date">18 Octubre 2024 - 10:30</div>
+                            <div class="consultation-type">Seguimiento • 45 min • Presencial</div>
+                            <div class="consultation-notes">Progreso favorable. Reducción del dolor. Inicio ejercicios de fortalecimiento.</div>
+                        </div>
+                        <div class="consultation-item">
+                            <div class="consultation-date">11 Octubre 2024 - 11:15</div>
+                            <div class="consultation-type">Primera consulta • 60 min • Presencial</div>
+                            <div class="consultation-notes">Evaluación inicial post-cirugía. Establecimiento plan rehabilitación.</div>
+                        </div>
+                        <button class="action-btn btn-outline" onclick="viewAllConsultations()">Ver Todas las Consultas</button>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Plan de Tratamiento Actual</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="info-item">
+                            <div class="info-label">Objetivo Principal</div>
+                            <div class="info-value">Recuperación completa movilidad rodilla derecha</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-label">Tratamientos</div>
+                            <div style="margin-top: 10px;">
+                                <span style="background: #e8f7f4; color: #00b89f; padding: 4px 12px; border-radius: 15px; font-size: 12px; margin-right: 8px;">Terapia Manual</span>
+                                <span style="background: #e8f7f4; color: #00b89f; padding: 4px 12px; border-radius: 15px; font-size: 12px; margin-right: 8px;">Ejercicio Terapéutico</span>
+                                <span style="background: #e8f7f4; color: #00b89f; padding: 4px 12px; border-radius: 15px; font-size: 12px; margin-right: 8px;">Fortalecimiento</span>
+                            </div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-label">Frecuencia</div>
+                            <div class="info-value">2 sesiones por semana • Duración estimada: 8-10 semanas</div>
+                        </div>
+                        <div style="margin-top: 15px;">
+                            <div class="info-label">Próxima Cita</div>
+                            <div class="info-value">1 Noviembre 2024 - 10:00</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Estadísticas</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-number">8</div>
+                                <div class="stat-label">Consultas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">5</div>
+                                <div class="stat-label">Completadas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">2</div>
+                                <div class="stat-label">Pendientes</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-number">85%</div>
+                                <div class="stat-label">Asistencia</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Acciones Rápidas</div>
+                    </div>
+                    <div class="card-content">
+                        <a href="crear_consulta_fisioterapeuta.html?patient=maria-gonzalez" class="action-btn btn-primary">Nueva Consulta</a>
+                        <button class="action-btn btn-outline" onclick="editPatient()">Editar Información</button>
+                        <button class="action-btn btn-outline" onclick="viewHistory()">Ver Historial Completo</button>
+                        <button class="action-btn btn-outline" onclick="generateReport()">Generar Informe</button>
+                        <button class="action-btn btn-outline" onclick="sendMessage()">Enviar Mensaje</button>
+                    </div>
+                </div>
+
+                <div class="info-card">
+                    <div class="card-header">
+                        <div class="card-title">Actividad Reciente</div>
+                    </div>
+                    <div class="card-content">
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">25/10/2024</div>
+                                    <div class="timeline-text">Consulta completada</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">23/10/2024</div>
+                                    <div class="timeline-text">Confirmó próxima cita</div>
+                                </div>
+                            </div>
+                            <div class="timeline-item">
+                                <div class="timeline-content">
+                                    <div class="timeline-date">20/10/2024</div>
+                                    <div class="timeline-text">Mensaje enviado</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function viewAllConsultations() {
+            window.location.href = 'mis_consultas.html?patient=maria-gonzalez';
+        }
+
+        function editPatient() {
+            alert('Función de edición de paciente en desarrollo');
+        }
+
+        function viewHistory() {
+            alert('Mostrando historial médico completo...');
+        }
+
+        function generateReport() {
+            alert('Generando informe médico del paciente...');
+            setTimeout(() => alert('Informe generado exitosamente'), 2000);
+        }
+
+        function sendMessage() {
+            const message = prompt('Escribe tu mensaje para María González:');
+            if (message) {
+                alert(`Mensaje enviado: "${message}"`);
+            }
+        }
+    </script>
+</body>
+</html>

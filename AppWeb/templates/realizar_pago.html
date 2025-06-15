@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Pago - Paciente</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { display: flex; background-color: #f0faf9; min-height: 100vh; color: #333; }
+        .sidebar { width: 220px; background-color: #eaf8f6; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a { text-decoration: none; color: #000; padding: 10px; border-radius: 5px; transition: background-color 0.3s; }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .paciente { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; max-width: 1200px; }
+        .header { margin-bottom: 30px; }
+        .header h1 { color: #333; margin-bottom: 10px; }
+        .breadcrumb { font-size: 14px; color: #888; }
+
+        .payment-container { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+        .payment-section { background: white; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); padding: 25px; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: #333; border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; }
+
+        .invoice-details { margin-bottom: 20px; }
+        .invoice-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+        .invoice-item:last-child { border-bottom: none; }
+        .invoice-label { font-weight: 500; color: #666; }
+        .invoice-value { font-weight: 600; color: #333; }
+        .invoice-amount { font-size: 24px; color: #00b89f; font-weight: 600; }
+
+        .payment-methods { margin-bottom: 25px; }
+        .method-option { display: flex; align-items: center; padding: 15px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
+        .method-option:hover { border-color: #00b89f; background: #f8fdfc; }
+        .method-option.selected { border-color: #00b89f; background: #f0faf9; }
+        .method-radio { margin-right: 12px; }
+        .method-icon { width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; margin-right: 15px; font-size: 16px; color: white; }
+        .method-card { background: #4caf50; }
+        .method-pse { background: #2196f3; }
+        .method-transfer { background: #ff9800; }
+        .method-info h4 { margin-bottom: 4px; color: #333; }
+        .method-info p { font-size: 12px; color: #666; }
+
+        .payment-form { display: none; margin-top: 20px; padding: 20px; border: 1px solid #e9ecef; border-radius: 8px; background: #fafafa; }
+        .payment-form.active { display: block; }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: 500; color: #333; }
+        .form-input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; transition: border-color 0.3s; }
+        .form-input:focus { outline: none; border-color: #00b89f; }
+        .form-input.error { border-color: #d32f2f; }
+        .form-error { color: #d32f2f; font-size: 12px; margin-top: 4px; display: none; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
+        .security-info { background: #e8f5e8; border: 1px solid #c8e6c9; border-radius: 6px; padding: 15px; margin-bottom: 20px; }
+        .security-info h4 { color: #388e3c; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .security-info p { font-size: 12px; color: #2e7d32; }
+
+        .payment-summary { position: sticky; top: 20px; }
+        .summary-item { display: flex; justify-content: space-between; padding: 8px 0; }
+        .summary-total { font-size: 18px; font-weight: 600; color: #00b89f; border-top: 2px solid #f0f0f0; padding-top: 15px; margin-top: 15px; }
+
+        .btn-primary { width: 100%; background: #00b89f; color: white; padding: 15px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.3s; }
+        .btn-primary:hover { background: #009688; }
+        .btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+        .btn-secondary { width: 100%; background: white; color: #666; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; cursor: pointer; margin-top: 10px; text-decoration: none; text-align: center; }
+
+        .back-link { display: inline-flex; align-items: center; gap: 8px; color: #666; text-decoration: none; margin-bottom: 20px; font-size: 14px; }
+        .back-link:hover { color: #00b89f; }
+
+        .loading { display: none; text-align: center; padding: 20px; }
+        .loading.active { display: block; }
+        .spinner { border: 2px solid #f3f3f3; border-top: 2px solid #00b89f; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        @media (max-width: 768px) { 
+            .sidebar { display: none; } 
+            .main { margin-left: 0; padding: 20px; } 
+            .payment-container { grid-template-columns: 1fr; gap: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_paciente.html">Mi Portal</a>
+                <a href="mis_consultas.html">Mis Consultas</a>
+                <a href="agendar_consulta.html">Agendar Cita</a>
+                <a href="mis_pagos.html">Mis Pagos</a>
+                <a href="telemedicina_paciente.html">Telemedicina</a>
+                <a href="mi_material.html">Mi Material</a>
+            </div>
+        </div>
+        <div class="paciente">
+            <p><strong>María González</strong></p>
+            <p>Paciente</p>
+            <p style="font-size: 12px; color: #666;">ID: P-2024-001</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <a href="mis_pagos.html" class="back-link">← Volver a Mis Pagos</a>
+            <h1>Realizar Pago</h1>
+            <div class="breadcrumb">Mi Portal > Mis Pagos > Realizar Pago</div>
+        </div>
+
+        <div class="payment-container">
+            <div class="payment-section">
+                <h3 class="section-title">Método de Pago</h3>
+                
+                <div class="payment-methods">
+                    <div class="method-option" data-method="card">
+                        <input type="radio" name="paymentMethod" value="card" class="method-radio" id="card">
+                        <div class="method-icon method-card">💳</div>
+                        <div class="method-info">
+                            <h4>Tarjeta de Crédito/Débito</h4>
+                            <p>Visa, Mastercard, American Express</p>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option" data-method="pse">
+                        <input type="radio" name="paymentMethod" value="pse" class="method-radio" id="pse">
+                        <div class="method-icon method-pse">🏦</div>
+                        <div class="method-info">
+                            <h4>PSE (Pago Seguro en Línea)</h4>
+                            <p>Débito directo desde tu cuenta bancaria</p>
+                        </div>
+                    </div>
+                    
+                    <div class="method-option" data-method="transfer">
+                        <input type="radio" name="paymentMethod" value="transfer" class="method-radio" id="transfer">
+                        <div class="method-icon method-transfer">📋</div>
+                        <div class="method-info">
+                            <h4>Transferencia Bancaria</h4>
+                            <p>Manual con datos bancarios</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario Tarjeta -->
+                <div class="payment-form" id="cardForm">
+                    <div class="security-info">
+                        <h4>🔒 Transacción Segura</h4>
+                        <p>Tus datos están protegidos con cifrado SSL de 256 bits</p>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Número de Tarjeta</label>
+                        <input type="text" class="form-input" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                        <div class="form-error" id="cardNumberError">Número de tarjeta inválido</div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Fecha de Vencimiento</label>
+                            <input type="text" class="form-input" id="cardExpiry" placeholder="MM/AA" maxlength="5">
+                            <div class="form-error" id="cardExpiryError">Fecha inválida</div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CVV</label>
+                            <input type="text" class="form-input" id="cardCvv" placeholder="123" maxlength="4">
+                            <div class="form-error" id="cardCvvError">CVV inválido</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nombre del Titular</label>
+                        <input type="text" class="form-input" id="cardName" placeholder="Nombre como aparece en la tarjeta">
+                        <div class="form-error" id="cardNameError">Nombre requerido</div>
+                    </div>
+                </div>
+
+                <!-- Formulario PSE -->
+                <div class="payment-form" id="pseForm">
+                    <div class="form-group">
+                        <label class="form-label">Banco</label>
+                        <select class="form-input" id="pseBank">
+                            <option value="">Selecciona tu banco</option>
+                            <option value="bancolombia">Bancolombia</option>
+                            <option value="davivienda">Davivienda</option>
+                            <option value="bbva">BBVA</option>
+                            <option value="bogota">Banco de Bogotá</option>
+                            <option value="popular">Banco Popular</option>
+                        </select>
+                        <div class="form-error" id="pseBankError">Selecciona un banco</div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Persona</label>
+                        <select class="form-input" id="psePersonType">
+                            <option value="">Selecciona tipo</option>
+                            <option value="natural">Persona Natural</option>
+                            <option value="juridica">Persona Jurídica</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Documento</label>
+                        <input type="text" class="form-input" id="pseDocument" placeholder="Número de documento">
+                        <div class="form-error" id="pseDocumentError">Documento requerido</div>
+                    </div>
+                </div>
+
+                <!-- Información Transferencia -->
+                <div class="payment-form" id="transferForm">
+                    <div style="background: #e3f2fd; padding: 20px; border-radius: 8px;">
+                        <h4 style="color: #1976d2; margin-bottom: 15px;">Datos para Transferencia</h4>
+                        <div style="margin-bottom: 10px;"><strong>Banco:</strong> Bancolombia</div>
+                        <div style="margin-bottom: 10px;"><strong>Cuenta:</strong> 123-456789-01</div>
+                        <div style="margin-bottom: 10px;"><strong>Titular:</strong> Fisiogestión S.A.S.</div>
+                        <div style="margin-bottom: 15px;"><strong>NIT:</strong> 900.123.456-7</div>
+                        <p style="font-size: 12px; color: #1976d2;">
+                            Una vez realices la transferencia, envía el comprobante a pagos@fisiogestion.com 
+                            con el número de factura FAC-2024-089
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="payment-section payment-summary">
+                <h3 class="section-title">Resumen del Pago</h3>
+                
+                <div class="invoice-details">
+                    <div class="invoice-item">
+                        <span class="invoice-label">Factura:</span>
+                        <span class="invoice-value">FAC-2024-089</span>
+                    </div>
+                    <div class="invoice-item">
+                        <span class="invoice-label">Consulta:</span>
+                        <span class="invoice-value">Seguimiento</span>
+                    </div>
+                    <div class="invoice-item">
+                        <span class="invoice-label">Fisioterapeuta:</span>
+                        <span class="invoice-value">Dr. Martínez</span>
+                    </div>
+                    <div class="invoice-item">
+                        <span class="invoice-label">Fecha:</span>
+                        <span class="invoice-value">01 Nov 2024</span>
+                    </div>
+                </div>
+
+                <div class="summary-item">
+                    <span>Subtotal:</span>
+                    <span>$67.227</span>
+                </div>
+                <div class="summary-item">
+                    <span>IVA (19%):</span>
+                    <span>$12.773</span>
+                </div>
+                <div class="summary-item summary-total">
+                    <span>Total a Pagar:</span>
+                    <span class="invoice-amount">$80.000</span>
+                </div>
+
+                <button class="btn-primary" id="payButton" disabled>Procesar Pago</button>
+                <a href="mis_pagos.html" class="btn-secondary">Cancelar</a>
+
+                <div class="loading" id="loadingState">
+                    <div class="spinner"></div>
+                    <p>Procesando tu pago...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const methodOptions = document.querySelectorAll('.method-option');
+        const paymentForms = document.querySelectorAll('.payment-form');
+        const payButton = document.getElementById('payButton');
+        const loadingState = document.getElementById('loadingState');
+
+        // Selección de método de pago
+        methodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const method = option.dataset.method;
+                const radio = option.querySelector('input[type="radio"]');
+                
+                // Actualizar selección visual
+                methodOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                radio.checked = true;
+                
+                // Mostrar formulario correspondiente
+                paymentForms.forEach(form => form.classList.remove('active'));
+                document.getElementById(method + 'Form').classList.add('active');
+                
+                // Habilitar botón de pago
+                payButton.disabled = false;
+                updatePayButton(method);
+            });
+        });
+
+        function updatePayButton(method) {
+            const buttonTexts = {
+                'card': 'Pagar con Tarjeta',
+                'pse': 'Pagar con PSE',
+                'transfer': 'Confirmar Transferencia'
+            };
+            payButton.textContent = buttonTexts[method] || 'Procesar Pago';
+        }
+
+        // Validación de tarjeta
+        document.getElementById('cardNumber').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            e.target.value = formattedValue;
+            
+            if (value.length >= 13) {
+                e.target.classList.remove('error');
+                document.getElementById('cardNumberError').style.display = 'none';
+            }
+        });
+
+        document.getElementById('cardExpiry').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0,2) + '/' + value.substring(2,4);
+            }
+            e.target.value = value;
+        });
+
+        document.getElementById('cardCvv').addEventListener('input', function(e) {
+            e.target.value = e.target.value.replace(/[^0-9]/g, '');
+        });
+
+        // Proceso de pago
+        payButton.addEventListener('click', function() {
+            const selectedMethod = document.querySelector('input[name="paymentMethod"]:checked')?.value;
+            
+            if (!selectedMethod) {
+                alert('Por favor selecciona un método de pago');
+                return;
+            }
+
+            if (selectedMethod === 'card' && !validateCardForm()) {
+                return;
+            }
+
+            if (selectedMethod === 'pse' && !validatePseForm()) {
+                return;
+            }
+
+            processPayment(selectedMethod);
+        });
+
+        function validateCardForm() {
+            let isValid = true;
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardExpiry = document.getElementById('cardExpiry').value;
+            const cardCvv = document.getElementById('cardCvv').value;
+            const cardName = document.getElementById('cardName').value;
+
+            if (cardNumber.length < 13) {
+                showError('cardNumber', 'cardNumberError');
+                isValid = false;
+            }
+
+            if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+                showError('cardExpiry', 'cardExpiryError');
+                isValid = false;
+            }
+
+            if (cardCvv.length < 3) {
+                showError('cardCvv', 'cardCvvError');
+                isValid = false;
+            }
+
+            if (!cardName.trim()) {
+                showError('cardName', 'cardNameError');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function validatePseForm() {
+            let isValid = true;
+            const bank = document.getElementById('pseBank').value;
+            const document = document.getElementById('pseDocument').value;
+
+            if (!bank) {
+                showError('pseBank', 'pseBankError');
+                isValid = false;
+            }
+
+            if (!document.trim()) {
+                showError('pseDocument', 'pseDocumentError');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        function showError(inputId, errorId) {
+            document.getElementById(inputId).classList.add('error');
+            document.getElementById(errorId).style.display = 'block';
+        }
+
+        function processPayment(method) {
+            // Mostrar loading
+            document.querySelector('.payment-container').style.display = 'none';
+            loadingState.classList.add('active');
+
+            // Simular procesamiento
+            setTimeout(() => {
+                if (method === 'transfer') {
+                    alert('Hemos registrado tu solicitud de transferencia. Te contactaremos una vez confirmemos el pago.');
+                } else {
+                    alert('¡Pago procesado exitosamente! Redirigiendo a tus pagos...');
+                }
+                window.location.href = 'mis_pagos.html';
+            }, 3000);
+        }
+
+        // Obtener invoice ID de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const invoiceId = urlParams.get('invoice');
+        if (invoiceId) {
+            // Aquí se cargarían los datos específicos de la factura
+            console.log('Cargando datos para factura:', invoiceId);
+        }
+    </script>
+</body>
+</html>

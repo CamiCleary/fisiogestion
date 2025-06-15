@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Consultas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f0faf9;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #eaf8f6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo img {
+            width: 120px;
+        }
+        .nav {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active {
+            background-color: #d2f4f0;
+        }
+        .admin {
+            font-size: 14px;
+            margin-top: 30px;
+        }
+        .main {
+            flex-grow: 1;
+            margin-left: 220px;
+            padding: 40px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #333;
+        }
+        .breadcrumb {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 10px;
+        }
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+        }
+        .search-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .filter-select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: #00b89f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover {
+            background-color: #009688;
+        }
+        .table-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #dee2e6;
+        }
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .table tr:hover {
+            background-color: #f8f9fa;
+        }
+        .status-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-programada {
+            background-color: #cce5ff;
+            color: #0066cc;
+        }
+        .status-en-curso {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .status-completada {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status-cancelada {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .status-no-asistio {
+            background-color: #e2e3e5;
+            color: #495057;
+        }
+        .priority-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .priority-alta {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .priority-media {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .priority-baja {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .actions {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-small {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: none;
+        }
+        .btn-view {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-edit {
+            background-color: #ffc107;
+            color: #212529;
+        }
+        .btn-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            background: white;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        .pagination button.active {
+            background-color: #00b89f;
+            color: white;
+            border-color: #00b89f;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .summary-number {
+            font-size: 28px;
+            font-weight: 600;
+            color: #00b89f;
+            margin-bottom: 5px;
+        }
+        .summary-label {
+            color: #666;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_admin.html">Dashboard</a>
+                <a href="gestionar_usuarios.html">Usuarios</a>
+                <a href="lista_pacientes.html">Pacientes</a>
+                <a href="lista_fisioterapeutas.html">Fisioterapeutas</a>
+                <a href="#" class="active">Consultas</a>
+                <a href="lista_pagos.html">Pagos</a>
+                <a href="reportes.html">Reportes</a>
+                <a href="telemedicina.html">Telemedicina</a>
+            </div>
+        </div>
+        <div class="admin">
+            <p><strong>Dra. López</strong></p>
+            <p>Administrador</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="breadcrumb">Inicio > Consultas</div>
+        <div class="header">
+            <h1>Lista de Consultas</h1>
+            <button class="btn-primary" onclick="crearConsulta()">Nueva Consulta</button>
+        </div>
+
+        <div class="summary-stats">
+            <div class="summary-card">
+                <div class="summary-number">24</div>
+                <div class="summary-label">Hoy</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number">18</div>
+                <div class="summary-label">Completadas</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number">4</div>
+                <div class="summary-label">Pendientes</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number">2</div>
+                <div class="summary-label">Canceladas</div>
+            </div>
+            <div class="summary-card">
+                <div class="summary-number">156</div>
+                <div class="summary-label">Este Mes</div>
+            </div>
+        </div>
+
+        <div class="filters">
+            <input type="text" class="search-input" placeholder="Buscar por paciente o fisioterapeuta...">
+            <select class="filter-select" id="statusFilter">
+                <option value="">Todos los estados</option>
+                <option value="programada">Programada</option>
+                <option value="en-curso">En Curso</option>
+                <option value="completada">Completada</option>
+                <option value="cancelada">Cancelada</option>
+                <option value="no-asistio">No Asistió</option>
+            </select>
+            <select class="filter-select" id="therapistFilter">
+                <option value="">Todos los fisioterapeutas</option>
+                <option value="martinez">Dr. Martínez</option>
+                <option value="silva">Dra. Silva</option>
+                <option value="rodriguez">Dr. Rodríguez</option>
+                <option value="garcia">Dra. García</option>
+            </select>
+            <input type="date" class="filter-select" id="dateFilter">
+            <button class="btn-primary" onclick="applyFilters()">Filtrar</button>
+        </div>
+
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha y Hora</th>
+                        <th>Paciente</th>
+                        <th>Fisioterapeuta</th>
+                        <th>Tipo</th>
+                        <th>Estado</th>
+                        <th>Prioridad</th>
+                        <th>Duración</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="consultationsTable">
+                    <tr>
+                        <td>
+                            <strong>Hoy 10:30</strong><br>
+                            <small>14/06/2024</small>
+                        </td>
+                        <td>
+                            <strong>María González</strong><br>
+                            <small>ID: 001</small>
+                        </td>
+                        <td>
+                            <strong>Dr. Martínez</strong><br>
+                            <small>Traumatología</small>
+                        </td>
+                        <td>Presencial</td>
+                        <td><span class="status-badge status-completada">Completada</span></td>
+                        <td><span class="priority-badge priority-media">Media</span></td>
+                        <td>45 min</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-small btn-view" onclick="verConsulta(1)">Ver</button>
+                                <button class="btn-small btn-edit" onclick="editarConsulta(1)">Editar</button>
+                                <button class="btn-small btn-delete" onclick="eliminarConsulta(1)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Hoy 11:15</strong><br>
+                            <small>14/06/2024</small>
+                        </td>
+                        <td>
+                            <strong>Carlos Ruiz</strong><br>
+                            <small>ID: 002</small>
+                        </td>
+                        <td>
+                            <strong>Dra. Silva</strong><br>
+                            <small>Neurología</small>
+                        </td>
+                        <td>Telemedicina</td>
+                        <td><span class="status-badge status-en-curso">En Curso</span></td>
+                        <td><span class="priority-badge priority-alta">Alta</span></td>
+                        <td>60 min</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-small btn-view" onclick="verConsulta(2)">Ver</button>
+                                <button class="btn-small btn-edit" onclick="editarConsulta(2)">Editar</button>
+                                <button class="btn-small btn-delete" onclick="eliminarConsulta(2)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Hoy 14:00</strong><br>
+                            <small>14/06/2024</small>
+                        </td>
+                        <td>
+                            <strong>Ana López</strong><br>
+                            <small>ID: 003</small>
+                        </td>
+                        <td>
+                            <strong>Dr. Rodríguez</strong><br>
+                            <small>Respiratoria</small>
+                        </td>
+                        <td>Presencial</td>
+                        <td><span class="status-badge status-programada">Programada</span></td>
+                        <td><span class="priority-badge priority-baja">Baja</span></td>
+                        <td>30 min</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-small btn-view" onclick="verConsulta(3)">Ver</button>
+                                <button class="btn-small btn-edit" onclick="editarConsulta(3)">Editar</button>
+                                <button class="btn-small btn-delete" onclick="eliminarConsulta(3)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Ayer 16:30</strong><br>
+                            <small>13/06/2024</small>
+                        </td>
+                        <td>
+                            <strong>Pedro Sánchez</strong><br>
+                            <small>ID: 004</small>
+                        </td>
+                        <td>
+                            <strong>Dra. García</strong><br>
+                            <small>Deportiva</small>
+                        </td>
+                        <td>Presencial</td>
+                        <td><span class="status-badge status-cancelada">Cancelada</span></td>
+                        <td><span class="priority-badge priority-media">Media</span></td>
+                        <td>45 min</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-small btn-view" onclick="verConsulta(4)">Ver</button>
+                                <button class="btn-small btn-edit" onclick="editarConsulta(4)">Editar</button>
+                                <button class="btn-small btn-delete" onclick="eliminarConsulta(4)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <strong>Ayer 09:00</strong><br>
+                            <small>13/06/2024</small>
+                        </td>
+                        <td>
+                            <strong>Luisa Fernández</strong><br>
+                            <small>ID: 005</small>
+                        </td>
+                        <td>
+                            <strong>Dr. Martínez</strong><br>
+                            <small>Traumatología</small>
+                        </td>
+                        <td>Telemedicina</td>
+                        <td><span class="status-badge status-no-asistio">No Asistió</span></td>
+                        <td><span class="priority-badge priority-baja">Baja</span></td>
+                        <td>30 min</td>
+                        <td>
+                            <div class="actions">
+                                <button class="btn-small btn-view" onclick="verConsulta(5)">Ver</button>
+                                <button class="btn-small btn-edit" onclick="editarConsulta(5)">Editar</button>
+                                <button class="btn-small btn-delete" onclick="eliminarConsulta(5)">Eliminar</button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pagination">
+            <button>Anterior</button>
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>Siguiente</button>
+        </div>
+    </div>
+
+    <script>
+        function crearConsulta() {
+            alert('Redireccionar a crear_consulta.html');
+        }
+
+        function verConsulta(id) {
+            alert('Ver detalles de consulta ID: ' + id);
+        }
+
+        function editarConsulta(id) {
+            alert('Editar consulta ID: ' + id);
+        }
+
+        function eliminarConsulta(id) {
+            if (confirm('¿Está seguro de que desea eliminar esta consulta?')) {
+                alert('Consulta eliminada');
+                location.reload();
+            }
+        }
+
+        function applyFilters() {
+            const searchTerm = document.querySelector('.search-input').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const therapistFilter = document.getElementById('therapistFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
+            const rows = document.querySelectorAll('#consultationsTable tr');
+
+            rows.forEach(row => {
+                const text = row.textContent.toLowerCase();
+                const statusCell = row.querySelector('.status-badge');
+                
+                let showRow = true;
+
+                if (searchTerm && !text.includes(searchTerm)) {
+                    showRow = false;
+                }
+
+                if (statusFilter && !statusCell.classList.contains('status-' + statusFilter)) {
+                    showRow = false;
+                }
+
+                if (therapistFilter && !text.includes(therapistFilter)) {
+                    showRow = false;
+                }
+
+                row.style.display = showRow ? '' : 'none';
+            });
+        }
+
+        // Búsqueda en tiempo real
+        document.querySelector('.search-input').addEventListener('input', applyFilters);
+    </script>
+</body>
+</html>
