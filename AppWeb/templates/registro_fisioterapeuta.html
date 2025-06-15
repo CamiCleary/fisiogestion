@@ -1,0 +1,64 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registrar Fisioterapeuta</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/registro_fisioterapeuta.css' %}">
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Fisiogestión">
+      </div>
+      <div class="nav">
+        <a href="registro_paciente">Pacientes</a>
+        <a href="#" class="active">Fisioterapeutas</a>
+        <a href="#">Agenda</a>
+        <a href="#">Reportes</a>
+      </div>
+    </div>
+    <div class="admin">
+      <p>Dra. López</p>
+      <p>Administrador</p>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="breadcrumb">Fisioterapeutas > Nuevo fisioterapeuta</div>
+    <div class="form-container">
+      <h2>Registrar fisioterapeuta</h2>
+      
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="form-section-title">Datos personales</div>
+        <div class="form-group">
+          {{ form.nombre }}
+          {{ form.apellido }}
+        </div>
+        <div class="form-group">
+          {{ form.email }}
+          {{ form.telefono }}
+        </div>
+
+        <div class="form-section-title">Detalles profesionales</div>
+        <div class="form-group">
+          {{ form.rol }}
+          {{ form.especialidad }}
+        </div>
+        <div class="form-group">
+{{ form.info_adicional }}
+        </div>
+
+        <div class="button-group">
+          <button type="submit" class="button-submit">Registrar fisioterapeuta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
