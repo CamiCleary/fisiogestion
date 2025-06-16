@@ -83,6 +83,9 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+host = os.getenv("DB_HOST")
+print(">>> DB_HOST raw repr:", repr(host))
+
 
 DATABASES = {
     'default': {
