@@ -17,7 +17,7 @@ import dj_database_url
 # 1️⃣ Carga el .env
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Por seguridad, el valor por defecto debe ser False
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 .localhost').split(' ')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
