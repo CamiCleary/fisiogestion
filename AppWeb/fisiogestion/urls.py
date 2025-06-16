@@ -21,4 +21,8 @@ urlpatterns = [
 
     # Gestión de Fisioterapeutas
     path('fisioterapeutas/',         views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
+    # Añadido: editar y eliminar fisioterapeutas
+    path('fisioterapeutas/editar/<int:pk>/', views.editar_fisioterapeuta, name='editar_fisioterapeuta'),
+    path('fisioterapeutas/eliminar/<int:pk>/', views.eliminar_fisioterapeuta, name='eliminar_fisioterapeuta'),
+
 ]

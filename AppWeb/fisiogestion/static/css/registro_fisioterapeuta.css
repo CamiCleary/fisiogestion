@@ -174,3 +174,20 @@ textarea {
   transition: background-color 0.3s ease;
 }
 
+/* Contenedor flex para ambos inputs de contraseña */
+.password-group {
+  display: flex;
+  gap: 16px; /* separación horizontal */
+}
+
+/* Cada input ocupa la mitad del contenedor menos el gap */
+.password-group input.form-control {
+  flex: 1 1 0;
+}
+textarea {
+  max-height: 120px; /* Limita la altura máxima */
+  min-height: 80px;  /* Altura mínima para que no sea muy pequeño */
+  resize: vertical;  /* Permite que el usuario ajuste verticalmente */
+  padding: 8px;
+  font-size: 1rem;
+}

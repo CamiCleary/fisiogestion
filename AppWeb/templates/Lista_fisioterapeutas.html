@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fisioterapeutas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     * {
       box-sizing: border-box;
@@ -45,7 +45,8 @@
       padding: 10px;
       border-radius: 5px;
     }
-    .nav a:hover, .nav a.active {
+    .nav a:hover,
+    .nav a.active {
       background-color: #d2f4f0;
     }
     .admin {
@@ -66,7 +67,7 @@
       background: white;
       padding: 30px;
       border-radius: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       width: 100%;
     }
     .form-container h2 {
@@ -107,33 +108,61 @@
       text-decoration: none;
       display: inline-block;
     }
-
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-
-    th, td {
+    th,
+    td {
       border: 1px solid #ddd;
       padding: 8px;
       text-align: left;
     }
-
     th {
       background-color: #f2f2f2;
     }
-
     tr:hover {
       background-color: #f1f1f1;
     }
+
+.button-edit,
+.button-delete {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: none;
+  color: white;
+  display: block; /* para apilar verticalmente */
+  width: fit-content; /* ajustar al contenido */
+}
+
+.button-edit {
+  background-color: #fe6e42e3;
+  margin-bottom: 8px; /* espacio abajo para separar de eliminar */
+}
+
+.button-delete {
+  background-color: #dc3545;
+}
+
+.button-edit:hover {
+  background-color: #b37700;
+}
+
+.button-delete:hover {
+  background-color: #a71d2a;
+}
+
   </style>
 </head>
 <body>
   <div class="sidebar">
     <div>
       <div class="logo">
-<img src="{% static 'images/logo.png' %}" alt="Fisiogestión">
+        <img src="{% static 'images/logo.png' %}" alt="Fisiogestión" />
       </div>
       <div class="nav">
         <a href="{% url 'lista_pacientes' %}">Pacientes</a>
@@ -154,7 +183,7 @@
       <h2>Fisioterapeutas</h2>
       <div class="form-section-title">Buscar Fisioterapeutas</div>
       <div class="form-group">
-        <input type="text" placeholder="Buscar fisioterapeuta...">
+        <input type="text" placeholder="Buscar fisioterapeuta..." />
         <select>
           <option value="">Filtrar por rol</option>
           <option value="Administrador">Administrador</option>
@@ -174,6 +203,7 @@
             <th>Rol</th>
             <th>Teléfono</th>
             <th>Email</th>
+            <th>Acciones</th>  <!-- Nueva columna para botones -->
           </tr>
         </thead>
         <tbody>
@@ -185,10 +215,14 @@
             <td>{{ fisioterapeuta.rol }}</td>
             <td>{{ fisioterapeuta.telefono }}</td>
             <td>{{ fisioterapeuta.email }}</td>
+            <td>
+              <a href="{% url 'editar_fisioterapeuta' fisioterapeuta.id %}" class="button-edit">Editar</a>
+              <a href="{% url 'eliminar_fisioterapeuta' fisioterapeuta.id %}" class="button-delete" onclick="return confirm('¿Está seguro que desea eliminar este fisioterapeuta?');">Eliminar</a>
+            </td>
           </tr>
           {% empty %}
           <tr>
-            <td colspan="6">No hay fisioterapeutas registrados.</td>
+            <td colspan="7">No hay fisioterapeutas registrados.</td>
           </tr>
           {% endfor %}
         </tbody>

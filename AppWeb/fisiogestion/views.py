@@ -54,6 +54,26 @@ def crear_fisioterapeuta(request):
         form = FisioterapeutaForm()
     return render(request, 'registro_fisioterapeuta.html', {'form': form})
 
+@login_required
+def editar_fisioterapeuta(request, pk):
+    fisioterapeuta = get_object_or_404(Fisioterapeuta, pk=pk)
+    if request.method == 'POST':
+        form = FisioterapeutaForm(request.POST, instance=fisioterapeuta)
+        if form.is_valid():
+            form.save()
+            return redirect('lista_fisioterapeutas')
+    else:
+        form = FisioterapeutaForm(instance=fisioterapeuta)
+    return render(request, 'registro_fisioterapeuta.html', {'form': form, 'edit': True, 'fisioterapeuta': fisioterapeuta})
+
+@login_required
+def eliminar_fisioterapeuta(request, pk):
+    fisioterapeuta = get_object_or_404(Fisioterapeuta, pk=pk)
+    if request.method == 'POST':
+        fisioterapeuta.delete()
+        return redirect('lista_fisioterapeutas')
+    return render(request, 'confirmar_eliminar_fisioterapeuta.html', {'fisioterapeuta': fisioterapeuta})
+
 
 @login_required
 def lista_pacientes(request):
