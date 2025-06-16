@@ -13,9 +13,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 import dj_database_url
-from dotenv import load_dotenv  # 1️⃣
+from dotenv import load_dotenv
 
-# 1️⃣ Carga el .env
+# Carga el .env
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # cargar sin ruta explícita, busca en la carpeta de trabajo
@@ -24,16 +24,15 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('SECRET_KEY')
 
-DEBUG      = os.getenv('DEBUG', 'True') == 'True'
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']  
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -84,15 +83,15 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-host = os.getenv("DB_HOST")
-print(">>> DB_HOST raw repr:", repr(host))
-
-
+# Obtenemos la URL de la base de datos desde la variable de entorno MYSQL_URL
+# Si MYSQL_URL no existe, dj_database_url.config() intentará buscar DATABASE_URL por defecto
+# pero al pasar el 'default' explícitamente, aseguramos que se use MYSQL_URL si está presente.
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600)
+    'default': dj_database_url.config(
+        default=os.getenv('MYSQL_URL'), # <-- ¡Aquí está el cambio!
+        conn_max_age=600
+    )
 }
-
-
 
 
 # Password validation
@@ -136,7 +135,3 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-
-
