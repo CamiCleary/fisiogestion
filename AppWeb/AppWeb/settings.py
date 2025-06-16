@@ -87,13 +87,18 @@ host = os.getenv("DB_HOST")
 print(">>> DB_HOST raw repr:", repr(host))
 
 
+
+# Elimina espacios y signos de igual
+host = host.replace(" ", "").replace("=", "")
+
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': os.getenv('DB_HOST'),
+        'HOST': host,
         'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
