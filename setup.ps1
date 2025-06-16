@@ -1,6 +1,6 @@
 # Ruta del entorno virtual
 $venvPath = ".\AppWeb\AppWeb\venv"
-
+$envPath = ".\AppWeb\.env"
 # Verificar si el entorno virtual ya existe
 if (Test-Path $venvPath) {
     Write-Host "El entorno virtual ya existe. Activandolo..."
@@ -13,6 +13,14 @@ if (Test-Path $venvPath) {
     # Activar el entorno virtual después de crearlo
     Write-Host "Activando entorno virtual recién creado..."
     & "$venvPath\Scripts\Activate.ps1"
+}
+
+if (Test-Path $envPath) {
+    Write-Host "El archivo .env ya existe."
+} else {
+    # Crear el entorno virtual si no existe
+    Write-Host "El archivo .env no existe. Creandolo en la carpeta 'AppWeb'..."
+    New-Item -Path $envPath -ItemType File -Force | Out-Null
 }
 
 # Siempre instalar dependencias de Django desde requirements.txt si existe
