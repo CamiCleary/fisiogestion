@@ -1,9 +1,15 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout # Estas son las funciones correctas de Django
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Usuario
+from django.contrib.auth import get_user_model # Importa para obtener el modelo de usuario activo
+# Asegúrate de que los formularios importan Usuario de .models
 from .forms import PacienteForm, FisioterapeutaForm
+
+
+# Obtener el modelo de usuario personalizado que has definido en settings.py
+# (e.g., AUTH_USER_MODEL = 'fisiogestion.Usuario')
+Usuario = get_user_model()
 
 
 def inicio(request):
@@ -11,71 +17,99 @@ def inicio(request):
 
 
 def login_view(request):
+    if request.user.is_authenticated: # Si el usuario ya está logueado, redirige al dashboard
+        return redirect('dashboard')
+
     if request.method == 'POST':
-        email_ingresado = request.POST.get('email')
-        password_ingresada = request.POST.get('password')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
 
-        try:
-            # Busca el usuario por email
-            user_db = Usuario.objects.get(email=email_ingresado)
+        # Usar authenticate de Django. Asume que USUARIO.USERNAME_FIELD es 'email'
+        # y que las contraseñas están hasheadas.
+        user = authenticate(request, username=email, password=password)
 
-            # --- RIESGO DE SEGURIDAD: COMPARACIÓN DE CONTRASEÑAS EN TEXTO PLANO ---
-            # Compara la contraseña ingresada con la almacenada directamente
-            if user_db.password == password_ingresada:
-                # Si las credenciales coinciden, "inicia sesión"
-                # Aquí simulamos el login de Django, pero no usando el sistema de auth completo
-                # Esto guardará el ID del usuario en la sesión para @login_required
-
-                # Puedes guardar el id del usuario en la sesión
-                request.session['user_id'] = user_db.id
-                request.session['user_email'] = user_db.email
-                request.session['user_rol'] = user_db.rol
-
-                messages.success(request, f'¡Bienvenido, {user_db.nombre}!')
-                return redirect('dashboard')
-            else:
-                messages.error(request, 'Email o contraseña incorrectos.')
-        except Usuario.DoesNotExist:
-            messages.error(request, 'Email o contraseña incorrectos.') # Mensaje genérico por seguridad
-        except Exception as e:
-            messages.error(request, f'Ocurrió un error: {e}')
-
+        if user is not None:
+            # Si las credenciales son válidas, inicia sesión
+            login(request, user)
+            messages.success(request, f'¡Bienvenido, {user.nombre}!')
+            return redirect('dashboard')
+        else:
+            # Si las credenciales no son válidas
+            messages.error(request, 'Email o contraseña incorrectos.')
+    
     return render(request, 'login.html')
 
 
-# Modifica el logout para limpiar la sesión que creaste manualmente
-# @login_required es del sistema de auth de Django, no funcionará con tu modelo Usuario directamente
+@login_required # Usa el decorador de Django, ya que ahora tu sistema de autenticación funciona
 def logout_view(request):
-    if 'user_id' in request.session:
-        del request.session['user_id']
-        del request.session['user_email']
-        del request.session['user_rol']
-        messages.info(request, 'Has cerrado sesión exitosamente.')
+    logout(request)
+    messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('login')
 
 
-# Dashboard y otras vistas protegidas: Necesitarás un decorador personalizado
-# para verificar si el usuario está "logueado" con tu sistema de sesión manual.
-def custom_login_required(view_func):
-    def wrapper(request, *args, **kwargs):
-        if 'user_id' in request.session:
-            # Si hay un user_id en la sesión, el usuario está "logueado"
-            # Opcional: Cargar el objeto usuario para pasarlo a la plantilla
-            # request.user_obj = Usuario.objects.get(id=request.session['user_id'])
-            return view_func(request, *args, **kwargs)
-        else:
-            messages.warning(request, 'Debes iniciar sesión para acceder a esta página.')
-            return redirect('login')
-    return wrapper
-
-@custom_login_required
+@login_required # Protege esta vista para que solo usuarios logueados puedan acceder
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    # La variable 'request.user' ahora contiene el objeto Usuario actualmente logueado
+    return render(request, 'dashboard.html', {'user': request.user})
 
-@custom_login_required
+
+# --- Vistas de Gestión ---
+
+@login_required
 def lista_fisioterapeutas(request):
-    fisioterapeutas = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA) # Filtra por rol si es necesario
+    # Filtra por el rol de Fisioterapeuta si es lo que quieres mostrar en esta lista
+    fisioterapeutas = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)
     return render(request, 'Lista_fisioterapeutas.html', {'fisioterapeutas': fisioterapeutas})
+
+
+@login_required
+def crear_fisioterapeuta(request):
+    if request.method == 'POST':
+        form = FisioterapeutaForm(request.POST)
+        if form.is_valid():
+            # El método save() del formulario (si lo has sobrescrito)
+            # se encargará de hashear la contraseña.
+            form.save()
+            messages.success(request, 'Fisioterapeuta registrado exitosamente.')
+            return redirect('lista_fisioterapeutas')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        form = FisioterapeutaForm(initial={'rol': Usuario.FISIOTERAPEUTA}) # Para que el rol por defecto sea fisioterapeuta
+    return render(request, 'registro_fisioterapeuta.html', {'form': form})
+
+
+@login_required
+def editar_fisioterapeuta(request, pk):
+    fisioterapeuta = get_object_or_404(Usuario, pk=pk, rol=Usuario.FISIOTERAPEUTA) # Asegura que sea un fisioterapeuta
+    if request.method == 'POST':
+        form = FisioterapeutaForm(request.POST, instance=fisioterapeuta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Fisioterapeuta actualizado exitosamente.')
+            return redirect('lista_fisioterapeutas')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        form = FisioterapeutaForm(instance=fisioterapeuta)
+    return render(request, 'registro_fisioterapeuta.html', {'form': form, 'edit': True, 'fisioterapeuta': fisioterapeuta})
+
+
+@login_required
+def eliminar_fisioterapeuta(request, pk):
+    fisioterapeuta = get_object_or_404(Usuario, pk=pk, rol=Usuario.FISIOTERAPEUTA) # Asegura que sea un fisioterapeuta
+    if request.method == 'POST':
+        fisioterapeuta.delete()
+        messages.success(request, 'Fisioterapeuta eliminado exitosamente.')
+        return redirect('lista_fisioterapeutas')
+    return render(request, 'confirmar_eliminar_fisioterapeuta.html', {'fisioterapeuta': fisioterapeuta})
+
+
+@login_required
+def lista_pacientes(request):
+    # Filtra por el rol de Paciente
+    pacientes = Usuario.objects.filter(rol=Usuario.PACIENTE)
+    return render(request, 'Lista_clientes.html', {'pacientes': pacientes})
 
 
 @login_required
@@ -84,20 +118,26 @@ def crear_paciente(request):
         form = PacienteForm(request.POST)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Paciente registrado exitosamente.')
             return redirect('lista_pacientes')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
-        form = PacienteForm()
+        form = PacienteForm(initial={'rol': Usuario.PACIENTE}) # Para que el rol por defecto sea paciente
     return render(request, 'registro_paciente.html', {'form': form})
 
 
 @login_required
 def editar_paciente(request, pk):
-    paciente = get_object_or_404(Usuario, pk=pk)
+    paciente = get_object_or_404(Usuario, pk=pk, rol=Usuario.PACIENTE) # Asegura que sea un paciente
     if request.method == 'POST':
         form = PacienteForm(request.POST, instance=paciente)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Paciente actualizado exitosamente.')
             return redirect('lista_pacientes')
+        else:
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
         form = PacienteForm(instance=paciente)
     return render(request, 'registro_paciente.html', {'form': form, 'edit': True, 'paciente': paciente})
@@ -105,8 +145,9 @@ def editar_paciente(request, pk):
 
 @login_required
 def eliminar_paciente(request, pk):
-    paciente = get_object_or_404(Usuario, pk=pk)
+    paciente = get_object_or_404(Usuario, pk=pk, rol=Usuario.PACIENTE) # Asegura que sea un paciente
     if request.method == 'POST':
         paciente.delete()
+        messages.success(request, 'Paciente eliminado exitosamente.')
         return redirect('lista_pacientes')
     return render(request, 'confirmar_eliminar_paciente.html', {'paciente': paciente})
