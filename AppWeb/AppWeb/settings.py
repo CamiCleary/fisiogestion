@@ -88,9 +88,6 @@ print(">>> DB_HOST raw repr:", repr(host))
 
 
 
-# Elimina espacios y signos de igual
-host = host.replace(" ", "").replace("=", "")
-
 
 DATABASES = {
     'default': {
@@ -98,7 +95,7 @@ DATABASES = {
         'NAME': os.getenv('DB_NAME'),
         'USER': os.getenv('DB_USER'),
         'PASSWORD': os.getenv('DB_PASSWORD'),
-        'HOST': host,
+        'HOST': 'mysql.railway.internal',
         'PORT': os.getenv('DB_PORT', '3306'),
     }
 }
