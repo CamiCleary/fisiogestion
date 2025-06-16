@@ -12,27 +12,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-from dotenv import load_dotenv  # 1️⃣
+import dj_database_url
 
 # 1️⃣ Carga el .env
-BASE_DIR = Path(__file__).resolve().parent.parent
-
-# cargar sin ruta explícita, busca en la carpeta de trabajo
-load_dotenv()
-# Load environment variables from .env file
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-
-
+SECRET_KEY = os.getenv('SECRET_KEY')
+DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Por seguridad, el valor por defecto debe ser False
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '127.0.0.1 .localhost').split(' ')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('SECRET_KEY')
-
-DEBUG      = os.getenv('DEBUG', 'True') == 'True'
-
-ALLOWED_HOSTS = ['*']  
 
 
 # Application definition
@@ -85,14 +73,13 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQLDATABASE'),
-        'USER': os.getenv('MYSQLUSER'),
-        'PASSWORD': os.getenv('MYSQLPASSWORD'),
-        'HOST': os.getenv('MYSQLHOST'),
-        'PORT': os.getenv('MYSQLPORT'),
-    }
+    'default': dj_database_url.config(
+        # dj-database-url leerá automáticamente la variable DATABASE_URL
+        # que Railway proporciona.
+        conn_max_age=600,
+        # Si DATABASE_URL no existe, usará una base de datos local SQLite (para desarrollo)
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
+    )
 }
 
 
