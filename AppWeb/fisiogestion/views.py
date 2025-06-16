@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Paciente, Fisioterapeuta
+from .models import Usuario
 from .forms import PacienteForm, FisioterapeutaForm
 
 
@@ -39,7 +39,7 @@ def dashboard(request):
 # Vistas protegidas para área administrativa
 @login_required
 def lista_fisioterapeutas(request):
-    fisioterapeutas = Fisioterapeuta.objects.all()
+    fisioterapeutas = Usuario.objects.all()
     return render(request, 'Lista_fisioterapeutas.html', {'fisioterapeutas': fisioterapeutas})
 
 
@@ -56,7 +56,7 @@ def crear_fisioterapeuta(request):
 
 @login_required
 def editar_fisioterapeuta(request, pk):
-    fisioterapeuta = get_object_or_404(Fisioterapeuta, pk=pk)
+    fisioterapeuta = get_object_or_404(Usuario, pk=pk)
     if request.method == 'POST':
         form = FisioterapeutaForm(request.POST, instance=fisioterapeuta)
         if form.is_valid():
@@ -68,7 +68,7 @@ def editar_fisioterapeuta(request, pk):
 
 @login_required
 def eliminar_fisioterapeuta(request, pk):
-    fisioterapeuta = get_object_or_404(Fisioterapeuta, pk=pk)
+    fisioterapeuta = get_object_or_404(Usuario, pk=pk)
     if request.method == 'POST':
         fisioterapeuta.delete()
         return redirect('lista_fisioterapeutas')
@@ -77,7 +77,7 @@ def eliminar_fisioterapeuta(request, pk):
 
 @login_required
 def lista_pacientes(request):
-    pacientes = Paciente.objects.all()
+    pacientes = Usuario.objects.all()
     return render(request, 'Lista_clientes.html', {'pacientes': pacientes})
 
 
@@ -95,7 +95,7 @@ def crear_paciente(request):
 
 @login_required
 def editar_paciente(request, pk):
-    paciente = get_object_or_404(Paciente, pk=pk)
+    paciente = get_object_or_404(Usuario, pk=pk)
     if request.method == 'POST':
         form = PacienteForm(request.POST, instance=paciente)
         if form.is_valid():
@@ -108,7 +108,7 @@ def editar_paciente(request, pk):
 
 @login_required
 def eliminar_paciente(request, pk):
-    paciente = get_object_or_404(Paciente, pk=pk)
+    paciente = get_object_or_404(Usuario, pk=pk)
     if request.method == 'POST':
         paciente.delete()
         return redirect('lista_pacientes')

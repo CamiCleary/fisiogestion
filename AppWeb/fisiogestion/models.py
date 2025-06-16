@@ -2,17 +2,17 @@ from django.db import models
 
 class Usuario(models.Model):
     # Campos comunes
-    nombre      = models.CharField(max_length=100)
-    apellido    = models.CharField(max_length=100)
-    email       = models.EmailField(unique=True)
-    password    = models.CharField(max_length=128)
-    telefono    = models.CharField(max_length=20, blank=True, null=True)
-    direccion   = models.CharField(max_length=255, blank=True, null=True)
+    nombre          = models.CharField(max_length=100)
+    apellido        = models.CharField(max_length=100)
+    email           = models.EmailField(unique=True)
+    password        = models.CharField(max_length=128)
+    telefono        = models.CharField(max_length=20, blank=True, null=True)
+    direccion       = models.CharField(max_length=255, blank=True, null=True)
 
     # Tipo de usuario
-    ADMIN         = 'admin'
-    PACIENTE      = 'paciente'
-    FISIOTERAPEUTA= 'fisioterapeuta'
+    ADMIN           = 'admin'
+    PACIENTE        = 'paciente'
+    FISIOTERAPEUTA  = 'fisioterapeuta'
     ROLES = [
         (ADMIN, 'Administrador'),
         (PACIENTE, 'Paciente'),
@@ -22,14 +22,17 @@ class Usuario(models.Model):
 
     # Campos específicos (todos nulos salvo cuando correspondan)
     cedula          = models.CharField(max_length=20, unique=True, blank=True, null=True)
-    especialidad    = models.CharField(max_length=100, blank=True, null=True)
-    info_adicional  = models.TextField(blank=True, null=True)
+    especialidad    = models.CharField(max_length=100, blank=True, null=True) # Para fisioterapeutas
+    info_adicional  = models.TextField(blank=True, null=True) # Para pacientes o fisioterapeutas
 
     def __str__(self):
         return f"{self.nombre} {self.apellido} ({self.get_rol_display()})"
 
+# --- Los siguientes modelos necesitan ser ajustados ---
+
 class Horario(models.Model):
-    fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE, related_name='horarios')
+    # Ahora apunta al modelo 'Usuario', y en tu lógica, buscarás los usuarios con rol de fisioterapeuta.
+    fisioterapeuta = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='horarios_fisioterapeuta', limit_choices_to={'rol': Usuario.FISIOTERAPEUTA})
     dia_semana = models.CharField(max_length=20)
     hora_inicio = models.TimeField()
     hora_fin = models.TimeField()
@@ -39,8 +42,9 @@ class Horario(models.Model):
 
 
 class Consulta(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='consultas')
-    fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE, related_name='consultas')
+    # Apunta al modelo 'Usuario', filtrando por el rol adecuado.
+    paciente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='consultas_paciente', limit_choices_to={'rol': Usuario.PACIENTE})
+    fisioterapeuta = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='consultas_fisioterapeuta', limit_choices_to={'rol': Usuario.FISIOTERAPEUTA})
     fecha_consulta = models.DateTimeField()
 
     def __str__(self):
@@ -48,7 +52,8 @@ class Consulta(models.Model):
 
 
 class HistorialMedico(models.Model):
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='historiales')
+    # Apunta al modelo 'Usuario', filtrando por el rol de paciente.
+    paciente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historiales_paciente', limit_choices_to={'rol': Usuario.PACIENTE})
     detalle = models.TextField()
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
@@ -122,8 +127,9 @@ class Comunicacion(models.Model):
         ('Video', 'Video'),
     ]
 
-    paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE, related_name='comunicaciones')
-    fisioterapeuta = models.ForeignKey(Fisioterapeuta, on_delete=models.CASCADE, related_name='comunicaciones')
+    # Apunta al modelo 'Usuario', filtrando por el rol adecuado.
+    paciente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='comunicaciones_paciente', limit_choices_to={'rol': Usuario.PACIENTE})
+    fisioterapeuta = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='comunicaciones_fisioterapeuta', limit_choices_to={'rol': Usuario.FISIOTERAPEUTA})
     contenido = models.TextField()
     fecha_hora = models.DateTimeField(auto_now_add=True)
     tipo = models.CharField(max_length=8, choices=TIPO_CHOICES)
@@ -159,3 +165,6 @@ class DocumentoInforme(models.Model):
 
     def __str__(self):
         return f"Documento {self.id} - Informe {self.informe_mensual.mes:%Y-%m} ({self.tipo})"
+    
+
+    

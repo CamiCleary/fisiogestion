@@ -1,15 +1,15 @@
 from django import forms
-from .models import Paciente
-from .models import Fisioterapeuta
+from .models import Usuario
+
 
 class PacienteForm(forms.ModelForm):
     class Meta:
-        model = Paciente
+        model = Usuario
         fields = ['nombre', 'apellido', 'cedula', 'telefono', 'email', 'direccion']
 
 class FisioterapeutaForm(forms.ModelForm):
     class Meta:
-        model = Fisioterapeuta
+        model = Usuario
         fields = '__all__'
         widgets = {
             'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese nombre'}),

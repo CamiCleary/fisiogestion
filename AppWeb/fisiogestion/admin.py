@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Paciente
-from .models import Fisioterapeuta
+from .models import Usuario
 
-admin.site.register(Paciente)
 
-admin.site.register(Fisioterapeuta)
+admin.site.register(Usuario)
+
+
