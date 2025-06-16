@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv  # 1️⃣
 
 # 1️⃣ Carga el .env
@@ -87,18 +88,11 @@ host = os.getenv("DB_HOST")
 print(">>> DB_HOST raw repr:", repr(host))
 
 
-
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': os.getenv('MYSQLDATABASE'),
-        'USER': os.getenv('MYSQLUSER'),
-        'PASSWORD': os.getenv('MYSQLPASSWORD'),
-        'HOST': os.getenv('MYSQLHOST'),
-        'PORT': os.getenv('MYSQLPORT', '3306'),
-    }
+    'default': dj_database_url.config(conn_max_age=600)
 }
+
+
 
 
 # Password validation
