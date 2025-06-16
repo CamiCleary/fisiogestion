@@ -18,7 +18,6 @@ if (Test-Path $venvPath) {
 if (Test-Path $envPath) {
     Write-Host "El archivo .env ya existe."
 } else {
-    # Crear el entorno virtual si no existe
     Write-Host "El archivo .env no existe. Creandolo en la carpeta 'AppWeb'..."
     New-Item -Path $envPath -ItemType File -Force | Out-Null
 }
