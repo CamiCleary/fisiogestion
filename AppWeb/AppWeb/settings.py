@@ -17,7 +17,7 @@ import dj_database_url
 # 1️⃣ Carga el .env
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Por seguridad, el valor por defecto debe ser False
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else []
+ALLOWED_HOSTS = ['fisiogestion-production.up.railway.app', '127.0.0.1', 'localhost']
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -120,7 +120,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-
+CSRF_TRUSTED_ORIGINS = ['https://fisiogestion-production.up.railway.app']
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
