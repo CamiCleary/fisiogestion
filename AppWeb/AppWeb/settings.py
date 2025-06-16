@@ -12,12 +12,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
 import dj_database_url
-
 # 1️⃣ Carga el .env
 SECRET_KEY = os.getenv('SECRET_KEY')
 DEBUG = os.getenv('DEBUG', 'False') == 'True'  # Por seguridad, el valor por defecto debe ser False
 ALLOWED_HOSTS = ['fisiogestion-production.up.railway.app', '127.0.0.1', 'localhost']
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -49,6 +50,8 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'AppWeb.urls'
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -74,14 +77,11 @@ WSGI_APPLICATION = 'AppWeb.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        # dj-database-url leerá automáticamente la variable DATABASE_URL
-        # que Railway proporciona.
+        env='MYSQL_URL',           # <-- aquí le dices que lea MYSQL_URL
         conn_max_age=600,
-        # Si DATABASE_URL no existe, usará una base de datos local SQLite (para desarrollo)
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"
     )
 }
-
 
 
 # Password validation
