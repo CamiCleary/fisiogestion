@@ -27,13 +27,13 @@ ALLOWED_HOSTS = ['fisiogestion-production.up.railway.app', '127.0.0.1', 'localho
 # Application definition
 
 INSTALLED_APPS = [
+    'fisiogestion',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'fisiogestion',
 ]
 
 MIDDLEWARE = [
