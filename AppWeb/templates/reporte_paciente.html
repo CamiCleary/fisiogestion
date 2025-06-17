@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Citas del Paciente</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" type="text/css" href="../fisiogestion/static/css/reporte_paciente.css">
+</head>
+<body>
+    <div class="main-container">
+        <div class="header-section">
+            <h1>Citas del Paciente</h1>
+            <button class="return-button" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> Regresar
+            </button>
+        </div>
+
+        <div class="section-title">Próximas Citas</div>
+
+        <div class="table-responsive">
+            <table class="appointment-table">
+                <thead>
+                    <tr>
+                        <th>Fisioterapeuta</th>
+                        <th>Consultorio</th>
+                        <th>Tipo Sesión</th>
+                        <th>Fecha</th>
+                        <th>Tipo de Pago</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-label="Fisioterapeuta:">Dr. Juan Pérez</td>
+                        <td data-label="Consultorio:">A-101</td>
+                        <td data-label="Tipo Sesión:">Fisioterapia Respiratoria</td>
+                        <td data-label="Fecha:">2025-07-15 10:00 AM</td>
+                        <td data-label="Tipo de Pago:">Transferencias & Pago Móvil</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Fisioterapeuta:">Lic. María González</td>
+                        <td data-label="Consultorio:">B-205</td>
+                        <td data-label="Tipo Sesión:">Rehabilitación Post-operatoria</td>
+                        <td data-label="Fecha:">2025-07-18 03:30 PM</td>
+                        <td data-label="Tipo de Pago:">Billeteras Digitales</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Fisioterapeuta:">Dr. Juan Pérez</td>
+                        <td data-label="Consultorio:">A-101</td>
+                        <td data-label="Tipo Sesión:">Terapia Manual</td>
+                        <td data-label="Fecha:">2025-07-22 09:00 AM</td>
+                        <td data-label="Tipo de Pago:">Efectivo / Contra Entrega</td>
+                    </tr>
+                    <tr>
+                        <td data-label="Fisioterapeuta:">Lic. Andrea Rojas</td>
+                        <td data-label="Consultorio:">C-301</td>
+                        <td data-label="Tipo Sesión:">Drenaje Linfático</td>
+                        <td data-label="Fecha:">2025-07-25 02:00 PM</td>
+                        <td data-label="Tipo de Pago:">Transferencias & Pago Móvil</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="action-buttons">
+            <button class="download-button">
+                <i class="fas fa-download"></i> Descargar Reporte Completo
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+
+        // Función para manejar la descarga del reporte (ejemplo básico)
+        document.addEventListener('DOMContentLoaded', function() {
+            const downloadButton = document.querySelector('.download-button');
+            if (downloadButton) {
+                downloadButton.addEventListener('click', () => {
+                    alert('Simulando la descarga del reporte completo...');
+                    // Aquí implementarías la lógica real de descarga, por ejemplo, una llamada AJAX a tu backend Django
+                    // window.location.href = '/descargar-reporte-pacientes/';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

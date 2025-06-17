@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fisiogestión - Telemedicina</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" type="text/css" href="../fisiogestion/static/css/telemedicina.css" />
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="../staticfiles/images/logo2.png" alt="FisioGestión Logo">
+            <span class="logo-text">FISIOGESTIÓN</span>
+        </div>
+        <nav class="nav">
+            <a href="#"><i class="fas fa-user-injured"></i> Pacientes</a>
+            <a href="#"><i class="fas fa-user-nurse"></i> Fisioterapeutas</a>
+            <a href="#"><i class="fas fa-calendar-alt"></i> Agenda</a>
+            <a href="#"><i class="fas fa-chart-bar"></i> Reportes</a>
+            <a href="#" class="active"><i class="fas fa-desktop"></i> Telemedicina</a> <!-- Este enlace representa esta página, icono de escritorio para multimedia -->
+        </nav>
+        <div class="admin">
+            <div class="name">Dra. López</div>
+            <div class="role">Administrador</div>
+        </div>
+    </div>
+
+    <div class="telemedicina-main">
+        <div class="telemedicina-header">
+            <h1>Telemedicina</h1> <!-- El título principal se mantiene como Telemedicina -->
+        </div>
+
+        <div class="telemedicina-content-area">
+            <!-- Sección de Subida de Archivos -->
+            <div class="upload-section">
+                <div class="upload-form">
+                    <h3>Subir Archivo de Progreso</h3>
+                    <div class="form-group">
+                        <label for="media-file">Seleccionar Foto o Video:</label>
+                        <input type="file" id="media-file" accept="image/*,video/*">
+                    </div>
+                    <div class="form-group">
+                        <label for="comment">Comentario:</label>
+                        <textarea id="comment" placeholder="Describe el progreso o la condición..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="upload-date">Fecha (automática):</label>
+                        <input type="text" id="upload-date" readonly class="bg-gray-100 cursor-not-allowed">
+                    </div>
+                    <button class="upload-button" id="upload-button">
+                        <i class="fas fa-upload"></i> Subir Archivo
+                    </button>
+                </div>
+
+                <div class="upload-list-container">
+                    <div class="list-header">
+                        <h3>Archivos Subidos</h3>
+                        <button class="download-content-button" id="download-all-content-button">
+                            <i class="fas fa-cloud-download-alt"></i> Descargar Contenido
+                        </button>
+                    </div>
+                    <ul class="media-list" id="media-list">
+                        <!-- Los elementos multimedia se añadirán aquí dinámicamente -->
+                        <!-- Ejemplo de un elemento: -->
+                        <!--
+                        <li class="media-item">
+                            <span class="item-number">1</span>
+                            <div class="item-thumbnail">
+                                <img src="ruta/a/imagen.jpg" alt="Imagen del progreso">
+                            </div>
+                            <div class="item-details">
+                                <span class="item-comment">Primer video de ejercicio de rehabilitación de rodilla.</span>
+                                <span class="item-date">Fecha: 2025-06-10</span>
+                            </div>
+                        </li>
+                        -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Panel Lateral (solo Información del Paciente) -->
+            <div class="side-panel">
+                <div class="patient-info">
+                    <h3>Información del Paciente</h3>
+                    <div class="patient-info-grid">
+                        <div class="patient-info-item"><strong>Nombre:</strong> <span>María García</span></div>
+                        <div class="patient-info-item"><strong>Cédula:</strong> <span>V-12.345.678</span></div>
+                        <div class="patient-info-item"><strong>Email:</strong> <span>maria.g@example.com</span></div>
+                        <div class="patient-info-item"><strong>Teléfono:</strong> <span>+58 412 1234567</span></div>
+                        <div class="patient-info-item"><strong>Última Consulta:</strong> <span>2025-06-01 (Lesión de Rodilla)</span></div>
+                        <div class="patient-info-item"><strong>Historial Relevante:</strong> <span>Tendinitis crónica, antecedentes de esguinces.</span></div>
+                        <div class="patient-info-item"><strong>Alergias:</strong> <span>Ninguna conocida</span></div>
+                        <div class="patient-info-item"><strong>Medicamentos:</strong> <span>Ibuprofeno (ocasional)</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

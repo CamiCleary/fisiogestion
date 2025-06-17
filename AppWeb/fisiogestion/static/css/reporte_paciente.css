@@ -1,0 +1,190 @@
+body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0faf9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .main-container {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            width: 100%;
+            max-width: 900px;
+        }
+        .header-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap; /* Permite que los elementos se envuelvan en pantallas pequeñas */
+            gap: 15px; /* Espacio entre los elementos del header */
+        }
+        h1 {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin: 0; /* Elimina el margen por defecto del h1 */
+        }
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+        .appointment-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+            margin-bottom: 30px;
+        }
+        .appointment-table th {
+            text-align: left;
+            padding: 12px 20px;
+            background-color: #eaf8f6;
+            color: #00564d;
+            font-size: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #d2f4f0;
+        }
+        .appointment-table td {
+            background-color: #f7f9fc;
+            padding: 15px 20px;
+            font-size: 15px;
+            color: #444;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease-in-out;
+        }
+        .appointment-table tr:hover td {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .appointment-table tr:first-child th:first-child {
+            border-top-left-radius: 8px;
+        }
+        .appointment-table tr:first-child th:last-child {
+            border-top-right-radius: 8px;
+        }
+        .appointment-table tr:last-child td:first-child {
+            border-bottom-left-radius: 8px;
+        }
+        .appointment-table tr:last-child td:last-child {
+            border-bottom-right-radius: 8px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: flex-end; /* Alinea los botones a la derecha */
+            gap: 15px; /* Espacio entre botones */
+            margin-top: 20px;
+            flex-wrap: wrap; /* Permite que los botones se envuelvan */
+        }
+
+        .return-button, .download-button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-grow: 1; /* Permite que crezcan para llenar espacio en móvil */
+            max-width: 250px; /* Ancho máximo para evitar que sean demasiado grandes */
+        }
+
+        .download-button {
+            background-color: #00b89f; /* Color teal principal */
+            color: white;
+        }
+        .download-button:hover {
+            background-color: #00907e;
+            transform: translateY(-1px);
+        }
+        .download-button:active {
+            transform: translateY(0);
+        }
+
+        .return-button {
+            background-color: #6c757d; /* Color gris para el botón de regreso */
+            color: white;
+        }
+        .return-button:hover {
+            background-color: #5a6268;
+            transform: translateY(-1px);
+        }
+        .return-button:active {
+            transform: translateY(0);
+        }
+
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            .header-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            h1 {
+                font-size: 24px;
+                margin-bottom: 15px; /* Espacio debajo del título en móvil */
+            }
+            .section-title {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+            .appointment-table thead {
+                display: none;
+            }
+            .appointment-table, .appointment-table tbody, .appointment-table tr, .appointment-table td {
+                display: block;
+                width: 100%;
+            }
+            .appointment-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #e0e0e0;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            }
+            .appointment-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+                border: none;
+                box-shadow: none;
+                border-bottom: 1px solid #eee;
+            }
+            .appointment-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 15px;
+                width: calc(50% - 30px);
+                padding-right: 10px;
+                white-space: nowrap;
+                font-weight: bold;
+                color: #555;
+                text-align: left;
+            }
+            .appointment-table tr:hover td {
+                transform: none;
+                box-shadow: none;
+            }
+            .action-buttons {
+                flex-direction: column; /* Apilar botones */
+                align-items: stretch; /* Estirar botones a todo el ancho */
+            }
+            .return-button, .download-button {
+                max-width: 100%; /* Ocupar todo el ancho disponible */
+            }
+        }
