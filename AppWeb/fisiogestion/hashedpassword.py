@@ -2,6 +2,7 @@ import base64
 import hashlib
 import secrets
 import getpass
+import re
 
 def make_django_password(password, salt=None, iterations=260000):
     """
@@ -15,9 +16,9 @@ def make_django_password(password, salt=None, iterations=260000):
     Returns:
         str: Hash en formato Django: 'pbkdf2_sha256$iterations$salt$hash'
     """
-    # Generar salt aleatorio si no se proporciona
+    # Generar salt aleatorio compatible con Django (22 caracteres Base64)
     if salt is None:
-        salt = secrets.token_hex(16)  # 16 bytes en hexadecimal
+        salt = secrets.token_urlsafe(16)[:22]  # 16 bytes -> 22 caracteres Base64
         
     # Codificar la contraseña y el salt
     password_bytes = password.encode('utf-8')
@@ -31,8 +32,9 @@ def make_django_password(password, salt=None, iterations=260000):
         iterations
     )
     
-    # Codificar el hash en base64
-    hash_b64 = base64.b64encode(dk).decode('ascii').strip()
+    # Codificar el hash en Base64 compatible con Django
+    hash_b64 = base64.b64encode(dk).decode('ascii')
+    hash_b64 = re.sub(r'[\+\/=]', lambda m: {'+': '.', '/': '_', '=': ''}[m.group()], hash_b64)
     
     # Formato Django: algoritmo$iteraciones$salt$hash
     return f"pbkdf2_sha256${iterations}${salt}${hash_b64}"
@@ -51,3 +53,9 @@ if __name__ == "__main__":
     
     print("\nHash de contraseña para Django:")
     print(django_hash)
+    
+    # Verificar formato (opcional)
+    if django_hash.startswith("pbkdf2_sha256$") and django_hash.count("$") == 3:
+        print("\n✅ Formato válido de Django")
+    else:
+        print("\n❌ Formato inválido")
