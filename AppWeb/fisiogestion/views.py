@@ -143,3 +143,25 @@ def eliminar_paciente(request, pk):
         messages.success(request, 'Paciente eliminado exitosamente.')
         return redirect('lista_pacientes')
     return render(request, 'confirmar_eliminar_paciente.html', {'paciente': paciente})
+
+def reportes(request):
+    return render(request, 'reportes.html')
+
+def reporte_pacientes_view(request):
+    context = {
+        'titulo': 'Reporte de Pacientes',
+    }
+    return render(request, 'fisiogestion/pacientes_reporte.html', context)
+
+
+
+@login_required 
+def telemedicina_view(request):
+   
+    context = {
+        'titulo_pagina': 'Telemedicina y Archivos de Paciente',
+        'nombre_fisioterapeuta': 'Dr. Juan Pérez', 
+        'nombre_paciente': 'María García', 
+    
+    }
+    return render(request, 'telemedicina.html', context)

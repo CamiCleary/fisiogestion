@@ -25,9 +25,9 @@ urlpatterns = [
     path('fisioterapeutas/editar/<int:pk>/', views.editar_fisioterapeuta, name='editar_fisioterapeuta'),
     path('fisioterapeutas/eliminar/<int:pk>/', views.eliminar_fisioterapeuta, name='eliminar_fisioterapeuta'),
 
-    #path('reportes/', views.reportes, name='reportes'),
-    #path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'), # Nombre de URL más descriptivo
+    path('reportes/', views.reportes, name='reportes'),
+    path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'), # Nombre de URL más descriptivo
 
     # Telemedicina (NUEVA RUTA)
-    #path('telemedicina/', views.telemedicina_view, name='telemedicina_page'),
+    path('telemedicina/', views.telemedicina_view, name='telemedicina_page'),
 ]
