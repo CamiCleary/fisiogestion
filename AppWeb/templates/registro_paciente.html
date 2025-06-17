@@ -18,91 +18,101 @@
 <body class="bg-light">
 
 <div class="d-flex min-vh-100">
-    <!-- Sidebar -->
-    <div class="bg-info-subtle p-4" id="sidebar">
-        <div class="text-center mb-4">
-            <img src="{% static 'images/logo.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;" />
-        </div>
-        <nav class="nav flex-column mb-auto">
-            <a href="registro_fisioterapeuta" class="nav-link">Pacientes</a>
-            <a href="#" class="nav-link">Facturaciones</a>
-            <a href="#" class="nav-link">Ayuda</a>
-            <a href="#" class="nav-link">Reportes</a>
-        </nav>
-        <div class="mt-auto text-center small text-muted">
-            <p class="mb-0">Dra. López</p>
-            <p>Administrador</p>
-        </div>
+  <!-- Sidebar -->
+  <div class="bg-info-subtle p-4" id="sidebar">
+    <div class="text-center mb-4">
+      <img src="{% static 'images/logo.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;" />
     </div>
+    <nav class="nav flex-column mb-auto">
+      <a href="{% url 'registro_fisioterapeuta' %}" class="nav-link">Pacientes</a>
+      <a href="#" class="nav-link">Facturaciones</a>
+      <a href="#" class="nav-link">Ayuda</a>
+      <a href="#" class="nav-link">Reportes</a>
+    </nav>
+    <div class="mt-auto text-center small text-muted">
+      <p class="mb-0">Dra. López</p>
+      <p>Administrador</p>
+    </div>
+  </div>
 
-    <!-- Main -->
-    <main class="flex-grow-1 p-5">
-        <div class="mb-4 text-muted small">Pacientes &gt; Nuevo Paciente</div>
-        <div class="bg-white p-4 shadow rounded" style="max-width: 700px;">
-            <h3 class="mb-4">Registrar Paciente</h3>
- <form method="post">
-    {% csrf_token %}
-    <div class="row g-3">
-        <div class="col-md-6">
-            <input type="text" name="nombre" class="form-control" placeholder="Nombre" value="{{ form.nombre.value|default_if_none:'' }}" />
+  <!-- Main -->
+  <main class="flex-grow-1 p-5">
+    <div class="mb-4 text-muted small">Pacientes &gt; Nuevo Paciente</div>
+    <div class="bg-white p-4 shadow rounded" style="max-width: 700px;">
+      <h3 class="mb-4">Registrar Paciente</h3>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="id_nombre" class="form-label">Nombre:</label>
+            <input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="María" value="{{ form.nombre.value|default_if_none:'' }}" />
             {% if form.nombre.errors %}
-                <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6">
-            <input type="text" name="apellido" class="form-control" placeholder="Apellido" value="{{ form.apellido.value|default_if_none:'' }}" />
+          </div>
+          <div class="col-md-6">
+            <label for="id_apellido" class="form-label">Apellido:</label>
+            <input type="text" name="apellido" id="id_apellido" class="form-control" placeholder="González" value="{{ form.apellido.value|default_if_none:'' }}" />
             {% if form.apellido.errors %}
-                <div class="text-danger small mt-1">{{ form.apellido.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.apellido.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6">
-            <input type="text" name="cedula" class="form-control" placeholder="Ej: V-12345678" value="{{ form.cedula.value|default_if_none:'' }}" />
+          </div>
+          <div class="col-md-6">
+            <label for="id_cedula" class="form-label">Cédula:</label>
+            <input type="text" name="cedula" id="id_cedula" class="form-control" placeholder="Ej: V-12345678" value="{{ form.cedula.value|default_if_none:'' }}" />
             {% if form.cedula.errors %}
-                <div class="text-danger small mt-1">{{ form.cedula.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.cedula.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6">
-            <input type="text" name="telefono" class="form-control" placeholder="Ej: +58 414-1234567" value="{{ form.telefono.value|default_if_none:'' }}" />
+          </div>
+          <div class="col-md-6">
+            <label for="id_telefono" class="form-label">Teléfono:</label>
+            <input type="text" name="telefono" id="id_telefono" class="form-control" placeholder="Ej: +58 414-1234567" value="{{ form.telefono.value|default_if_none:'' }}" />
             {% if form.telefono.errors %}
-                <div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6">
-            <input type="email" name="email" class="form-control" placeholder="correo@ejemplo.com" value="{{ form.email.value|default_if_none:'' }}" />
+          </div>
+          <div class="col-md-6">
+            <label for="id_email" class="form-label">Correo electrónico:</label>
+            <input type="email" name="email" id="id_email" class="form-control" placeholder="correo@ejemplo.com" value="{{ form.email.value|default_if_none:'' }}" />
             {% if form.email.errors %}
-                <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6"></div> <!-- Espacio vacío para alinear contraseña -->
+          </div>
 
-        <div class="col-md-6">
-            <input type="password" name="password" class="form-control" placeholder="Contraseña" />
+          <div class="col-md-6">
+            <label for="id_password" class="form-label">Contraseña:</label>
+            <input type="password" name="password" id="id_password" class="form-control" placeholder="Contraseña segura" />
             {% if form.password.errors %}
-                <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div class="col-md-6">
-            <input type="password" name="confirm_password" class="form-control" placeholder="Confirmar contraseña" />
-            {% if form.confirm_password.errors %}
-                <div class="text-danger small mt-1">{{ form.confirm_password.errors.0 }}</div>
-            {% endif %}
-        </div>
-        <div class="col-12">
-            <input type="text" name="direccion" class="form-control" placeholder="Dirección completa" value="{{ form.direccion.value|default_if_none:'' }}" />
+          </div>
+
+          <div class="col-12">
+            <label for="id_direccion" class="form-label">Dirección:</label>
+            <input type="text" name="direccion" id="id_direccion" class="form-control" placeholder="Ej: Av. Bolívar, casa 12" value="{{ form.direccion.value|default_if_none:'' }}" />
             {% if form.direccion.errors %}
-                <div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>
+              <div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>
             {% endif %}
-        </div>
-    </div>
+          </div>
 
-    <div class="mt-4 d-flex gap-3">
-        <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-secondary">Cancelar</a>
-    </div>
-</form>
-
+          <div class="col-12">
+            <label for="id_info_adicional" class="form-label">Información adicional:</label>
+            <textarea name="info_adicional" id="id_info_adicional" class="form-control" placeholder="Ej: Alergias, condiciones previas">{{ form.info_adicional.value|default_if_none:'' }}</textarea>
+            {% if form.info_adicional.errors %}
+              <div class="text-danger small mt-1">{{ form.info_adicional.errors.0 }}</div>
+            {% endif %}
+          </div>
         </div>
-    </main>
+
+        <div class="mt-4 d-flex gap-3">
+          <button type="submit" class="btn btn-success">Guardar</button>
+          <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-secondary">Cancelar</a>
+        </div>
+      </form>
+
+    </div>
+  </main>
 </div>
 
 </body>
