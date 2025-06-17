@@ -126,9 +126,13 @@ CSRF_TRUSTED_ORIGINS = ['https://fisiogestion-production.up.railway.app']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+AUTH_USER_MODEL = 'fisiogestion.Usuario'  # Añade esto en tus settings
 
-
-
+# Configuración de autenticación
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]
+# Configuración de redirección
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/dashboard/'
 LOGOUT_REDIRECT_URL = '/login/'

@@ -1,22 +1,30 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import get_user_model
 from .models import Usuario
 
+Usuario = get_user_model()
 
-class PacienteForm(forms.ModelForm):
+class LoginForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'ejemplo@correo.com'})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '••••••••'})
+    )
+
+class PacienteForm(UserCreationForm):
     class Meta:
         model = Usuario
-        fields = ['nombre', 'apellido', 'cedula', 'telefono', 'email', 'direccion']
-
-class FisioterapeutaForm(forms.ModelForm):
-    class Meta:
-        model = Usuario
-        fields = '__all__'
+        fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'cedula', 'info_adicional']
         widgets = {
-            'nombre': forms.TextInput(attrs={'placeholder': 'Ingrese nombre'}),
-            'apellido': forms.TextInput(attrs={'placeholder': 'Ingrese apellido'}),
-            'email': forms.EmailInput(attrs={'placeholder': 'ejemplo@correo.com'}),
-            'telefono': forms.TextInput(attrs={'placeholder': '+58'}),
-            'rol': forms.TextInput(attrs={'placeholder': 'Rol del fisioterapeuta'}),
-            'especialidad': forms.TextInput(attrs={'placeholder': 'Ej. Rehabilitación'}),
-            'info_adicional': forms.Textarea(attrs={'placeholder': 'Información relevante'}),
+            'password': forms.PasswordInput(),
+        }
+
+class FisioterapeutaForm(UserCreationForm):
+    class Meta:
+        model = Usuario
+        fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'cedula', 'especialidad']
+        widgets = {
+            'password': forms.PasswordInput(),
         }

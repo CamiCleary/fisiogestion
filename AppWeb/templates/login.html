@@ -11,7 +11,7 @@
 </head>
 <body class="bg-light">
 
-    <!-- Logo y título -->
+  <!-- Logo y título -->
   <div class="text-center bg-teal-light p-4 rounded mb-4">
     <img src="{% static 'images/logo2.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;">
     <h4 class="fw-bold text-dark">FISIO<span class="text-teal">GESTIÓN</span></h4>
@@ -27,16 +27,23 @@
 
   <!-- Formulario -->
   <h5 class="fw-semibold mb-3 text-center text-teal">Iniciar Sesión</h5>
-  <form method="POST" action="{% url 'login' %}">
+  <form method="POST">
     {% csrf_token %}
+    
     <div class="mb-3">
-      <label for="email" class="form-label text-muted">Correo electrónico</label>
-      <input type="email" id="email" name="email" class="form-control" placeholder="ejemplo@correo.com" required>
+      <label for="id_email" class="form-label text-muted">Correo electrónico</label>
+      {{ form.email }}
+      {% if form.email.errors %}
+        <div class="text-danger">{{ form.email.errors }}</div>
+      {% endif %}
     </div>
 
     <div class="mb-3">
-      <label for="password" class="form-label text-muted">Contraseña</label>
-      <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+      <label for="id_password" class="form-label text-muted">Contraseña</label>
+      {{ form.password }}
+      {% if form.password.errors %}
+        <div class="text-danger">{{ form.password.errors }}</div>
+      {% endif %}
     </div>
 
     <div class="d-grid mt-4">
@@ -48,6 +55,5 @@
   <div class="text-center mt-3">
     <a href="#" class="text-decoration-none small text-secondary">¿Olvidaste tu contraseña?</a>
   </div>
-</div>
 </body>
 </html>

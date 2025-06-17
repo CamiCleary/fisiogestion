@@ -1,55 +1,47 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout # Estas son las funciones correctas de Django
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth import get_user_model # Importa para obtener el modelo de usuario activo
-# Asegúrate de que los formularios importan Usuario de .models
-from .forms import PacienteForm, FisioterapeutaForm
+from django.contrib.auth import get_user_model
+from .forms import PacienteForm, FisioterapeutaForm, LoginForm
 
-
-# Obtener el modelo de usuario personalizado que has definido en settings.py
-# (e.g., AUTH_USER_MODEL = 'fisiogestion.Usuario')
 Usuario = get_user_model()
-
 
 def inicio(request):
     return render(request, 'index.html')
 
-
 def login_view(request):
-    if request.user.is_authenticated: # Si el usuario ya está logueado, redirige al dashboard
+    if request.user.is_authenticated:
         return redirect('dashboard')
 
     if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        # Usar authenticate de Django. Asume que USUARIO.USERNAME_FIELD es 'email'
-        # y que las contraseñas están hasheadas.
-        user = authenticate(request, username=email, password=password)
-
-        if user is not None:
-            # Si las credenciales son válidas, inicia sesión
-            login(request, user)
-            messages.success(request, f'¡Bienvenido, {user.nombre}!')
-            return redirect('dashboard')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=email, password=password)
+            
+            if user is not None:
+                login(request, user)
+                messages.success(request, f'¡Bienvenido, {user.nombre}!')
+                return redirect('dashboard')
+            else:
+                messages.error(request, 'Email o contraseña incorrectos.')
         else:
-            # Si las credenciales no son válidas
-            messages.error(request, 'Email o contraseña incorrectos.')
+            messages.error(request, 'Por favor, corrige los errores en el formulario.')
+    else:
+        form = LoginForm()
     
-    return render(request, 'login.html')
+    return render(request, 'login.html', {'form': form})
 
-
-@login_required # Usa el decorador de Django, ya que ahora tu sistema de autenticación funciona
+@login_required
 def logout_view(request):
     logout(request)
     messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('login')
 
-
-@login_required # Protege esta vista para que solo usuarios logueados puedan acceder
+@login_required
 def dashboard(request):
-    # La variable 'request.user' ahora contiene el objeto Usuario actualmente logueado
     return render(request, 'dashboard.html', {'user': request.user})
 
 
