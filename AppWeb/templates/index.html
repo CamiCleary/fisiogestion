@@ -9,13 +9,18 @@
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
-<body>
+<body id="inicio">
 
 <!-- NAVBAR -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
     <div class="container">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="#inicio">
             <img src="{% static 'images/logo.png' %}" alt="FisioGestión Logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -23,11 +28,11 @@
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarNav">
             <ul class="navbar-nav">
-                <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Sobre Nosotros</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Servicios</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'registro_fisioterapeuta' %}">Telemedicina</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'registro_paciente' %}">Pagos</a></li>
+                <li class="nav-item"><a class="nav-link" href="#inicio">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#sobre-nosotros">Sobre Nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link" href="#telemedicina">Telemedicina</a></li>
+                <li class="nav-item"><a class="nav-link" href="#pagos">Pagos</a></li>
             </ul>
             <div>
                 <a class="btn btn-outline-primary me-2" href="{% url 'login' %}">Iniciar Sesión</a>
@@ -42,12 +47,20 @@
         <h1 class="display-4">FisioGestión</h1>
         <p class="lead">Tu Solución Integral en Fisioterapia</p>
         <p>Transforma la gestión de tu consultorio con herramientas modernas y simples.</p>
-        <a class="btn btn-light btn-lg mt-3" href="#">Descubre FisioGestión</a>
+        <a class="btn btn-light btn-lg mt-3" href="#servicios">Descubre FisioGestión</a>
+    </div>
+</section>
+
+<!-- SOBRE NOSOTROS -->
+<section id="sobre-nosotros" class="py-5 bg-light">
+    <div class="container text-center">
+        <h2>Sobre Nosotros</h2>
+        <p class="lead">Somos una plataforma integral para mejorar la gestión y atención en centros de fisioterapia. Nuestra misión es brindar soluciones eficientes, seguras y adaptables a tus necesidades.</p>
     </div>
 </section>
 
 <!-- SERVICIOS -->
-<section class="services-section">
+<section id="servicios" class="services-section">
     <div class="container">
         <h2 class="text-center mb-5" data-animate>Algunos de Nuestros Servicios</h2>
         <div class="row">
@@ -84,7 +97,7 @@
 </section>
 
 <!-- TELEMEDICINA -->
-<section class="telemedicina-section">
+<section id="telemedicina" class="telemedicina-section">
     <div class="container telemedicina-content">
         <div class="row align-items-center">
             <div class="col-md-6" data-animate>
@@ -105,9 +118,8 @@
     </div>
 </section>
 
-
 <!-- MÉTODOS DE PAGO -->
-<section class="payment-methods-section">
+<section id="pagos" class="payment-methods-section">
     <div class="container">
         <h2 class="text-center mb-5" data-animate>Métodos de Pago</h2>
         <div class="row">
@@ -154,10 +166,10 @@
             <div class="col-md-3 mb-4">
                 <h6 class="text-uppercase fw-bold mb-3">Navegación</h6>
                 <ul class="footer-links">
-                    <li><a href="#">Sobre Nosotros</a></li>
+                    <li><a href="#sobre-nosotros">Sobre Nosotros</a></li>
                     <li><a href="#">Testimonios</a></li>
                     <li><a href="#">Contáctanos</a></li>
-                    <li><a href="#">Servicios</a></li>
+                    <li><a href="#servicios">Servicios</a></li>
                 </ul>
             </div>
             <div class="col-md-3 mb-4">
