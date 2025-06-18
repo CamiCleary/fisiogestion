@@ -13,6 +13,7 @@ urlpatterns = [
     path('pacientes/nuevo/', views.crear_paciente, name='registro_paciente'),
     path('pacientes/editar/<int:pk>/', views.editar_paciente, name='editar_paciente'),
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
+    path('citas/', views.citas_view, name='citas'),
 
     # Fisioterapeutas
     path('fisioterapeutas/', views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
