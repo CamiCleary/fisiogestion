@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registrar Paciente</title>
-
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
 
@@ -19,21 +19,6 @@
 
 <div class="d-flex min-vh-100">
   <!-- Sidebar -->
-  <div class="bg-info-subtle p-4" id="sidebar">
-    <div class="text-center mb-4">
-      <img src="{% static 'images/logo.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;" />
-    </div>
-    <nav class="nav flex-column mb-auto">
-      <a href="{% url 'registro_fisioterapeuta' %}" class="nav-link">Pacientes</a>
-      <a href="#" class="nav-link">Facturaciones</a>
-      <a href="#" class="nav-link">Ayuda</a>
-      <a href="#" class="nav-link">Reportes</a>
-    </nav>
-    <div class="mt-auto text-center small text-muted">
-      <p class="mb-0">Dra. López</p>
-      <p>Administrador</p>
-    </div>
-  </div>
 
   <!-- Main -->
   <main class="flex-grow-1 p-5">
@@ -106,7 +91,7 @@
         </div>
 
         <div class="mt-4 d-flex gap-3">
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="submit" class="btn btn-success">Registrar Paciente</button>
           <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-secondary">Cancelar</a>
         </div>
       </form>

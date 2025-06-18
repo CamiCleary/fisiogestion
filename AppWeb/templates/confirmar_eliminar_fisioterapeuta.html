@@ -117,17 +117,17 @@
 </head>
 <body>
     <div class="main">
-        <h2>Confirmar Eliminación de Paciente</h2>
+        <h2>Confirmar Eliminación de Fisioterapeuta</h2>
         
         <div class="patient-info">
-            <div class="patient-name">{{ paciente.nombre }} {{ paciente.apellido }}</div>
-            <div class="patient-email">{{ paciente.email }}</div>
-            <div class="patient-phone">Teléfono: {{ paciente.telefono|default:"Sin información" }}</div>
+            <div class="patient-name">{{ fisioterapeuta.nombre }} {{ fisioterapeuta.apellido }}</div>
+            <div class="patient-email">{{ fisioterapeuta.email }}</div>
+            <div class="patient-phone">Teléfono: {{ fisioterapeuta.telefono|default:"Sin información" }}</div>
         </div>
         
         <div class="warning-box">
             <span class="warning-icon">⚠️</span>
-            ¿Estás seguro de que deseas eliminar permanentemente este paciente?
+            ¿Estás seguro de que deseas eliminar permanentemente este fisioterapeuta?
             Esta acción eliminará toda la información relacionada y <strong>no se puede deshacer</strong>.
         </div>
         
@@ -142,13 +142,13 @@
             </ul>
         </div>
         
-        <form method="post">
+        <form action="{% url 'eliminar_fisioterapeuta' fisioterapeuta.id %}" method="post">
             {% csrf_token %}
             <div class="btn-container">
                 <button type="submit" class="btn btn-danger">
                     <span class="icon">🗑️</span> Confirmar Eliminación
                 </button>
-                <a href="{% url 'lista_pacientes' %}" class="btn btn-secondary">
+                <a href="{% url 'lista_fisioterapeutas' %}" class="btn btn-secondary">
                     <span class="icon">✖</span> Cancelar
                 </a>
             </div>
