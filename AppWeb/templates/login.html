@@ -11,49 +11,59 @@
 </head>
 <body class="bg-light">
 
-  <!-- Logo y título -->
-  <div class="text-center bg-teal-light p-4 rounded mb-4">
-    <img src="{% static 'images/logo2.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;">
-    <h4 class="fw-bold text-dark">FISIO<span class="text-teal">GESTIÓN</span></h4>
-    <p class="text-muted small mb-0">Gestión inteligente para tu consultorio de fisioterapia.</p>
+  <div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow p-4" style="max-width: 500px; width: 100%; border: none;">
+      
+      <div class="text-center bg-teal-light p-4 rounded mb-4">
+        <img src="{% static 'images/logo2.png' %}" alt="Logo FISIOGESTIÓN" class="img-fluid mb-3" style="max-height: 100px;">
+        <h4 class="fw-bold text-dark">FISIO<span class="text-teal">GESTIÓN</span></h4>
+        <p class="text-muted small mb-0">Gestión inteligente para tu consultorio de fisioterapia.</p>
+      </div>
+
+      {% if messages %}
+        <div class="alert alert-danger" role="alert">
+          <ul class="list-unstyled mb-0">
+          {% for message in messages %}
+            <li>{{ message }}</li>
+          {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      <h5 class="fw-semibold mb-3 text-center text-teal">Iniciar Sesión</h5>
+      <form method="POST">
+        {% csrf_token %}
+        
+        <div class="mb-3">
+          <label for="{{ form.email.id_for_label }}" class="form-label text-muted">Correo electrónico</label>
+          {{ form.email }}
+          {% if form.email.errors %}
+            <div class="form-text text-danger">
+              {{ form.email.errors.as_text }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="mb-3">
+          <label for="{{ form.password.id_for_label }}" class="form-label text-muted">Contraseña</label>
+          {{ form.password }}
+          {% if form.password.errors %}
+            <div class="form-text text-danger">
+              {{ form.password.errors.as_text }}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="d-grid mt-4">
+          <button type="submit" class="btn btn-teal">Iniciar sesión</button>
+        </div>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="#" class="text-decoration-none small text-secondary">¿Olvidaste tu contraseña?</a>
+      </div>
+    </div>
   </div>
 
-  <!-- Mensajes de error -->
-  {% if messages %}
-    <div class="alert alert-danger">
-      {% for msg in messages %}{{ msg }}{% endfor %}
-    </div>
-  {% endif %}
-
-  <!-- Formulario -->
-  <h5 class="fw-semibold mb-3 text-center text-teal">Iniciar Sesión</h5>
-  <form method="POST">
-    {% csrf_token %}
-    
-    <div class="mb-3">
-      <label for="id_email" class="form-label text-muted">Correo electrónico</label>
-      {{ form.email }}
-      {% if form.email.errors %}
-        <div class="text-danger">{{ form.email.errors }}</div>
-      {% endif %}
-    </div>
-
-    <div class="mb-3">
-      <label for="id_password" class="form-label text-muted">Contraseña</label>
-      {{ form.password }}
-      {% if form.password.errors %}
-        <div class="text-danger">{{ form.password.errors }}</div>
-      {% endif %}
-    </div>
-
-    <div class="d-grid mt-4">
-      <button type="submit" class="btn btn-teal">Iniciar sesión</button>
-    </div>
-  </form>
-
-  <!-- Recuperación -->
-  <div class="text-center mt-3">
-    <a href="#" class="text-decoration-none small text-secondary">¿Olvidaste tu contraseña?</a>
-  </div>
 </body>
 </html>

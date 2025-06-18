@@ -7,6 +7,8 @@
   <title>Dashboard - Fisiogestión</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+      <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
+
   <style>
     * {
       box-sizing: border-box;
@@ -266,7 +268,7 @@
         <img src="{% static 'images/logo.png' %}" alt="Fisiogestión"/>
       </div>
       <nav class="nav flex-column mb-auto">
-        <a href="#" class="nav-link active">Dashboard</a>
+        <a href="{% url 'dashboard' %}" class="nav-link active">Dashboard</a>
         <a href="#" class="nav-link">Mis pacientes</a>
         <a href="#" class="nav-link">Pagos</a>
         <a href="#" class="nav-link">Telemedicina</a>
@@ -281,8 +283,16 @@
 
   <div class="main">
     <!-- Resumen lateral derecho -->
+     <div style="position: absolute; top: 24px; right: 30px; z-index: 10;">
+      <a href="{% url 'logout' %}" title="Cerrar sesión" style="text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" style="vertical-align: middle;">
+          <rect width="24" height="24" rx="6" fill="#e74c3c"/>
+          <path d="M16 12l-4-4m4 4l-4 4m4-4H8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
     <div class="resumen-lateral">
-      <h3>Resumen de Hoy</h3>
+      <h3>Vista Fisioterapueta</h3>
       <div class="resumen-datos">
         <div class="dato">
           <div class="dato-titulo">Pacientes</div>
@@ -304,7 +314,7 @@
     <div class="resumen-central">
       <h2>Resumen de Citas del Día</h2>
       <div class="resumen-mensaje">
-        Buen día, <strong>Pacientes_Fisioterapeuta</strong>. Aquí tienes el detalle de tus citas y pacientes para hoy.
+        Buen día, <strong>Pacientes Fisioterapeuta</strong>. Aquí tienes el detalle de tus citas y pacientes para hoy.
       </div>
       <table class="tabla-citas">
         <thead>

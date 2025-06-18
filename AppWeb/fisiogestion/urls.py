@@ -3,31 +3,25 @@ from . import views
 
 urlpatterns = [
     path('', views.inicio, name='inicio'),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
+    # Un solo dashboard
+    path('dashboard/', views.dashboard, name='dashboard'),
 
-    # Autenticación
-    path('login/',  views.login_view,    name='login'),
-    path('logout/', views.logout_view,   name='logout'),
-    path('dashboard/', views.dashboard,  name='dashboard'),  # Página tras login
-
-    # Gestión de Pacientes
-    path('pacientes/',               views.lista_pacientes,  name='lista_pacientes'),
-    path('pacientes/nuevo/',         views.crear_paciente,   name='crear_paciente'),
-    path('pacientes/editar/<int:pk>/',   views.editar_paciente, name='editar_paciente'),
+    # Pacientes
+    path('pacientes/', views.lista_pacientes, name='lista_pacientes'),
+    path('pacientes/nuevo/', views.crear_paciente, name='registro_paciente'),
+    path('pacientes/editar/<int:pk>/', views.editar_paciente, name='editar_paciente'),
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
 
-    # Registro de nuevos
-    path('registro_paciente/',        views.crear_paciente,         name='registro_paciente'),
-    path('registro_fisioterapeuta/',  views.crear_fisioterapeuta,   name='registro_fisioterapeuta'),
-
-    # Gestión de Fisioterapeutas
-    path('fisioterapeutas/',         views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
-    # Añadido: editar y eliminar fisioterapeutas
+    # Fisioterapeutas
+    path('fisioterapeutas/', views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
+    path('fisioterapeutas/nuevo/', views.crear_fisioterapeuta, name='registro_fisioterapeuta'),
     path('fisioterapeutas/editar/<int:pk>/', views.editar_fisioterapeuta, name='editar_fisioterapeuta'),
     path('fisioterapeutas/eliminar/<int:pk>/', views.eliminar_fisioterapeuta, name='eliminar_fisioterapeuta'),
 
+    # Reportes y telemedicina
     path('reportes/', views.reportes, name='reportes'),
-    path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'), # Nombre de URL más descriptivo
-
-    # Telemedicina (NUEVA RUTA)
+    path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'),
     path('telemedicina/', views.telemedicina_view, name='telemedicina_page'),
 ]

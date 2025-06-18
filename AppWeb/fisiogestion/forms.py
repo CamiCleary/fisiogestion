@@ -13,21 +13,98 @@ class LoginForm(forms.Form):
         widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': '••••••••'})
     )
 
-class PacienteForm(UserCreationForm):
-    class Meta:
-        model = Usuario
-        fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'cedula', 'info_adicional']
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
+class FisioterapeutaForm(forms.ModelForm):
+    # Hacemos que el campo de contraseña sea requerido y use el widget de contraseña
+    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
 
-class FisioterapeutaForm(UserCreationForm):
     class Meta:
         model = Usuario
+        # Define los campos que quieres en el formulario
         fields = [
-            'nombre', 'apellido', 'email', 'telefono', 'direccion',
-            'cedula', 'especialidad', 'info_adicional', 'rol', 'password'
+            'nombre', 'apellido', 'email', 'telefono', 
+            'cedula', 'direccion', 'rol', 'especialidad', 
+            'info_adicional', 'password'
         ]
-        widgets = {
-            'password': forms.PasswordInput(),
-        }
+
+    def __init__(self, *args, **kwargs):
+        """
+        Sobrescribimos el __init__ para añadir clases de Bootstrap a todos los campos
+        y hacer que el campo 'rol' sea de solo lectura si ya tiene un valor inicial.
+        """
+        super().__init__(*args, **kwargs)
+        # Ponemos el rol como Fisioterapeuta por defecto y lo hacemos de solo lectura
+        self.fields['rol'].initial = Usuario.FISIOTERAPEUTA
+        self.fields['rol'].widget.attrs['readonly'] = True
+        
+        # Asignamos la clase 'form-control' de Bootstrap a todos los campos
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            # Añadimos placeholders genéricos
+            if field_name == "password":
+                field.widget.attrs['placeholder'] = 'Contraseña segura'
+            else:
+                 field.widget.attrs['placeholder'] = field.label or field_name.capitalize()
+
+
+    def save(self, commit=True):
+        """
+        Sobrescribimos el método save para hashear la contraseña. ¡ESTO ES CRUCIAL!
+        """
+        # Obtenemos la instancia del usuario, pero aún no la guardamos en la BD
+        user = super().save(commit=False)
+        
+        # Obtenemos la contraseña del formulario y la establecemos de forma segura
+        password = self.cleaned_data["password"]
+        user.set_password(password) # set_password se encarga del hasheo
+        
+        if commit:
+            user.save()
+        return user
+    
+class PacienteForm(forms.ModelForm):
+    # Hacemos que el campo de contraseña sea requerido y use el widget de contraseña
+    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
+
+    class Meta:
+        model = Usuario
+        # Define los campos que quieres en el formulario
+        fields = [
+            'nombre', 'apellido', 'email', 'telefono', 
+            'cedula', 'direccion', 
+            'info_adicional', 'password'
+        ]
+
+    def __init__(self, *args, **kwargs):
+        """
+        Sobrescribimos el __init__ para añadir clases de Bootstrap a todos los campos
+        y hacer que el campo 'rol' sea de solo lectura si ya tiene un valor inicial.
+        """
+        super().__init__(*args, **kwargs)
+        # Ponemos el rol como Fisioterapeuta por defecto y lo hacemos de solo lectura
+        self.fields['rol'].initial = Usuario.PACIENTE
+        self.fields['rol'].widget.attrs['readonly'] = True
+        
+        # Asignamos la clase 'form-control' de Bootstrap a todos los campos
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+            # Añadimos placeholders genéricos
+            if field_name == "password":
+                field.widget.attrs['placeholder'] = 'Contraseña segura'
+            else:
+                 field.widget.attrs['placeholder'] = field.label or field_name.capitalize()
+
+
+    def save(self, commit=True):
+        """
+        Sobrescribimos el método save para hashear la contraseña. ¡ESTO ES CRUCIAL!
+        """
+        # Obtenemos la instancia del usuario, pero aún no la guardamos en la BD
+        user = super().save(commit=False)
+        
+        # Obtenemos la contraseña del formulario y la establecemos de forma segura
+        password = self.cleaned_data["password"]
+        user.set_password(password) # set_password se encarga del hasheo
+        
+        if commit:
+            user.save()
+        return user
