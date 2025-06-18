@@ -1,0 +1,676 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ page_title }} - Fisiogestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
+
+  <!-- FullCalendar CSS -->
+  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
+
+  <style>
+    /* Estilos globales y de la barra lateral (copiados de dashboard_pacientes.txt y mejorados para responsividad) */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      display: flex;
+      background-color: #f0faf9;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .sidebar {
+      width: 240px;
+      background-color: #eaf6fb;
+      padding: 32px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+      flex-shrink: 0;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo img {
+      width: 130px;
+    }
+
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: #0a4d68;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: 0.3s ease;
+      font-weight: 500;
+      background: transparent;
+      font-size: 16px;
+    }
+
+    .nav a.active, .nav a:hover {
+      background-color: #b6e6f2;
+      color: #0a4d68;
+    }
+
+    .admin {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    .main {
+      flex-grow: 1;
+      padding: 40px;
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    /* Contenedor principal del calendario y formulario */
+    .content-area {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 30px; /* Espacio entre calendario/form y lista de citas */
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .calendar-form-section {
+        display: flex;
+        gap: 30px;
+        width: 100%;
+        flex-wrap: wrap; /* Permite que el calendario y el formulario se envuelvan */
+        justify-content: center;
+    }
+
+    .calendario-container {
+        background: white;
+        padding: 38px 32px 32px 32px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        flex: 2; /* Ocupa más espacio que el formulario */
+        min-width: 400px; /* Ancho mínimo para el calendario */
+    }
+
+    .calendario-container h2 {
+      color: #008f86;
+      margin-bottom: 18px;
+      font-size: 1.5em;
+      text-align: center;
+    }
+
+    /* FullCalendar overrides */
+    #calendar {
+      width: 100%;
+      font-size: 14px;
+      margin-top: 20px;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.5em;
+        color: #0a4d68;
+    }
+    .fc .fc-button {
+        background-color: #00b89f;
+        border-color: #00b89f;
+        color: white;
+        border-radius: 8px;
+        padding: 8px 15px;
+        font-size: 0.9em;
+        text-transform: none;
+        cursor: pointer;
+    }
+    .fc .fc-button:hover {
+        background-color: #009e8a;
+        border-color: #009e8a;
+    }
+    .fc-theme-standard td, .fc-theme-standard th {
+        border-color: #e0e0e0;
+    }
+    .fc .fc-daygrid-day-frame {
+        padding: 5px;
+    }
+    .fc-event {
+        background-color: #008f86;
+        border-color: #008f86;
+        border-radius: 5px;
+        padding: 3px 5px;
+        font-size: 0.85em;
+        white-space: normal;
+        overflow: hidden;
+        margin-bottom: 2px;
+    }
+    .fc-event .fc-event-title {
+        color: white;
+    }
+    .fc-day-other .fc-daygrid-day-top {
+        opacity: 0.6;
+    }
+
+    /* Estilos del formulario de agendar cita */
+    .form-container {
+        background: white; /* Cambiado a blanco para consistencia */
+        padding: 25px;
+        border-radius: 15px; /* Bordes redondeados consistentes */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra consistente */
+        flex: 1; /* Ocupa el espacio restante */
+        min-width: 300px; /* Ancho mínimo para el formulario */
+        max-width: 450px; /* Ancho máximo para el formulario */
+    }
+
+    .form-container h3 {
+        color: #0a4d68;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 1.3em;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #555;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 16px;
+        transition: border-color 0.2s ease-in-out;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #008f86;
+        box-shadow: 0 0 0 0.2rem rgba(0, 143, 134, 0.25);
+    }
+
+    .btn-submit {
+        background-color: #00b89f;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 20px;
+        font-size: 17px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+        width: 100%;
+        margin-top: 15px;
+    }
+
+    .btn-submit:hover {
+        background-color: #009e8a;
+    }
+
+    /* Mensajes de Django */
+    .messages {
+        list-style: none;
+        padding: 0;
+        margin-bottom: 20px;
+        width: 100%;
+        text-align: center;
+    }
+    .messages li {
+        padding: 10px 15px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+        font-weight: 500;
+    }
+    .messages .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .messages .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .messages .info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    .messages .warning {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeeba;
+    }
+
+    /* Sección de Citas del Día */
+    .daily-appointments-section {
+        background: white;
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        width: 100%;
+        margin-top: 20px; /* Espacio con la sección superior */
+    }
+
+    .daily-appointments-section h3 {
+        color: #0a4d68;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 1.3em;
+    }
+
+    #dailyAppointmentsList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    #dailyAppointmentsList li {
+        background-color: #f0faf9;
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap; /* Permite que los elementos se envuelvan */
+    }
+
+    #dailyAppointmentsList li strong {
+        color: #008f86;
+        font-size: 1.1em;
+        flex-basis: 100%; /* Ocupa todo el ancho en móviles */
+        margin-bottom: 5px;
+    }
+
+    #dailyAppointmentsList li span {
+        font-size: 0.95em;
+        color: #555;
+        flex-grow: 1; /* Permite que la información ocupe el espacio */
+    }
+
+    #dailyAppointmentsList .actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px; /* Espacio superior para los botones en móviles */
+        flex-basis: 100%; /* Ocupa todo el ancho en móviles */
+        justify-content: flex-end; /* Alinea los botones a la derecha */
+    }
+
+    #dailyAppointmentsList .actions .btn-editar,
+    #dailyAppointmentsList .actions .btn-eliminar {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9em;
+        cursor: pointer;
+        transition: background 0.2s;
+        text-decoration: none;
+        color: white;
+    }
+
+    #dailyAppointmentsList .actions .btn-editar {
+        background-color: #ffc107;
+        color: #333;
+    }
+    #dailyAppointmentsList .actions .btn-editar:hover {
+        background-color: #e0a800;
+    }
+    #dailyAppointmentsList .actions .btn-eliminar {
+        background-color: #e74c3c;
+    }
+    #dailyAppointmentsList .actions .btn-eliminar:hover {
+        background-color: #c0392b;
+    }
+
+    /* Estilos para responsividad */
+    @media (max-width: 1100px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        padding: 15px 20px;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      }
+      .sidebar .logo {
+        margin-bottom: 0;
+      }
+      .sidebar .nav {
+        flex-direction: row;
+        gap: 8px;
+        margin-bottom: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+      .sidebar .nav a {
+        padding: 8px 12px;
+        font-size: 15px;
+      }
+      .sidebar .admin {
+        display: none;
+      }
+      .main {
+        padding: 20px;
+        flex-direction: column;
+        align-items: center;
+      }
+      .content-area {
+        gap: 20px;
+        padding: 0;
+      }
+      .calendar-form-section {
+        flex-direction: column; /* Apila el calendario y el formulario */
+        gap: 20px;
+      }
+      .calendario-container, .form-container {
+        max-width: 100%;
+        padding: 25px 20px;
+        min-width: unset; /* Elimina min-width para móviles */
+      }
+      #calendar {
+        font-size: 12px;
+      }
+      .fc .fc-toolbar-title {
+          font-size: 1.2em;
+      }
+
+      /* Responsividad de la lista de citas del día */
+      #dailyAppointmentsList li {
+          flex-direction: column;
+          align-items: flex-start;
+      }
+      #dailyAppointmentsList .actions {
+          margin-top: 10px;
+          width: 100%;
+          justify-content: flex-end;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar .nav a {
+        font-size: 13px;
+        padding: 7px 10px;
+      }
+      .main {
+        padding: 15px;
+      }
+      .calendario-container, .form-container, .daily-appointments-section {
+        padding: 20px 15px;
+      }
+      .form-group label {
+        font-size: 14px;
+      }
+      .form-control, .btn-submit {
+        font-size: 14px;
+        padding: 10px 12px;
+      }
+    }
+
+    @media (max-width: 480px) {
+        .sidebar .nav {
+            justify-content: space-around;
+        }
+        .sidebar .nav a {
+            flex-grow: 1;
+            text-align: center;
+        }
+        .form-container {
+            padding: 15px;
+        }
+        #calendar {
+            font-size: 11px; /* Aún más pequeño para pantallas muy pequeñas */
+        }
+        .fc .fc-toolbar-title {
+            font-size: 1em;
+        }
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div>
+      <div class="logo">
+        <img src="{% static 'images/logo.png' %}" alt="Fisiogestión"/>
+      </div>
+      <nav class="nav flex-column mb-auto">
+        <a href="{% url 'registro_fisioterapeuta' %}" class="nav-link">Fisioterapeutas</a>
+        <a href="{% url 'registro_paciente' %}" class="nav-link">Mis pacientes</a>
+        <a href="{% url 'citas' %}" class="nav-link">Mis Citas</a>
+        <a href="{% url 'calendario' %}" class="nav-link active">Calendario</a> {# Nuevo enlace activo #}
+        <a href="#" class="nav-link">Pagos</a>
+        <a href="#" class="nav-link">Telemedicina</a>
+        <a href="#" class="nav-link">Reportes</a>
+      </nav>
+    </div>
+    <div class="admin">
+      <p class="mb-0">Pacientes_Fisioterapeuta</p>
+      <p>Administrador</p>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- Icono de cerrar sesión -->
+    <div style="position: absolute; top: 24px; right: 30px; z-index: 10;">
+      <a href="{% url 'logout' %}" title="Cerrar sesión" style="text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" style="vertical-align: middle;">
+          <rect width="24" height="24" rx="6" fill="#e74c3c"/>
+          <path d="M16 12l-4-4m4 4l-4 4m4-4H8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="content-area">
+        <div class="calendar-form-section">
+            <!-- Contenedor del Calendario -->
+            <div class="calendario-container">
+              <h2>Calendario de Citas</h2>
+              <div id='calendar'></div>
+            </div>
+
+            <!-- Contenedor del Formulario para Agendar Cita -->
+            <div class="form-container">
+              <h3>Agendar Nueva Cita</h3>
+              
+              {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+              {% endif %}
+
+              <form method="post" action="{% url 'calendario' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="{{ form.fisioterapeuta.id_for_label }}">Fisioterapeuta:</label>
+                    {{ form.fisioterapeuta }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.fecha_consulta.id_for_label }}">Fecha y Hora de la Cita:</label>
+                    {{ form.fecha_consulta }}
+                </div>
+                
+                <button type="submit" class="btn-submit">Guardar Cita</button>
+              </form>
+            </div>
+        </div>
+
+        <!-- Sección de Citas del Día -->
+        <div class="daily-appointments-section">
+            <h3 id="dailyAppointmentsTitle">Citas del Día: Selecciona una fecha</h3>
+            <ul id="dailyAppointmentsList">
+                <!-- Las citas del día se cargarán aquí vía JavaScript -->
+                <li style="text-align: center; color: #666;">Haz clic en una fecha en el calendario para ver las citas de ese día.</li>
+            </ul>
+        </div>
+
+    </div>
+  </div>
+
+  <!-- FullCalendar JS -->
+  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+      // Carga los eventos desde Django. Asegúrate de que eventos_json esté serializado correctamente.
+      var events = JSON.parse('{{ eventos_json|safe }}'); 
+      var csrftoken = '{{ csrf_token }}'; // Obtén el token CSRF para solicitudes AJAX
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        locale: 'es', // Idioma español
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'dayGridMonth,timeGridWeek,timeGridDay'
+        },
+        events: events, // Carga los eventos iniciales
+        editable: false, // Deshabilita arrastrar y soltar eventos por defecto para pacientes
+        selectable: true, // Permite seleccionar fechas
+
+        // Cuando se hace clic en un día del calendario
+        dateClick: function(info) {
+          // 1. Pre-llenar el formulario
+          var datetimeInput = document.querySelector('input[name="fecha_consulta"]');
+          if (datetimeInput) {
+            // FullCalendar info.dateStr ya está en formato YYYY-MM-DD
+            // Para datetime-local, necesitamos YYYY-MM-DDTHH:MM
+            // Podemos establecer una hora por defecto si no se selecciona una hora específica,
+            // o dejarla vacía para que el usuario la elija.
+            // Para este ejemplo, pre-llenaremos con la fecha y una hora por defecto si no hay tiempo específico
+            var today = new Date();
+            var hours = today.getHours().toString().padStart(2, '0');
+            var minutes = today.getMinutes().toString().padStart(2, '0');
+            datetimeInput.value = info.dateStr + 'T' + hours + ':' + minutes;
+          }
+          // Puedes desplazar el scroll hacia el formulario para mayor comodidad
+          document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+
+          // 2. Cargar y mostrar las citas de ese día
+          var selectedDate = info.dateStr; // Formato YYYY-MM-DD
+          fetchDailyAppointments(selectedDate);
+        },
+        
+        // Cuando se hace clic en un evento (cita) en el calendario
+        eventClick: function(info) {
+            // Puedes mostrar un modal con los detalles de la cita
+            // alert('Cita: ' + info.event.title + '\nInicio: ' + info.event.start.toLocaleString('es-ES'));
+            // Para futuras implementaciones, aquí podrías abrir un modal para editar/eliminar la cita
+        },
+
+        // Evento que se dispara cuando el calendario se renderiza por primera vez o se cambia de vista/mes
+        // Esto es útil para cargar las citas del día actual por defecto
+        datesSet: function(info) {
+            // Llama a la función para cargar citas del día actual al cargar el calendario
+            // Si no hay una fecha seleccionada previamente, carga las de hoy
+            // Esto evita que la sección "Citas del Día" esté vacía al cargar la página
+            if (!document.getElementById('dailyAppointmentsList').getAttribute('data-loaded-date')) {
+                const today = new Date();
+                const todayStr = today.getFullYear() + '-' + 
+                                 (today.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                                 today.getDate().toString().padStart(2, '0');
+                fetchDailyAppointments(todayStr);
+            }
+        }
+      });
+
+      calendar.render();
+
+      // Función para obtener las citas de un día específico a través de una API
+      function fetchDailyAppointments(dateString) {
+          document.getElementById('dailyAppointmentsTitle').textContent = 'Citas del Día: ' + formatDateDisplay(dateString);
+          document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #666;">Cargando citas...</li>'; // Mensaje de carga
+          document.getElementById('dailyAppointmentsList').setAttribute('data-loaded-date', dateString); // Guarda la fecha cargada
+
+          fetch(`/api/citas-del-dia/?date=${dateString}`, {
+              method: 'GET',
+              headers: {
+                  'X-CSRFToken': csrftoken, // Incluye el token CSRF para seguridad
+                  'Content-Type': 'application/json'
+              },
+          })
+          .then(response => {
+              if (!response.ok) {
+                  throw new Error('Network response was not ok ' + response.statusText);
+              }
+              return response.json();
+          })
+          .then(data => {
+              var list = document.getElementById('dailyAppointmentsList');
+              list.innerHTML = ''; // Limpia la lista
+              if (data.length === 0) {
+                  list.innerHTML = '<li style="text-align: center; color: #666;">No hay citas para este día.</li>';
+              } else {
+                  data.forEach(function(cita) {
+                      var listItem = document.createElement('li');
+                      listItem.innerHTML = `
+                          <strong>${cita.fecha_hora}</strong>
+                          <span>Paciente: ${cita.paciente_nombre}</span>
+                          <span>Fisioterapeuta: ${cita.fisioterapeuta_nombre}</span>
+                          <div class="actions">
+                              <a href="#" class="btn-editar">Editar</a>
+                              <a href="#" class="btn-eliminar">Eliminar</a>
+                          </div>
+                      `;
+                      list.appendChild(listItem);
+                  });
+              }
+          })
+          .catch(error => {
+              console.error('Error al obtener citas del día:', error);
+              document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #e74c3c;">Error al cargar las citas.</li>';
+          });
+      }
+
+      // Función auxiliar para formatear la fecha para el título
+      function formatDateDisplay(dateString) {
+          const [year, month, day] = dateString.split('-');
+          const date = new Date(year, month - 1, day); // Month is 0-indexed
+          const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+          return date.toLocaleDateString('es-ES', options);
+      }
+
+      // Llamar a fetchDailyAppointments al cargar la página para el día actual
+      const today = new Date();
+      const todayStr = today.getFullYear() + '-' + 
+                       (today.getMonth() + 1).toString().padStart(2, '0') + '-' + 
+                       today.getDate().toString().padStart(2, '0');
+      fetchDailyAppointments(todayStr); // Carga las citas de hoy por defecto
+    });
+  </script>
+</body>
+</html>

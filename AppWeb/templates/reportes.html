@@ -1,95 +1,212 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Reportes</title>
-
-  
+  <title>Reportes - Fisiogestión</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="{% static 'css/reportes.css' %}" rel="stylesheet">
-  
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+    body {
+      display: flex;
+      background-color: #f0faf9;
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Topbar */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 60px;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      padding: 0 24px;
+      z-index: 100;
+    }
+    .topbar .title { font-size: 1.25rem; font-weight: 600; color: #008f86; }
+    .topbar .logout { margin-left: auto; cursor: pointer; color: #e74c3c; }
+
+    /* Sidebar omitted for full-screen: focus on report body */
+    .main {
+      margin-top: 60px;
+      flex-grow: 1;
+      padding: 40px 24px;
+      overflow-y: auto;
+    }
+
+    .breadcrumb {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 16px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .tabs .tab-button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: #eaf6fb;
+      color: #0a4d68;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .tabs .tab-button.active {
+      background: #008f86;
+      color: white;
+    }
+    .tabs .tab-button:hover:not(.active) {
+      background: #c5ebea;
+    }
+
+    /* Resumen Lateral y Central */
+    .report-container {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .card-summary {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 24px;
+      flex: 1;
+      min-width: 200px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .card-summary:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    .card-summary .card-title { color: #008f86; font-weight: 600; margin-bottom: 8px; }
+    .card-summary .card-value { font-size: 2rem; font-weight: 700; color: #004f4d; }
+    .card-summary .card-desc { font-size: 0.85rem; color: #666; margin-top: 4px; }
+
+    /* Chart */
+    .chart-wrapper {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .chart-wrapper h2 {
+      color: #008f86;
+      margin-bottom: 16px;
+      font-size: 1.4rem;
+    }
+    .chart-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 200px;
+    }
+    .bar-wrapper {
+      flex: 1;
+      text-align: center;
+      position: relative;
+    }
+    .bar-wrapper .bar {
+      width: 100%;
+      background-color: #00b89f;
+      border-radius: 4px 4px 0 0;
+      transition: height 0.4s ease;
+    }
+    .bar-wrapper .month {
+      margin-top: 8px;
+      font-size: 0.9rem;
+      color: #444;
+    }
+    .bar-wrapper:hover .tooltip {
+      opacity: 1;
+      transform: translateY(-8px);
+    }
+    /* Tooltip */
+    .tooltip {
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #004f4d;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+  </style>
 </head>
+
 <body>
-  <div class="sidebar">
-    <div>
-      <div class="logo">
-        <img src="../fisiogestion/static/images/logo2.png" alt="Fisiogestión" />
-      </div>
-      <div class="nav">
-        <a href="registro_paciente"><i class="fas fa-user-injured"></i>Pacientes</a>
-        <a href="#" class="active"><i class="fas fa-user-nurse"></i>Fisioterapeutas</a>
-        <a href="#"><i class="fas fa-calendar-alt"></i>Agenda</a>
-        <a href="#"><i class="fas fa-chart-bar"></i>Reportes</a>
-        <a href="telemedicina.html"><i class="fas fa-desktop"></i>Telemedicina</a>
-      </div>
-    </div>
-    <div class="admin">
-      <p>Dra. López</p>
-      <p>Administrador</p>
-    </div>
+  <div class="topbar">
+    <div class="title">Reportes</div>
+    <a href="{% url 'logout' %}" class="logout" title="Cerrar sesión">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
   </div>
 
   <div class="main">
-    <h1>Reportes</h1>
+    <nav class="breadcrumb">Inicio / Reportes</nav>
 
-        <div class="tabs">
-            <a class="tab-button active">General</a>
-            <a class="tab-button" href ="reporte_paciente.html">Proximas Citas</a>
-            <a class="tab-button">Fisioterapeutas</a>
-            <a class="tab-button">Ingresos</a>
+    <div class="tabs">
+      <div class="tab-button active">General</div>
+      <div class="tab-button">Próximas Citas</div>
+      <div class="tab-button">Fisioterapeutas</div>
+      <div class="tab-button">Ingresos</div>
+    </div>
+
+    <div class="report-container">
+      <!-- Cards resumen -->
+      <div class="card-summary">
+        <span class="card-title">Pacientes</span>
+        <span class="card-value">{{ total_pacientes }}</span>
+        <span class="card-desc">Total registrados</span>
+      </div>
+      <div class="card-summary">
+        <span class="card-title">Fisioterapeutas</span>
+        <span class="card-value">{{ total_fisioterapeutas }}</span>
+        <span class="card-desc">Activos</span>
+      </div>
+      <div class="card-summary">
+        <span class="card-title">Citas este mes</span>
+        <span class="card-value">{{ total_citas_mes }}</span>
+        <span class="card-desc">Programadas</span>
+      </div>
+      <div class="card-summary">
+        <span class="card-title">Ingresos</span>
+        <span class="card-value">${{ ingresos_totales }}</span>
+        <span class="card-desc">Totales</span>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    <div class="chart-wrapper">
+      <h2>Citas por Mes</h2>
+      <div class="chart-bars">
+        {% for mes, altura in citas_mensuales.items %}
+        <div class="bar-wrapper">
+          <div class="bar" style="height: {{ altura }}%;"></div>
+          <div class="tooltip">{{ altura }}%</div>
+          <span class="month">{{ mes }}</span>
         </div>
-
-        <div class="report-section">
-            <h2>Resumen general</h2>
-            <div class="summary-cards">
-                <div class="card">
-                    <span class="card-title">Pacientes</span>
-                    <span class="card-value">1,245</span>
-                    <span class="card-description">Total registrados</span>
-                </div>
-                <div class="card">
-                    <span class="card-title">Fisioterapeutas</span>
-                    <span class="card-value">18</span>
-                    <span class="card-description">Activos</span>
-                </div>
-                <div class="card">
-                    <span class="card-title">Citas</span>
-                    <span class="card-value">320</span>
-                    <span class="card-description">Este mes</span>
-                </div>
-                <div class="card">
-                    <span class="card-title">Ingresos</span>
-                    <span class="card-value">$12,400</span>
-                    <span class="card-description">Total</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="report-section">
-            <h2>Citas por mes</h2>
-            <div class="chart-container">
-                <div class="chart-bars">
-                    <div class="bar-wrapper"><div class="bar" style="height: 60%;"></div><span class="month">Ene</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 70%;"></div><span class="month">Feb</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 65%;"></div><span class="month">Mar</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 80%;"></div><span class="month">Abr</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 90%;"></div><span class="month">May</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 85%;"></div><span class="month">Jun</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 75%;"></div><span class="month">Jul</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 88%;"></div><span class="month">Ago</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 70%;"></div><span class="month">Sep</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 82%;"></div><span class="month">Oct</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 92%;"></div><span class="month">Nov</span></div>
-                    <div class="bar-wrapper"><div class="bar" style="height: 80%;"></div><span class="month">Dic</span></div>
-                </div>
-            </div>
-        </div>
-</div>
-
+        {% endfor %}
+      </div>
+    </div>
   </div>
 </body>
+
 </html>
