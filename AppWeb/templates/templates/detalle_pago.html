@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Pago</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Estilos generales, copiados de tus otros HTML */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+        body { display: flex; background-color: #f0faf9; min-height: 100vh; color: #333; }
+        .sidebar { width: 220px; background-color: #eaf8f6; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: fixed; height: 100vh; }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a { text-decoration: none; color: #000; padding: 10px; border-radius: 5px; transition: background-color 0.3s; }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .main-content { margin-left: 220px; flex-grow: 1; padding: 30px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-size: 28px; color: #000; }
+        .breadcrumb { font-size: 14px; color: #666; }
+        .breadcrumb a { text-decoration: none; color: #007bff; }
+        .detail-container { background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .detail-group { margin-bottom: 15px; }
+        .detail-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        .detail-group p { font-size: 16px; color: #333; }
+        .detail-actions { margin-top: 30px; text-align: right; }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary { background-color: #007bff; color: #fff; }
+        .btn-primary:hover { background-color: #0056b3; }
+        .btn-danger { background-color: #dc3545; color: #fff; margin-left: 10px; }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-secondary { background-color: #6c757d; color: #fff; margin-right: 10px; }
+        .btn-secondary:hover { background-color: #5a6268; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="https://via.placeholder.com/100x50?text=Logo" alt="Logo">
+        </div>
+        <nav class="nav">
+            <a href="{% url 'dashboard_admin' %}">Dashboard Admin</a>
+            <a href="{% url 'gestionar_usuarios' %}">Gestionar Usuarios</a>
+            <a href="{% url 'gestionar_roles' %}">Gestionar Roles</a>
+            <a href="{% url 'lista_consultas_admin' %}">Consultas</a>
+            <a href="{% url 'lista_pagos_admin' %}" class="active">Pagos</a>
+            <a href="{% url 'reportes_admin' %}">Reportes</a>
+            <a href="{% url 'telemedicina_admin' %}">Telemedicina</a>
+            </nav>
+        <div class="fisioterapeuta-info">
+            </div>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <div class="page-title">Detalle de Pago</div>
+            <div class="breadcrumb">Administración > Pagos > Detalle</div>
+        </div>
+
+        <div class="detail-container">
+            <div class="detail-group">
+                <label>ID de Pago:</label>
+                <p>{{ pago.pk|default:"#98765" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Paciente:</label>
+                <p>{{ pago.paciente.nombre }} {{ pago.paciente.apellido }} <a href="{% url 'detalle_paciente_admin' pk=pago.paciente.pk %}" class="btn-link">(Ver Perfil)</a></p>
+            </div>
+            <div class="detail-group">
+                <label>Consulta Relacionada:</label>
+                <p>{{ pago.consulta.pk|default:"N/A" }} <a href="{% url 'detalle_consulta' pk=pago.consulta.pk %}" class="btn-link">(Ver Consulta)</a></p>
+            </div>
+            <div class="detail-group">
+                <label>Monto:</label>
+                <p>${{ pago.monto|default:"50.00" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Fecha de Pago:</label>
+                <p>{{ pago.fecha_pago|date:"d/m/Y" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Método de Pago:</label>
+                <p>{{ pago.metodo_pago|default:"Transferencia Bancaria" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Número de Referencia:</label>
+                <p>{{ pago.referencia|default:"REF-ABC-123" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Estado del Pago:</label>
+                <p>{{ pago.estado|default:"Pagado" }}</p>
+            </div>
+            <div class="detail-group">
+                <label>Notas:</label>
+                <p>Pago recibido y confirmado por el banco.</p>
+            </div>
+
+            <div class="detail-actions">
+                <a href="#" onclick="alert('Función para editar pago')" class="btn btn-primary">Editar Pago</a>
+                <a href="{% url 'eliminar_pago' pk=pago.pk %}" class="btn btn-danger" onclick="return confirm('¿Está seguro de que desea eliminar este pago?');">Eliminar Pago</a>
+                <a href="{% url 'lista_pagos_admin' %}" class="btn btn-secondary">Volver a la Lista</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

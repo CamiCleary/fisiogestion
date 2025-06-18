@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Consultas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f0faf9;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #eaf8f6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .fisioterapeuta { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .breadcrumb { font-size: 14px; color: #888; margin-bottom: 10px; }
+        
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: #00b89f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover { background-color: #009688; }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .agenda-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+        .section-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+        .date-picker {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .time-slots {
+            padding: 20px;
+        }
+        .time-slot {
+            display: flex;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            position: relative;
+        }
+        .time-slot:last-child { border-bottom: none; }
+        .slot-time {
+            width: 80px;
+            font-weight: 600;
+            color: #00b89f;
+            font-size: 14px;
+        }
+        .slot-content {
+            flex: 1;
+            margin-left: 20px;
+        }
+        .appointment {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 4px solid #00b89f;
+        }
+        .appointment.completed {
+            background: #d4edda;
+            border-left-color: #28a745;
+            opacity: 0.8;
+        }
+        .appointment.cancelled {
+            background: #f8d7da;
+            border-left-color: #dc3545;
+            opacity: 0.8;
+            text-decoration: line-through;
+        }
+        .patient-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        .appointment-type {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 3px;
+        }
+        .appointment-status {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        .status-programada { background: #cce5ff; color: #0066cc; }
+        .status-completada { background: #d4edda; color: #155724; }
+        .status-cancelada { background: #f8d7da; color: #721c24; }
+        .status-en-curso { background: #fff3cd; color: #856404; }
+        
+        .empty-slot {
+            color: #999;
+            font-style: italic;
+            font-size: 14px;
+        }
+        
+        .today-summary {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .summary-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: 600;
+            color: #00b89f;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .quick-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .quick-btn {
+            padding: 10px;
+            border: 1px solid #00b89f;
+            background: white;
+            color: #00b89f;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .quick-btn:hover {
+            background: #00b89f;
+            color: white;
+        }
+        
+        .upcoming-section {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+        }
+        .upcoming-list {
+            margin-top: 15px;
+        }
+        .upcoming-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+        .upcoming-item:hover { background: #f8f9fa; }
+        .upcoming-item:last-child { border-bottom: none; }
+        .upcoming-info {
+            flex: 1;
+        }
+        .upcoming-patient {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        .upcoming-details {
+            font-size: 12px;
+            color: #666;
+        }
+        .upcoming-time {
+            text-align: right;
+            font-size: 12px;
+            font-weight: 600;
+            color: #00b89f;
+        }
+        
+        .filters-bar {
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 13px;
+        }
+        
+        .calendar-view {
+            display: none;
+            padding: 20px;
+        }
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .month-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .nav-btn {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            color: #00b89f;
+        }
+        .current-month {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .view-toggle {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .toggle-btn {
+            padding: 8px 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        .toggle-btn.active {
+            background: #00b89f;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_fisioterapeuta.html">Dashboard</a>
+                <a href="mis_pacientes.html">Mis Pacientes</a>
+                <a href="#" class="active">Mis Consultas</a>
+                <a href="horarios.html">Horarios</a>
+                <a href="pagos_fisioterapeuta.html">Pagos</a>
+                <a href="telemedicina_fisioterapeuta.html">Telemedicina</a>
+                <a href="perfil_fisioterapeuta.html">Mi Perfil</a>
+            </div>
+        </div>
+        <div class="fisioterapeuta">
+            <p><strong>Dr. Martínez</strong></p>
+            <p>Fisioterapeuta</p>
+            <p style="font-size: 12px; color: #666;">Traumatología</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="breadcrumb">Inicio > Mis Consultas</div>
+        <div class="header">
+            <h1>Mis Consultas</h1>
+            <div style="display: flex; gap: 10px;">
+                <div class="view-toggle">
+                    <button class="toggle-btn active" onclick="toggleView('agenda')">Agenda</button>
+                    <button class="toggle-btn" onclick="toggleView('calendar')">Calendario</button>
+                </div>
+                <button class="btn-primary" onclick="nuevaCita()">+ Nueva Cita</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="agenda-section" id="agendaView">
+                <div class="section-header">
+                    <h2 class="section-title">Agenda del Día</h2>
+                    <input type="date" class="date-picker" id="dateSelector" value="2024-01-15">
+                </div>
+                
+                <div class="filters-bar">
+                    <select class="filter-select">
+                        <option>Todas las citas</option>
+                        <option>Programadas</option>
+                        <option>Completadas</option>
+                        <option>Canceladas</option>
+                    </select>
+                    <select class="filter-select">
+                        <option>Todos los tipos</option>
+                        <option>Evaluación</option>
+                        <option>Terapia manual</option>
+                        <option>Ejercicios</option>
+                        <option>Electroterapia</option>
+                    </select>
+                </div>
+                
+                <div class="time-slots">
+                    <div class="time-slot">
+                        <div class="slot-time">08:00</div>
+                        <div class="slot-content">
+                            <div class="appointment completed">
+                                <div class="patient-name">María González</div>
+                                <div class="appointment-type">Evaluación inicial - Dolor lumbar</div>
+                                <span class="appointment-status status-completada">Completada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">09:00</div>
+                        <div class="slot-content">
+                            <div class="appointment">
+                                <div class="patient-name">Carlos Mendoza</div>
+                                <div class="appointment-type">Terapia manual - Sesión 3/8</div>
+                                <span class="appointment-status status-en-curso">En curso</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">10:00</div>
+                        <div class="slot-content">
+                            <div class="empty-slot">Disponible</div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">11:00</div>
+                        <div class="slot-content">
+                            <div class="appointment">
+                                <div class="patient-name">Ana García</div>
+                                <div class="appointment-type">Rehabilitación rodilla - Sesión 6/8</div>
+                                <span class="appointment-status status-programada">Programada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">12:00</div>
+                        <div class="slot-content">
+                            <div class="appointment cancelled">
+                                <div class="patient-name">Pedro Silva</div>
+                                <div class="appointment-type">Masoterapia - Cancelada por paciente</div>
+                                <span class="appointment-status status-cancelada">Cancelada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">14:00</div>
+                        <div class="slot-content">
+                            <div class="appointment">
+                                <div class="patient-name">Laura Díaz</div>
+                                <div class="appointment-type">Electroterapia - Sesión 2/6</div>
+                                <span class="appointment-status status-programada">Programada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">15:00</div>
+                        <div class="slot-content">
+                            <div class="appointment">
+                                <div class="patient-name">Roberto Herrera</div>
+                                <div class="appointment-type">Evaluación de progreso</div>
+                                <span class="appointment-status status-programada">Programada</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="time-slot">
+                        <div class="slot-time">16:00</div>
+                        <div class="slot-content">
+                            <div class="empty-slot">Disponible</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="calendar-view" id="calendarView">
+                <div class="calendar-header">
+                    <div class="month-nav">
+                        <button class="nav-btn">‹</button>
+                        <span class="current-month">Enero 2024</span>
+                        <button class="nav-btn">›</button>
+                    </div>
+                </div>
+                <div style="text-align: center; padding: 60px; color: #666;">
+                    <p>Vista de calendario en desarrollo...</p>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 20px;">
+                <div class="today-summary">
+                    <h3 style="margin-bottom: 15px;">Resumen de Hoy</h3>
+                    
+                    <div class="summary-stats">
+                        <div class="stat-box">
+                            <div class="stat-number">6</div>
+                            <div class="stat-label">Citas Programadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Completadas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">1</div>
+                            <div class="stat-label">Canceladas</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-number">2</div>
+                            <div class="stat-label">Disponibles</div>
+                        </div>
+                    </div>
+                    
+                    <div class="quick-actions">
+                        <button class="quick-btn" onclick="verDisponibilidad()">Ver Disponibilidad</button>
+                        <button class="quick-btn" onclick="bloquearHorario()">Bloquear Horario</button>
+                        <button class="quick-btn" onclick="exportarAgenda()">Exportar Agenda</button>
+                    </div>
+                </div>
+                
+                <div class="upcoming-section">
+                    <h3>Próximas Citas</h3>
+                    <div class="upcoming-list">
+                        <div class="upcoming-item">
+                            <div class="upcoming-info">
+                                <div class="upcoming-patient">Ana García</div>
+                                <div class="upcoming-details">Rehabilitación rodilla</div>
+                            </div>
+                            <div class="upcoming-time">
+                                <div>Mañana</div>
+                                <div>09:00 AM</div>
+                            </div>
+                        </div>
+                        
+                        <div class="upcoming-item">
+                            <div class="upcoming-info">
+                                <div class="upcoming-patient">Carlos López</div>
+                                <div class="upcoming-details">Terapia postural</div>
+                            </div>
+                            <div class="upcoming-time">
+                                <div>Mañana</div>
+                                <div>10:30 AM</div>
+                            </div>
+                        </div>
+                        
+                        <div class="upcoming-item">
+                            <div class="upcoming-info">
+                                <div class="upcoming-patient">María Silva</div>
+                                <div class="upcoming-details">Evaluación inicial</div>
+                            </div>
+                            <div class="upcoming-time">
+                                <div>Miércoles</div>
+                                <div>11:00 AM</div>
+                            </div>
+                        </div>
+                        
+                        <div class="upcoming-item">
+                            <div class="upcoming-info">
+                                <div class="upcoming-patient">Pedro Morales</div>
+                                <div class="upcoming-details">Masoterapia</div>
+                            </div>
+                            <div class="upcoming-time">
+                                <div>Jueves</div>
+                                <div>14:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleView(view) {
+            const agendaView = document.getElementById('agendaView');
+            const calendarView = document.getElementById('calendarView');
+            const toggleBtns = document.querySelectorAll('.toggle-btn');
+            
+            toggleBtns.forEach(btn => btn.classList.remove('active'));
+            
+            if (view === 'agenda') {
+                agendaView.style.display = 'block';
+                calendarView.style.display = 'none';
+                toggleBtns[0].classList.add('active');
+            } else {
+                agendaView.style.display = 'none';
+                calendarView.style.display = 'block';
+                toggleBtns[1].classList.add('active');
+            }
+        }
+
+        function nuevaCita() {
+            alert('Abriendo formulario para nueva cita...');
+        }
+
+        function verDisponibilidad() {
+            alert('Mostrando horarios disponibles...');
+        }
+
+        function bloquearHorario() {
+            alert('Abriendo formulario para bloquear horario...');
+        }
+
+        function exportarAgenda() {
+            alert('Exportando agenda en PDF...');
+        }
+
+        // Cambio de fecha
+        document.getElementById('dateSelector').addEventListener('change', function(e) {
+            alert(`Cargando agenda para: ${e.target.value}`);
+        });
+
+        // Marcar citas como completadas automáticamente después de la hora
+        function actualizarEstadoCitas() {
+            const ahora = new Date();
+            const horaActual = ahora.getHours();
+            
+            const citas = document.querySelectorAll('.appointment:not(.completed):not(.cancelled)');
+            citas.forEach(cita => {
+                const timeSlot = cita.closest('.time-slot');
+                const hora = parseInt(timeSlot.querySelector('.slot-time').textContent.split(':')[0]);
+                
+                if (hora < horaActual) {
+                    cita.classList.add('completed');
+                    const status = cita.querySelector('.appointment-status');
+                    status.textContent = 'Completada';
+                    status.className = 'appointment-status status-completada';
+                }
+            });
+        }
+
+        // Actualizar cada minuto
+        setInterval(actualizarEstadoCitas, 60000);
+        
+        // Ejecutar al cargar
+        window.addEventListener('load', actualizarEstadoCitas);
+    </script>
+</body>
+</html>

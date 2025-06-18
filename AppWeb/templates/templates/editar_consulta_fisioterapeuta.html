@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Consulta - Fisioterapeuta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f0faf9;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #eaf8f6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .fisioterapeuta { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; }
+        .header { margin-bottom: 30px; }
+        .header h1 { color: #333; margin-bottom: 10px; }
+        .breadcrumb { font-size: 14px; color: #888; }
+
+        .consultation-info {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #00b89f;
+        }
+
+        .info-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .consultation-id {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-programada {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-confirmada {
+            background: #e8f5e8;
+            color: #388e3c;
+        }
+
+        .status-cancelada {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(135deg, #00b89f, #009688);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .form-header h2 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-content {
+            padding: 40px;
+        }
+
+        .form-section {
+            margin-bottom: 40px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-label.required::after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 5px;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #00b89f;
+            box-shadow: 0 0 0 3px rgba(0, 184, 159, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .datetime-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .treatment-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .treatment-tag {
+            background: #e8f7f4;
+            color: #00b89f;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .treatment-tag:hover {
+            background: #00b89f;
+            color: white;
+        }
+
+        .treatment-tag.selected {
+            background: #00b89f;
+            color: white;
+        }
+
+        .priority-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .priority-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            background: white;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .priority-btn.low {
+            border-color: #28a745;
+            color: #28a745;
+        }
+
+        .priority-btn.low.selected {
+            background: #28a745;
+            color: white;
+        }
+
+        .priority-btn.medium {
+            border-color: #ffc107;
+            color: #ffc107;
+        }
+
+        .priority-btn.medium.selected {
+            background: #ffc107;
+            color: white;
+        }
+
+        .priority-btn.high {
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .priority-btn.high.selected {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: #00b89f;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #009688;
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #00b89f;
+            border: 2px solid #00b89f;
+        }
+
+        .btn-outline:hover {
+            background: #00b89f;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid #f0f0f0;
+        }
+
+        .status-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .status-select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .history-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .history-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-text {
+            font-size: 14px;
+            color: #333;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; padding: 20px; }
+            .form-row { grid-template-columns: 1fr; }
+            .datetime-group { grid-template-columns: 1fr; }
+            .btn-group { flex-direction: column; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_fisioterapeuta.html">Dashboard</a>
+                <a href="mis_pacientes.html">Mis Pacientes</a>
+                <a href="mis_consultas.html" class="active">Mis Consultas</a>
+                <a href="horarios.html">Horarios</a>
+                <a href="pagos_fisioterapeuta.html">Pagos</a>
+                <a href="telemedicina_fisioterapeuta.html">Telemedicina</a>
+                <a href="perfil_fisioterapeuta.html">Mi Perfil</a>
+            </div>
+        </div>
+        <div class="fisioterapeuta">
+            <p><strong>Dr. Martínez</strong></p>
+            <p>Fisioterapeuta</p>
+            <p style="font-size: 12px; color: #666;">Traumatología</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="header">
+            <h1>Editar Consulta</h1>
+            <div class="breadcrumb">Inicio > Mis Consultas > Editar Consulta #CON-2024-156</div>
+        </div>
+
+        <div class="consultation-info">
+            <div class="info-header">
+                <div class="consultation-id">Consulta #CON-2024-156</div>
+                <div class="status-badge status-programada">Programada</div>
+            </div>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Fecha Original</div>
+                    <div class="info-value">25 Octubre 2024, 10:00</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Paciente</div>
+                    <div class="info-value">María González</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Duración</div>
+                    <div class="info-value">60 minutos</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="alert alert-success" id="successAlert">
+            <strong>¡Consulta actualizada exitosamente!</strong> Los cambios han sido guardados correctamente.
+        </div>
+
+        <div class="alert alert-warning" id="warningAlert">
+            <strong>Atención:</strong> Al cambiar la fecha/hora se notificará automáticamente al paciente.
+        </div>
+
+        <div class="alert alert-error" id="errorAlert">
+            <strong>Error:</strong> Por favor completa todos los campos obligatorios.
+        </div>
+
+        <form class="form-card" id="editForm" onsubmit="updateConsulta(event)">
+            <div class="form-header">
+                <h2>Modificar Consulta</h2>
+                <p>Actualiza los datos de la consulta programada</p>
+            </div>
+
+            <div class="form-content">
+                <div class="history-section">
+                    <div class="history-title">Historial de Cambios</div>
+                    <div class="history-item">
+                        <div class="history-text">Consulta creada</div>
+                        <div class="history-date">20/10/2024 14:30</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-text">Fecha modificada de 24/10 a 25/10</div>
+                        <div class="history-date">21/10/2024 09:15</div>
+                    </div>
+                    <div class="history-item">
+                        <div class="history-text">Confirmada por el paciente</div>
+                        <div class="history-date">22/10/2024 16:45</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Información del Paciente</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Paciente</label>
+                            <input type="text" class="form-input" value="María González" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Teléfono de Contacto</label>
+                            <input type="tel" class="form-input" id="patientPhone" value="+34 612 345 678">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Programación de la Consulta</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label required">Tipo de Consulta</label>
+                            <select class="form-select" id="consultaType" required>
+                                <option value="primera">Primera Consulta</option>
+                                <option value="seguimiento" selected>Seguimiento</option>
+                                <option value="revision">Revisión</option>
+                                <option value="telemedicina">Telemedicina</option>
+                                <option value="urgente">Consulta Urgente</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label required">Duración</label>
+                            <select class="form-select" id="duration" required onchange="calculateEndTime()">
+                                <option value="30">30 minutos</option>
+                                <option value="45">45 minutos</option>
+                                <option value="60" selected>60 minutos</option>
+                                <option value="90">90 minutos</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="datetime-group">
+                            <div class="form-group">
+                                <label class="form-label required">Fecha</label>
+                                <input type="date" class="form-input" id="consultaDate" value="2024-10-25" required onchange="showWarning()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label required">Hora Inicio</label>
+                                <input type="time" class="form-input" id="startTime" value="10:00" required onchange="calculateEndTime(); showWarning()">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Hora Fin</label>
+                                <input type="time" class="form-input" id="endTime" value="11:00" readonly>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="status-actions">
+                        <label>Estado de la Consulta:</label>
+                        <select class="status-select" id="consultaStatus">
+                            <option value="programada" selected>Programada</option>
+                            <option value="confirmada">Confirmada</option>
+                            <option value="reprogramada">Reprogramada</option>
+                            <option value="cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <div class="section-title">Detalles Clínicos</div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Motivo de Consulta</label>
+                            <input type="text" class="form-input" id="reason" value="Rehabilitación rodilla derecha post-operatoria">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Prioridad</label>
+                            <div class="priority-buttons">
+                                <div class="priority-btn low" onclick="selectPriority('low', this)">Baja</div>
+                                <div class="priority-btn medium selected" onclick="selectPriority('medium', this)">Media</div>
+                                <div class="priority-btn high" onclick="selectPriority('high', this)">Alta</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="form-label">Tratamientos Planificados</label>
+                            <div class="treatment-tags">
+                                <div class="treatment-tag selected" onclick="toggleTreatment(this)">Terapia Manual</div>
+                                <div class="treatment-tag selected" onclick="toggleTreatment(this)">Ejercicio Terapéutico</div>
+                                <div class="treatment-tag" onclick="toggleTreatment(this)">Electroterapia</div>
+                                <div class="treatment-tag" onclick="toggleTreatment(this)">Masoterapia</div>
+                                <div class="treatment-tag selected" onclick="toggleTreatment(this)">Estiramientos</div>
+                                <div class="treatment-tag selected" onclick="toggleTreatment(this)">Fortalecimiento</div>
+                                <div class="treatment-tag" onclick="toggleTreatment(this)">Reeducación Postural</div>
+                                <div class="treatment-tag" onclick="toggleTreatment(this)">Punción Seca</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full-width">
+                            <label class="form-label">Observaciones</label>
+                            <textarea class="form-textarea" id="observations">Paciente en proceso de rehabilitación post-quirúrgica. Evolución favorable. Continuar con ejercicios de fortalecimiento progresivo.</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <a href="mis_consultas.html" class="btn btn-secondary">Cancelar</a>
+                    <button type="button" class="btn btn-danger" onclick="cancelConsulta()">Cancelar Consulta</button>
+                    <button type="button" class="btn btn-outline" onclick="saveDraft()">Guardar Borrador</button>
+                    <button type="submit" class="btn btn-primary">Actualizar Consulta</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let selectedPriority = 'medium';
+        let originalDateTime = { date: '2024-10-25', time: '10:00' };
+
+        function selectPriority(priority, element) {
+            document.querySelectorAll('.priority-btn').forEach(btn => btn.classList.remove('selected'));
+            element.classList.add('selected');
+            selectedPriority = priority;
+        }
+
+        function toggleTreatment(element) {
+            element.classList.toggle('selected');
+        }
+
+        function calculateEndTime() {
+            const startTime = document.getElementById('startTime').value;
+            const duration = document.getElementById('duration').value;
+            
+            if (startTime && duration) {
+                const [hours, minutes] = startTime.split(':').map(Number);
+                const startDate = new Date();
+                startDate.setHours(hours, minutes);
+                
+                const endDate = new Date(startDate.getTime() + duration * 60000);
+                const endTime = endDate.toTimeString().slice(0, 5);
+                
+                document.getElementById('endTime').value = endTime;
+            }
+        }
+
+        function showWarning() {
+            const currentDate = document.getElementById('consultaDate').value;
+            const currentTime = document.getElementById('startTime').value;
+            
+            if (currentDate !== originalDateTime.date || currentTime !== originalDateTime.time) {
+                document.getElementById('warningAlert').style.display = 'block';
+            } else {
+                document.getElementById('warningAlert').style.display = 'none';
+            }
+        }
+
+        function saveDraft() {
+            alert('Borrador guardado correctamente');
+        }
+
+        function cancelConsulta() {
+            if (confirm('¿Estás seguro de que deseas cancelar esta consulta? Se notificará automáticamente al paciente.')) {
+                document.getElementById('consultaStatus').value = 'cancelada';
+                alert('Consulta cancelada. El paciente ha sido notificado.');
+                setTimeout(() => {
+                    window.location.href = 'mis_consultas.html';
+                }, 1500);
+            }
+        }
+
+        function updateConsulta(event) {
+            event.preventDefault();
+            
+            const form = document.getElementById('editForm');
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    isValid = false;
+                    field.style.borderColor = '#dc3545';
+                } else {
+                    field.style.borderColor = '#ddd';
+                }
+            });
+
+            if (isValid) {
+                document.getElementById('successAlert').style.display = 'block';
+                document.getElementById('errorAlert').style.display = 'none';
+                document.getElementById('warningAlert').style.display = 'none';
+                
+                setTimeout(() => {
+                    window.location.href = 'mis_consultas.html';
+                }, 2000);
+            } else {
+                document.getElementById('errorAlert').style.display = 'block';
+                document.getElementById('successAlert').style.display = 'none';
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // Configurar fecha mínima a hoy
+        document.getElementById('consultaDate').min = new Date().toISOString().split('T')[0];
+    </script>
+</body>
+</html>

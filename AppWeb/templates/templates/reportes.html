@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reportes y Estadísticas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+        body {
+            display: flex;
+            background-color: #f0faf9;
+            min-height: 100vh;
+            color: #333;
+        }
+        .sidebar {
+            width: 220px;
+            background-color: #eaf8f6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: fixed;
+            height: 100vh;
+        }
+        .logo { text-align: center; margin-bottom: 30px; }
+        .logo img { width: 120px; }
+        .nav { display: flex; flex-direction: column; gap: 15px; }
+        .nav a {
+            text-decoration: none;
+            color: #000;
+            padding: 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .nav a:hover, .nav a.active { background-color: #d2f4f0; }
+        .admin { font-size: 14px; margin-top: 30px; }
+        .main { flex-grow: 1; margin-left: 220px; padding: 40px; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .breadcrumb { font-size: 14px; color: #888; margin-bottom: 10px; }
+        
+        .report-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto auto;
+            gap: 15px;
+            align-items: center;
+        }
+        .filter-select, .date-input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .btn-primary {
+            padding: 10px 20px;
+            background-color: #00b89f;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        .btn-primary:hover { background-color: #009688; }
+        .btn-secondary {
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-secondary:hover { background-color: #5a6268; }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .metric-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .metric-number {
+            font-size: 32px;
+            font-weight: 600;
+            color: #00b89f;
+            margin-bottom: 8px;
+        }
+        .metric-label {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .metric-change {
+            font-size: 12px;
+            font-weight: 500;
+        }
+        .metric-change.positive { color: #28a745; }
+        .metric-change.negative { color: #dc3545; }
+        
+        .charts-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        .tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        .table-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .mini-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mini-table th {
+            background-color: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #333;
+            border-bottom: 1px solid #dee2e6;
+            font-size: 14px;
+        }
+        .mini-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+        .mini-table tr:hover { background-color: #f8f9fa; }
+        
+        .performance-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .performance-excelente { background-color: #d4edda; color: #155724; }
+        .performance-bueno { background-color: #cce5ff; color: #0066cc; }
+        .performance-regular { background-color: #fff3cd; color: #856404; }
+        
+        .export-actions {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            text-align: center;
+        }
+        .export-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .export-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        .btn-export {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .btn-pdf {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-pdf:hover { background-color: #c82333; }
+        .btn-excel {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-excel:hover { background-color: #218838; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="logo">
+                <img src="../logo.png" alt="Fisiogestión">
+            </div>
+            <div class="nav">
+                <a href="dashboard_admin.html">Dashboard</a>
+                <a href="gestionar_usuarios.html">Usuarios</a>
+                <a href="lista_pacientes.html">Pacientes</a>
+                <a href="lista_fisioterapeutas.html">Fisioterapeutas</a>
+                <a href="lista_consultas.html">Consultas</a>
+                <a href="lista_pagos.html">Pagos</a>
+                <a href="#" class="active">Reportes</a>
+                <a href="telemedicina.html">Telemedicina</a>
+            </div>
+        </div>
+        <div class="admin">
+            <p><strong>Dra. López</strong></p>
+            <p>Administrador</p>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="breadcrumb">Inicio > Reportes</div>
+        <div class="header">
+            <h1>Reportes y Estadísticas</h1>
+        </div>
+
+        <div class="report-filters">
+            <select class="filter-select" id="periodFilter">
+                <option value="mes">Este Mes</option>
+                <option value="trimestre">Último Trimestre</option>
+                <option value="semestre">Último Semestre</option>
+                <option value="año">Este Año</option>
+                <option value="personalizado">Personalizado</option>
+            </select>
+            <input type="date" class="date-input" id="fechaInicio">
+            <input type="date" class="date-input" id="fechaFin">
+            <button class="btn-primary" onclick="actualizarReportes()">Generar</button>
+            <button class="btn-secondary" onclick="resetearFiltros()">Limpiar</button>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-number">342</div>
+                <div class="metric-label">Consultas Totales</div>
+                <div class="metric-change positive">↑ 12.5%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">$45,230</div>
+                <div class="metric-label">Ingresos Generados</div>
+                <div class="metric-change positive">↑ 8.3%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">156</div>
+                <div class="metric-label">Pacientes Atendidos</div>
+                <div class="metric-change positive">↑ 15.2%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">89%</div>
+                <div class="metric-label">Tasa de Satisfacción</div>
+                <div class="metric-change positive">↑ 2.1%</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-number">94%</div>
+                <div class="metric-label">Tasa de Asistencia</div>
+                <div class="metric-change negative">↓ 1.5%</div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3 class="chart-title">Consultas por Mes</h3>
+                <div class="chart-container">
+                    <canvas id="consultasChart"></canvas>
+                </div>
+            </div>
+            <div class="chart-card">
+                <h3 class="chart-title">Distribución por Especialidad</h3>
+                <div class="chart-container">
+                    <canvas id="especialidadChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tables-container">
+            <div class="table-card">
+                <h3 class="table-title">Top Fisioterapeutas</h3>
+                <table class="mini-table">
+                    <thead>
+                        <tr>
+                            <th>Fisioterapeuta</th>
+                            <th>Consultas</th>
+                            <th>Rendimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Dr. Martínez</strong></td>
+                            <td>98</td>
+                            <td><span class="performance-badge performance-excelente">Excelente</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dra. Silva</strong></td>
+                            <td>87</td>
+                            <td><span class="performance-badge performance-excelente">Excelente</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dr. Rodríguez</strong></td>
+                            <td>76</td>
+                            <td><span class="performance-badge performance-bueno">Bueno</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dra. García</strong></td>
+                            <td>65</td>
+                            <td><span class="performance-badge performance-bueno">Bueno</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Dr. López</strong></td>
+                            <td>42</td>
+                            <td><span class="performance-badge performance-regular">Regular</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-card">
+                <h3 class="table-title">Ingresos por Método de Pago</h3>
+                <table class="mini-table">
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>Monto</th>
+                            <th>%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Tarjeta</strong></td>
+                            <td>$18,450</td>
+                            <td>40.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Efectivo</strong></td>
+                            <td>$15,280</td>
+                            <td>33.8%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Transferencia</strong></td>
+                            <td>$11,500</td>
+                            <td>25.4%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="export-actions">
+            <h3 class="export-title">Exportar Reportes</h3>
+            <div class="export-buttons">
+                <button class="btn-export btn-pdf" onclick="exportarPDF()">
+                    📄 Descargar PDF
+                </button>
+                <button class="btn-export btn-excel" onclick="exportarExcel()">
+                    📊 Descargar Excel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Gráfico de consultas por mes
+        const ctx1 = document.getElementById('consultasChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Consultas',
+                    data: [280, 295, 312, 328, 335, 342],
+                    borderColor: '#00b89f',
+                    backgroundColor: 'rgba(0, 184, 159, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#f0f0f0'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Gráfico de especialidades
+        const ctx2 = document.getElementById('especialidadChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'doughnut',
+            data: {
+                labels: ['Traumatología', 'Neurología', 'Deportiva', 'Respiratoria', 'Otros'],
+                datasets: [{
+                    data: [35, 25, 20, 15, 5],
+                    backgroundColor: [
+                        '#00b89f',
+                        '#17a2b8',
+                        '#ffc107',
+                        '#28a745',
+                        '#6c757d'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            usePointStyle: true
+                        }
+                    }
+                }
+            }
+        });
+
+        function actualizarReportes() {
+            const periodo = document.getElementById('periodFilter').value;
+            const fechaInicio = document.getElementById('fechaInicio').value;
+            const fechaFin = document.getElementById('fechaFin').value;
+            
+            alert(`Actualizando reportes para: ${periodo}`);
+            // Aquí iría la lógica para actualizar los datos
+        }
+
+        function resetearFiltros() {
+            document.getElementById('periodFilter').value = 'mes';
+            document.getElementById('fechaInicio').value = '';
+            document.getElementById('fechaFin').value = '';
+            alert('Filtros reseteados');
+        }
+
+        function exportarPDF() {
+            alert('Generando reporte PDF...');
+            // Aquí iría la lógica para generar PDF
+        }
+
+        function exportarExcel() {
+            alert('Generando reporte Excel...');
+            // Aquí iría la lógica para generar Excel
+        }
+
+        // Mostrar/ocultar campos de fecha personalizada
+        document.getElementById('periodFilter').addEventListener('change', function() {
+            const fechaInputs = document.querySelectorAll('.date-input');
+            if (this.value === 'personalizado') {
+                fechaInputs.forEach(input => input.style.display = 'block');
+            } else {
+                fechaInputs.forEach(input => input.style.display = 'none');
+            }
+        });
+
+        // Inicializar fechas ocultas
+        document.querySelectorAll('.date-input').forEach(input => input.style.display = 'none');
+    </script>
+</body>
+</html>
