@@ -192,17 +192,15 @@ def crear_paciente(request):
     if request.method == 'POST':
         form = PacienteForm(request.POST)
         if form.is_valid():
-            # El método save() del formulario (si lo has sobrescrito)
-            # se encargará de hashear la contraseña.
             form.save()
             messages.success(request, 'Paciente registrado exitosamente.')
             return redirect('lista_pacientes')
         else:
             messages.error(request, 'Por favor, corrige los errores en el formulario.')
     else:
-        form = FisioterapeutaForm(initial={'rol': Usuario.PACIENTE}) # Para que el rol por defecto sea fisioterapeuta
-    return render(request, 'registro_paciente.html', {'form': form})
+        form = PacienteForm()
 
+    return render(request, 'registro_paciente.html', {'form': form})
 
 @login_required
 def editar_paciente(request, pk):

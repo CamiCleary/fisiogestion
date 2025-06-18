@@ -62,6 +62,49 @@ class FisioterapeutaForm(forms.ModelForm):
         return user
     
 class PacienteForm(forms.ModelForm):
+    password = forms.CharField(
+        label="Contraseña",
+        widget=forms.PasswordInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Contraseña segura',
+            'autocomplete': 'new-password',
+        })
+    )
+
+    class Meta:
+        model = Usuario
+        fields = [
+            'nombre', 'apellido', 'email', 'telefono',
+            'cedula', 'direccion', 'info_adicional', 'password'
+        ]
+        widgets = {
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'María'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'González'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'correo@ejemplo.com'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+58 414-1234567'}),
+            'cedula': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'V-12345678'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Av. Bolívar, casa 12'}),
+            'info_adicional': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ej: Alergias, condiciones previas',
+                'rows': 3
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Asignar rol en el form pero oculto al usuario
+        self.fields['rol'] = forms.CharField(
+            initial=Usuario.PACIENTE,
+            widget=forms.HiddenInput()
+        )
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.set_password(self.cleaned_data['password'])
+        if commit:
+            user.save()
+        return user
     # Hacemos que el campo de contraseña sea requerido y use el widget de contraseña
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
 
