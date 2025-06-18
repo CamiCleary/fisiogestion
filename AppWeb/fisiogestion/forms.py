@@ -24,7 +24,10 @@ class PacienteForm(UserCreationForm):
 class FisioterapeutaForm(UserCreationForm):
     class Meta:
         model = Usuario
-        fields = ['nombre', 'apellido', 'email', 'telefono', 'direccion', 'cedula', 'especialidad']
+        fields = [
+            'nombre', 'apellido', 'email', 'telefono', 'direccion',
+            'cedula', 'especialidad', 'info_adicional', 'rol', 'password'
+        ]
         widgets = {
             'password': forms.PasswordInput(),
         }
