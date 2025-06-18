@@ -8,6 +8,7 @@
   <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
   <style>
+    /* Tus estilos CSS existentes */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -130,41 +131,43 @@
       background-color: #f9f9f9;
     }
 
-.acciones-btn {
-  display: flex;
-  flex-direction: row;
-  gap: 6px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
+    .acciones-btn {
+      display: flex;
+      flex-direction: row;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-start;
+    }
 
-.btn-editar, .btn-eliminar {
-  padding: 6px 12px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  text-decoration: none;
-  color: white;
-  display: inline-block;
-  transition: background 0.3s ease;
-}
+    .btn-editar, .btn-eliminar {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      text-decoration: none;
+      color: white;
+      display: inline-block;
+      transition: background 0.3s ease;
+      cursor: pointer;
+    }
 
-.btn-editar {
-  background-color: #ffc107;
-  color: #000;
-}
+    .btn-editar {
+      background-color: #ffc107;
+      color: #000;
+    }
 
-.btn-editar:hover {
-  background-color: #e0a800;
-}
+    .btn-editar:hover {
+      background-color: #e0a800;
+    }
 
-.btn-eliminar {
-  background-color: #e74c3c;
-}
+    .btn-eliminar {
+      background-color: #e74c3c;
+    }
 
-.btn-eliminar:hover {
-  background-color: #c0392b;
-}
+    .btn-eliminar:hover {
+      background-color: #c0392b;
+    }
+
     .acciones a:hover {
       opacity: 0.85;
     }
@@ -198,43 +201,56 @@
 
     .button-submit:hover {
       background-color: #009e8a;
-      
     }
-
+    
+    /* Nuevos estilos para mejor visualización */
+    .status-message {
+      padding: 12px;
+      margin: 15px 0;
+      border-radius: 6px;
+      text-align: center;
+    }
+    
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
   </style>
 </head>
 <body>
+
   <div class="main">
     <div style="margin-bottom: 5px;">
-      <a href="{% url 'dashboard' %}" style="
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: #00b89f;
-        color: #fff;
-        text-decoration: none;
-        padding: 10px 18px;
-        border-radius: 6px;
-        font-weight: 600;
-        box-shadow: 0 2px 6px rgba(0,184,159,0.08);
-        transition: background 0.2s;
-      " onmouseover="this.style.background='#01907e'" onmouseout="this.style.background='#00b89f'">
+      <a href="{% url 'dashboard' %}" class="button-submit" style="display: inline-flex; align-items: center; gap: 8px;">
         <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
           <path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+        Volver
       </a>
     </div>
+    
     <div class="breadcrumb">Inicio / Pacientes</div>
 
     <div class="form-container">
       <h2>Gestión de Pacientes</h2>
-
+      
       <div class="form-section-title">Buscar Pacientes</div>
-      <div class="form-group">
-        <input type="text" placeholder="Buscar paciente por nombre o cédula..."/>
-      </div>
+      <form method="GET" action="{% url 'lista_pacientes' %}">
+  <div class="form-group">
+    <input type="text" name="q"
+           placeholder="Buscar paciente por nombre o cédula..."
+           value="{{ search_query }}" />
+    <button type="submit" class="button-submit">Buscar</button>
+  </div>
+</form>
 
       <div class="form-section-title">Pacientes Registrados</div>
+      {% if pacientes %}
       <table>
         <thead>
           <tr>
@@ -258,24 +274,54 @@
             <td>{{ paciente.telefono }}</td>
             <td>{{ paciente.email }}</td>
             <td>{{ paciente.direccion }}</td>
-<td>
-  <div class="acciones-btn">
-    <a href="{% url 'editar_paciente' paciente.id %}" class="btn-editar">Editar</a>
-    <a href="{% url 'eliminar_paciente' paciente.id %}" class="btn-eliminar">Eliminar</a>
-  </div>
-</td>
-
+            <td>
+              <div class="acciones-btn">
+                <a href="{% url 'editar_paciente' paciente.id %}" class="btn-editar">Editar</a>
+                <a href="{% url 'eliminar_paciente' paciente.id %}" class="btn-eliminar">Eliminar</a>
+              </div>
+            </td>
           </tr>
-          {% empty %}
-          <tr><td colspan="8">No hay pacientes registrados.</td></tr>
           {% endfor %}
         </tbody>
       </table>
+      {% else %}
+      <div class="status-message info">
+        <p>No se encontraron pacientes registrados.</p>
+      </div>
+      {% endif %}
 
       <div class="button-group">
         <a href="{% url 'registro_paciente' %}" class="button-submit">+ Nuevo Paciente</a>
       </div>
     </div>
   </div>
+  
+  <script>
+    // Función para confirmar eliminación
+    document.querySelectorAll('.btn-eliminar').forEach(button => {
+      button.addEventListener('click', function(e) {
+        if(!confirm('¿Estás seguro de que deseas eliminar este paciente?')) {
+          e.preventDefault();
+        }
+      });
+    });
+    
+    // Función para la búsqueda en tiempo real
+    document.querySelector('input[name="q"]').addEventListener('input', function() {
+      const searchTerm = this.value.toLowerCase();
+      const rows = document.querySelectorAll('tbody tr');
+      
+      rows.forEach(row => {
+        const nombre = row.children[1].textContent.toLowerCase();
+        const cedula = row.children[3].textContent.toLowerCase();
+        
+        if(nombre.includes(searchTerm) || cedula.includes(searchTerm)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

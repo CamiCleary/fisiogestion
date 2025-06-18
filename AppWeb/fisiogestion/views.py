@@ -164,32 +164,27 @@ def eliminar_fisioterapeuta(request, pk):
 
 @login_required
 def lista_pacientes(request):
-    # --- LA CORRECCIÓN ESTÁ AQUÍ ---
-
-    # Paso 1: Define el queryset BASE. 
-    # En lugar de todos los usuarios, partimos solo de los que ya son Fisioterapeutas.
+    # 1) Queryset base: solo usuarios con rol Paciente
     queryset = Usuario.objects.filter(rol=Usuario.PACIENTE)
 
-    # Paso 2: Obtén el término de búsqueda de la URL (si existe).
-    search_query = request.GET.get('q', '')
+    # 2) Término de búsqueda desde la URL, Ej: /pacientes/?q=María
+    search_query = request.GET.get('q', '').strip()
 
-    # Paso 3: Si hay un término de búsqueda, aplica el filtro ADICIONAL sobre el queryset base.
+    # 3) Si hay búsqueda, filtramos por nombre, apellido o cédula
     if search_query:
         queryset = queryset.filter(
             Q(nombre__icontains=search_query) |
             Q(apellido__icontains=search_query) |
-            Q(email__icontains=search_query)
+            Q(cedula__icontains=search_query)
         )
-        # Nota: Asumo que tu modelo Usuario tiene los campos 'nombre', 'apellido' y 'email'.
-        #       Ajusta los campos si se llaman diferente.
 
-    # Paso 4: Prepara el contexto para enviar al template.
+    # 4) Enviamos al template
     context = {
-        'fisioterapeutas': queryset,  # Pasamos el queryset final (ya filtrado)
-        'search_query': search_query, # Devolvemos la búsqueda para que el campo no se borre
+        'pacientes': queryset,
+        'search_query': search_query,   # para rellenar el input si quieres
     }
-    
     return render(request, 'lista_pacientes.html', context)
+
 
 
 @login_required

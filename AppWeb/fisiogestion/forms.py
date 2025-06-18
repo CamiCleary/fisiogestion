@@ -70,7 +70,7 @@ class PacienteForm(forms.ModelForm):
         # Define los campos que quieres en el formulario
         fields = [
             'nombre', 'apellido', 'email', 'telefono', 
-            'cedula', 'direccion', 
+            'cedula', 'direccion', 'rol',
             'info_adicional', 'password'
         ]
 
