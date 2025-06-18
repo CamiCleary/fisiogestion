@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar Pago</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+      min-height: 100vh;
+      padding: 40px;
+    }
+
+    .form-container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .form-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #008f86;
+      margin-bottom: 24px;
+    }
+
+    label {
+      font-weight: 500;
+      color: #444;
+    }
+
+    .form-control, select {
+      border-radius: 8px;
+    }
+
+    .btn-primary {
+      background-color: #00b89f;
+      border: none;
+      font-weight: 600;
+    }
+
+    .btn-primary:hover {
+      background-color: #009e8a;
+    }
+
+    .btn-cancelar {
+      text-decoration: none;
+      font-size: 14px;
+      margin-left: 15px;
+      color: #777;
+    }
+
+    .btn-cancelar:hover {
+      text-decoration: underline;
+    }
+
+    .btn-volver {
+      font-size: 14px;
+      padding: 6px 14px;
+      border-radius: 6px;
+            color: #17ccb7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="form-container">
+  <h2 class="form-title">Registrar nuevo pago</h2>
+
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Seleccionar consulta -->
+    <div class="mb-3">
+      <label for="consulta">Consulta:</label>
+      <select id="consulta" name="consulta" class="form-select" required>
+        <option value="">Seleccione una consulta</option>
+        {% for consulta in consultas %}
+          <option value="{{ consulta.id }}">
+            {{ consulta.fecha }} - {{ consulta.paciente.nombre }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <!-- Monto -->
+    <div class="mb-3">
+      <label for="monto">Monto ($):</label>
+      <input type="number" step="0.01" min="0" class="form-control" name="monto" id="monto" required>
+    </div>
+
+    <!-- Método de pago -->
+    <div class="mb-3">
+      <label for="metodo_pago">Método de pago:</label>
+      <select id="metodo_pago" name="metodo_pago" class="form-select" required>
+        <option value="">Seleccione un método</option>
+        <option value="Pago móvil">Pago móvil</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Zelle">Zelle</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Otro">Otro</option>
+      </select>
+    </div>
+
+    <!-- Subir referencia -->
+    <div class="mb-3">
+      <label for="referencia">Subir imagen de referencia:</label>
+      <input type="file" name="referencia" id="referencia" class="form-control" accept="image/*" required>
+    </div>
+
+    <!-- Botones -->
+    <div class="d-flex align-items-center mt-4 gap-3">
+      <button type="submit" class="btn btn-primary px-4">Registrar Pago</button>
+      <a href="{% url 'pagos' %}" class="btn-cancelar">Cancelar</a>
+      <a href="javascript:history.back()" class="btn btn-outline-secondary btn-volver">Volver</a>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,150 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mis Pagos</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f8fafc;
+    }
+
+    main {
+      padding: 40px;
+      background-color: #f0f4f8;
+      min-height: 100vh;
+    }
+
+    table th, table td {
+      vertical-align: middle;
+    }
+
+    .shadow {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .btn-outline-primary {
+      font-size: 14px;
+      padding: 4px 10px;
+    }
+
+    .list-group-item {
+      font-size: 15px;
+    }
+
+    .alert-info {
+      font-size: 14px;
+    }
+
+    .btn-back {
+      background-color: #0a4d68;
+      color: white;
+      font-weight: 500;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background-color 0.3s;
+    }
+
+    .btn-back:hover {
+      background-color: #0683b9;
+      color: white;
+    }
+
+    .titulo-principal {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+<main class="container-fluid">
+  <div class="row g-4">
+    <!-- Tabla de pagos -->
+    <div class="col-lg-8">
+      <div class="bg-white p-4 shadow rounded">
+        <div class="titulo-principal">
+          <h3 class="mb-0">Mis pagos</h3>
+          <a href="javascript:history.back()" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+        </div>
+        <div class="mb-3">
+          <input type="text" class="form-control" placeholder="Buscar pago por fecha o método...">
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Fecha</th>
+                <th>Método</th>
+                <th>Monto ($)</th>
+                <th>Fisioterapeuta</th>
+                <th>Factura</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pago in pagos %}
+                <tr>
+                  <td>{{ pago.fecha_pago|date:"Y-m-d H:i" }}</td>
+                  <td>{{ pago.metodo_pago }}</td>
+                  <td>${{ pago.monto }}</td>
+                  <td>{{ pago.consulta.fisioterapeuta.nombre }}</td>
+                  <td>
+                    {% if pago.facturas.all %}
+                      <a href="{% url 'ver_factura_pdf' pago.facturas.first.id %}" class="btn btn-outline-primary btn-sm" target="_blank">Ver PDF</a>
+                    {% else %}
+                      <span class="text-muted">No disponible</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center text-muted">No hay pagos registrados.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info de pago -->
+    <div class="col-lg-4">
+      <div class="bg-white p-4 shadow rounded">
+        <h5 class="mb-3 text-primary">Detalles de Pago</h5>
+        <ul class="list-group mb-3">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Banco: <span class="fw-semibold">BANESCO</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Teléfono (Pago Móvil): <span class="fw-semibold">+58 412-1234567</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Cédula/RIF: <span class="fw-semibold">V-12345678</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Nombre/Razón Social: <span class="fw-semibold">Fisiogestión Salud C.A.</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Nº de Cuenta: <span class="fw-semibold">0134-5678-9012-3456-7890</span>
+          </li>
+        </ul>
+        <div class="alert alert-info small" role="alert">
+          Puede realizar pago móvil o transferencia bancaria. Envíe el comprobante por WhatsApp para confirmar su transacción.
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+</body>
+</html>
