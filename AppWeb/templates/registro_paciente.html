@@ -6,99 +6,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Registrar Paciente</title>
   <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
-
-  <!-- Bootstrap CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-  <!-- CSS personalizado -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/registro_paciente.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/registro_paciente.css' %}" />
 </head>
 <body class="bg-light">
+  <div class="d-flex min-vh-100">
+    <main class="flex-grow-1 p-5">
+      <div class="mb-4 text-muted small">Pacientes &gt; Nuevo Paciente</div>
+      <div class="bg-white p-4 shadow rounded" style="max-width: 700px;">
+        <h3 class="mb-4">Registrar Paciente</h3>
 
-<div class="d-flex min-vh-100">
-  <!-- Sidebar -->
+        <form method="post" novalidate>
+          {% csrf_token %}
 
-  <!-- Main -->
-  <main class="flex-grow-1 p-5">
-    <div class="mb-4 text-muted small">Pacientes &gt; Nuevo Paciente</div>
-    <div class="bg-white p-4 shadow rounded" style="max-width: 700px;">
-      <h3 class="mb-4">Registrar Paciente</h3>
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {{ form.non_field_errors }}
+            </div>
+          {% endif %}
 
-      <form method="post">
-        {% csrf_token %}
-        <div class="row g-3">
-          <div class="col-md-6">
-            <label for="id_nombre" class="form-label">Nombre:</label>
-            <input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="María" value="{{ form.nombre.value|default_if_none:'' }}" />
-            {% if form.nombre.errors %}
-              <div class="text-danger small mt-1">{{ form.nombre.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="col-md-6">
-            <label for="id_apellido" class="form-label">Apellido:</label>
-            <input type="text" name="apellido" id="id_apellido" class="form-control" placeholder="González" value="{{ form.apellido.value|default_if_none:'' }}" />
-            {% if form.apellido.errors %}
-              <div class="text-danger small mt-1">{{ form.apellido.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="col-md-6">
-            <label for="id_cedula" class="form-label">Cédula:</label>
-            <input type="text" name="cedula" id="id_cedula" class="form-control" placeholder="Ej: V-12345678" value="{{ form.cedula.value|default_if_none:'' }}" />
-            {% if form.cedula.errors %}
-              <div class="text-danger small mt-1">{{ form.cedula.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="col-md-6">
-            <label for="id_telefono" class="form-label">Teléfono:</label>
-            <input type="text" name="telefono" id="id_telefono" class="form-control" placeholder="Ej: +58 414-1234567" value="{{ form.telefono.value|default_if_none:'' }}" />
-            {% if form.telefono.errors %}
-              <div class="text-danger small mt-1">{{ form.telefono.errors.0 }}</div>
-            {% endif %}
-          </div>
-          <div class="col-md-6">
-            <label for="id_email" class="form-label">Correo electrónico:</label>
-            <input type="email" name="email" id="id_email" class="form-control" placeholder="correo@ejemplo.com" value="{{ form.email.value|default_if_none:'' }}" />
-            {% if form.email.errors %}
-              <div class="text-danger small mt-1">{{ form.email.errors.0 }}</div>
-            {% endif %}
+          <div class="row g-3">
+            {% for field in form.visible_fields %}
+              <div class="{% if field.name in 'info_adicional' %}col-12{% else %}col-md-6{% endif %}">
+                <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}{% if field.field.required %}*{% endif %}</label>
+                {{ field }}
+                {% if field.errors %}
+                  <div class="text-danger small mt-1">
+                    {{ field.errors|striptags }}
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
           </div>
 
-          <div class="col-md-6">
-            <label for="id_password" class="form-label">Contraseña:</label>
-            <input type="password" name="password" id="id_password" class="form-control" placeholder="Contraseña segura" />
-            {% if form.password.errors %}
-              <div class="text-danger small mt-1">{{ form.password.errors.0 }}</div>
-            {% endif %}
+          <div class="mt-4 d-flex gap-3">
+            <button type="submit" class="btn btn-success">Registrar Paciente</button>
+            <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-secondary">Cancelar</a>
           </div>
-
-          <div class="col-12">
-            <label for="id_direccion" class="form-label">Dirección:</label>
-            <input type="text" name="direccion" id="id_direccion" class="form-control" placeholder="Ej: Av. Bolívar, casa 12" value="{{ form.direccion.value|default_if_none:'' }}" />
-            {% if form.direccion.errors %}
-              <div class="text-danger small mt-1">{{ form.direccion.errors.0 }}</div>
-            {% endif %}
-          </div>
-
-          <div class="col-12">
-            <label for="id_info_adicional" class="form-label">Información adicional:</label>
-            <textarea name="info_adicional" id="id_info_adicional" class="form-control" placeholder="Ej: Alergias, condiciones previas">{{ form.info_adicional.value|default_if_none:'' }}</textarea>
-            {% if form.info_adicional.errors %}
-              <div class="text-danger small mt-1">{{ form.info_adicional.errors.0 }}</div>
-            {% endif %}
-          </div>
-        </div>
-
-        <div class="mt-4 d-flex gap-3">
-          <button type="submit" class="btn btn-success">Registrar Paciente</button>
-          <a href="{% url 'lista_pacientes' %}" class="btn btn-outline-secondary">Cancelar</a>
-        </div>
-      </form>
-
-    </div>
-  </main>
-</div>
-
+        </form>
+      </div>
+    </main>
+  </div>
 </body>
 </html>

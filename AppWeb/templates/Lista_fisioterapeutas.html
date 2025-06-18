@@ -155,13 +155,7 @@
             <td>{{ fisioterapeuta.email }}</td>
             <td>
               <a href="{% url 'editar_fisioterapeuta' fisioterapeuta.id %}" class="button-edit">Editar</a>
-              <form action="{% url 'eliminar_fisioterapeuta' fisioterapeuta.id %}" method="post" style="display:inline">
-  {% csrf_token %}
-  <button type="submit" class="button-delete"
-          onclick="return confirm('¿Seguro que quieres eliminar a {{ fisioterapeuta.nombre }}?');">
-    Eliminar
-  </button>
-</form>
+              <a href="{% url 'eliminar_fisioterapeuta' fisioterapeuta.id %}" class="button-delete">Eliminar</a>
             </td>
           </tr>
           {% empty %}
