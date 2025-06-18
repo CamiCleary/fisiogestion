@@ -23,5 +23,5 @@ urlpatterns = [
     # Reportes y telemedicina
     path('reportes/', views.reportes, name='reportes'),
     path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'),
-    path('telemedicina/', views.telemedicina_view, name='telemedicina_page'),
+    path('telemedicina/', views.telemedicina_view, name='telemedicina'),
 ]

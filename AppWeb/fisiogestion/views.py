@@ -243,11 +243,4 @@ def reporte_pacientes_view(request):
 
 @login_required 
 def telemedicina_view(request):
-   
-    context = {
-        'titulo_pagina': 'Telemedicina y Archivos de Paciente',
-        'nombre_fisioterapeuta': 'Dr. Juan Pérez', 
-        'nombre_paciente': 'María García', 
-    
-    }
-    return render(request, 'telemedicina.html', context)
+    return render(request, 'telemedicina.html')
