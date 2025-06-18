@@ -5,6 +5,11 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from .forms import PacienteForm, FisioterapeutaForm, LoginForm
 from django.db.models import Q
+from django.db.models.functions import TruncMonth
+from django.db.models import Count, Sum
+from datetime import datetime
+
+from .models import Usuario, Consulta, Pago
 
 Usuario = get_user_model()
 
@@ -295,3 +300,41 @@ def citas_view(request):
 
     context = {"citas": citas, "page_title": "Mis Citas"}  # Título para la página
     return render(request, "fisiogestion/citas.html", context)
+
+@login_required
+def reportes(request):
+    # Totales generales
+    total_pacientes = Usuario.objects.filter(rol=Usuario.PACIENTE).count()
+    total_fisioterapeutas = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA).count()
+
+    # Citas del mes actual
+    mes_actual = datetime.now().month
+    total_citas_mes = Consulta.objects.filter(
+        fecha_consulta__month=mes_actual
+    ).count()
+
+    # Ingresos totales
+    ingresos_totales = Pago.objects.aggregate(total=Sum('monto'))['total'] or 0
+
+    # Citas agrupadas por mes
+    datos = Consulta.objects.annotate(
+        mes=TruncMonth('fecha_consulta')
+    ).values('mes').annotate(c=Count('id')).order_by('mes')
+
+    # Preparar datos para la plantilla: mes corto + porcentaje relativo
+    meses_etq = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    citas_mensuales = {}
+    max_c = max((d['c'] for d in datos), default=1)
+    for d in datos:
+        idx = d['mes'].month - 1
+        pct = int((d['c'] / max_c) * 100)
+        citas_mensuales[meses_etq[idx]] = pct
+
+    context = {
+        'total_pacientes': total_pacientes,
+        'total_fisioterapeutas': total_fisioterapeutas,
+        'total_citas_mes': total_citas_mes,
+        'ingresos_totales': ingresos_totales,
+        'citas_mensuales': citas_mensuales,
+    }
+    return render(request, 'reportes.html', context)
