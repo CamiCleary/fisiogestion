@@ -29,14 +29,21 @@ urlpatterns = [
 
     # Reportes y telemedicina
     path('reportes/', views.reportes, name='reportes'),
-    path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'),
+    path('reporte_paciente/', views.reporte_paciente_view, name='reporte_paciente'),
     path('telemedicina/', views.telemedicina_view, name='telemedicina'),
-    path('telemedicina-paciente/', views.telemedicina_paciente_view, name='telemedicina-paciente'),
+    path('telemedicina_paciente/', views.telemedicina_paciente_view, name='telemedicina_paciente'),
     
     
     # Pagos
     path('pagos_fisioterapeuta/', views.pagos_fisioterapeuta, name='pagos_fisioterapeuta'),
     path('pagos_paciente/', views.pagos_paciente, name='pagos_paciente'),
+    path('pagos_administrador/', views.pagos_administrador, name='pagos_administrador'),
+    path('agregar_pagos/', views.agregar_pagos, name='agregar_pagos'),
+    path(
+        'ver_factura_pdf/<int:pk>/',
+        views.ver_factura_pdf,
+        name='ver_factura_pdf'
+    ),
 ]
 
 if settings.DEBUG:

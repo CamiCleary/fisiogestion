@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import Usuario , Consulta
+from .models import Usuario , Consulta , Pago
 
 Usuario = get_user_model()
 
@@ -187,3 +187,61 @@ class ConsultaForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['fisioterapeuta'].queryset = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)
         self.fields['paciente'].queryset = Usuario.objects.filter(rol=Usuario.PACIENTE)
+        
+class PagoForm(forms.ModelForm):
+    
+    # Opciones para el campo 'metodo_pago'
+    METODO_PAGO_CHOICES = [
+        ('', 'Seleccione un método'),
+        ('Transferencia', 'Transferencia'),
+        ('Pago Móvil', 'Pago Móvil'),
+        ('Efectivo', 'Efectivo'),
+        ('Tarjeta', 'Tarjeta de Débito/Crédito'),
+    ]
+
+    # Redefinimos el campo para usar nuestras opciones personalizadas
+    metodo_pago = forms.ChoiceField(
+        choices=METODO_PAGO_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-select'})
+    )
+
+    class Meta:
+        model = Pago
+        # Campos del modelo que se incluirán en el formulario
+        fields = ['consulta', 'fecha_pago', 'monto', 'metodo_pago', 'imagen_referencia']
+        
+        # Widgets para personalizar la apariencia de los campos y que coincida con tu HTML
+        widgets = {
+            'consulta': forms.Select(attrs={'class': 'form-select'}),
+            'fecha_pago': forms.DateTimeInput(
+                attrs={'type': 'datetime-local', 'class': 'form-control'}
+            ),
+            'monto': forms.NumberInput(
+                attrs={'class': 'form-control', 'step': '0.01', 'placeholder': 'Ej: 25.00'}
+            ),
+            'imagen_referencia': forms.ClearableFileInput(
+                attrs={'class': 'form-control', 'accept': 'image/*'}
+            ),
+        }
+        
+        # Etiquetas personalizadas para los campos del formulario
+        labels = {
+            'consulta': 'Consulta Asociada:',
+            'fecha_pago': 'Fecha y Hora del Pago:',
+            'monto': 'Monto ($):',
+            'metodo_pago': 'Método de Pago:',
+            'imagen_referencia': 'Comprobante (opcional):'
+        }
+
+    def __init__(self, *args, **kwargs):
+        """
+        Personalizamos el formulario al iniciarse.
+        Hacemos que el campo de consulta muestre información útil.
+        """
+        super().__init__(*args, **kwargs)
+        
+        # Filtramos para mostrar solo consultas relevantes (puedes ajustar esta lógica)
+        self.fields['consulta'].queryset = Consulta.objects.order_by('-fecha_consulta')
+        
+        # Cambiamos cómo se muestra cada opción en el <select> de consultas
+        self.fields['consulta'].label_from_instance = lambda obj: f"{obj.fecha_consulta.strftime('%d/%m/%Y')} - {obj.paciente}"

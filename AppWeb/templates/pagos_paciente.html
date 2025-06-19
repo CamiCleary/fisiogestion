@@ -1,6 +1,7 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -26,7 +27,8 @@
       min-height: 100vh;
     }
 
-    table th, table td {
+    table th,
+    table td {
       vertical-align: middle;
     }
 
@@ -36,7 +38,8 @@
 
     /* Custom class for primary teal color text */
     .text-fisiogestion-primary {
-      color: #00B89F !important; /* Use !important to override Bootstrap's text-primary */
+      color: #00B89F !important;
+      /* Use !important to override Bootstrap's text-primary */
     }
 
     .btn-outline-primary {
@@ -62,18 +65,21 @@
     }
 
     .btn-back {
-      background-color: #00B89F; /* Changed to #00B89F */
+      background-color: #00B89F;
+      /* Changed to #00B89F */
       color: white;
       font-weight: 500;
       padding: 8px 20px;
       border-radius: 8px;
       text-decoration: none;
       transition: background-color 0.3s;
-      border: none; /* Ensure no default border */
+      border: none;
+      /* Ensure no default border */
     }
 
     .btn-back:hover {
-      background-color: #009e8a; /* Slightly darker teal for hover */
+      background-color: #009e8a;
+      /* Slightly darker teal for hover */
       color: white;
     }
 
@@ -86,7 +92,8 @@
 
     /* New style for Add Payment button */
     .btn-add-payment {
-      background-color: #00B89F; /* Teal background */
+      background-color: #00B89F;
+      /* Teal background */
       color: white;
       font-weight: 500;
       padding: 8px 15px;
@@ -98,91 +105,99 @@
     }
 
     .btn-add-payment:hover {
-      background-color: #009e8a; /* Slightly darker teal on hover */
+      background-color: #009e8a;
+      /* Slightly darker teal on hover */
       color: white;
     }
   </style>
 </head>
+
 <body>
-<main class="container-fluid">
-  <div class="row g-4">
-    <!-- Tabla de pagos -->
-    <div class="col-lg-8">
-      <div class="bg-white p-4 shadow rounded">
-        <div class="titulo-principal">
-          <h3 class="mb-0 text-fisiogestion-primary">Mis pagos</h3>
-          <div class="d-flex gap-2">
-            <a href="#" class="btn-add-payment"><i class="fas fa-plus me-2"></i>Agregar Pago</a>
-            <a href="{% url '/dashboard' %}" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+  <main class="container-fluid">
+    <div class="row g-4">
+      <!-- Tabla de pagos -->
+      <div class="col-lg-8">
+        <div class="bg-white p-4 shadow rounded">
+          <div class="titulo-principal">
+            <h3 class="mb-0 text-fisiogestion-primary">Mis pagos</h3>
+            <div class="d-flex gap-2">
+              <a href="{% url 'agregar_pagos' %}" class="btn-add-payment"><i class="fas fa-plus me-2"></i>Agregar
+                Pago</a>
+              <a href="{% url 'dashboard' %}" class="btn-back"><i class="fas fa-arrow-left me-2"></i>Volver</a>
+            </div>
           </div>
-        </div>
-        <div class="mb-3">
-          <input type="text" class="form-control" placeholder="Buscar pago por fecha o método...">
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover align-middle">
-            <thead class="table-light">
-              <tr>
-                <th>Fecha</th>
-                <th>Método</th>
-                <th>Monto ($)</th>
-                <th>Fisioterapeuta</th>
-                <th>Factura</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for pago in pagos %}
+          <div class="mb-3">
+            <input type="text" class="form-control" placeholder="Buscar pago por fecha o método...">
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Fecha</th>
+                  <th>Método</th>
+                  <th>Monto ($)</th>
+                  <th>Fisioterapeuta</th>
+                  <th>Factura</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for pago in pagos %}
                 <tr>
                   <td>{{ pago.fecha_pago|date:"Y-m-d H:i" }}</td>
                   <td>{{ pago.metodo_pago }}</td>
                   <td>${{ pago.monto }}</td>
                   <td>{{ pago.consulta.fisioterapeuta.nombre }}</td>
-                  <td>
-                    {% if pago.facturas.all %}
-                      <a href="{% url 'ver_factura_pdf' pago.facturas.first.id %}" class="btn btn-outline-primary btn-sm" target="_blank">Ver PDF</a>
+                  <td data-label="Factura">
+                    {% if pago.imagen_referencia %}
+                    <a href="{% url 'ver_factura_pdf' pago.id %}" class="btn btn-outline-primary btn-sm"
+                      target="_blank">
+                      Ver Comprobante
+                    </a>
                     {% else %}
-                      <span class="text-muted">No disponible</span>
+                    <span class="text-muted">No disponible</span>
                     {% endif %}
                   </td>
                 </tr>
-              {% empty %}
+                {% empty %}
                 <tr>
                   <td colspan="5" class="text-center text-muted">No hay pagos registrados.</td>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Info de pago -->
-    <div class="col-lg-4">
-      <div class="bg-white p-4 shadow rounded">
-        <h5 class="mb-3 text-fisiogestion-primary">Detalles de Pago</h5>
-        <ul class="list-group mb-3">
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Banco: <span class="fw-semibold">BANESCO</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Teléfono (Pago Móvil): <span class="fw-semibold">+58 412-1234567</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Cédula/RIF: <span class="fw-semibold">V-12345678</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Nombre/Razón Social: <span class="fw-semibold">Fisiogestión Salud C.A.</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Nº de Cuenta: <span class="fw-semibold">0134-5678-9012-3456-7890</span>
-          </li>
-        </ul>
-        <div class="alert alert-info small" role="alert">
-          Puede realizar pago móvil o transferencia bancaria. Envíe el comprobante por WhatsApp para confirmar su transacción.
+      <!-- Info de pago -->
+      <div class="col-lg-4">
+        <div class="bg-white p-4 shadow rounded">
+          <h5 class="mb-3 text-fisiogestion-primary">Detalles de Pago</h5>
+          <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Banco: <span class="fw-semibold">BANESCO</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Teléfono (Pago Móvil): <span class="fw-semibold">+58 412-1234567</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Cédula/RIF: <span class="fw-semibold">V-12345678</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Nombre/Razón Social: <span class="fw-semibold">Fisiogestión Salud C.A.</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+              Nº de Cuenta: <span class="fw-semibold">0134-5678-9012-3456-7890</span>
+            </li>
+          </ul>
+          <div class="alert alert-info small" role="alert">
+            Puede realizar pago móvil o transferencia bancaria. Envíe el comprobante por WhatsApp para confirmar su
+            transacción.
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</main>
+  </main>
 </body>
+
 </html>

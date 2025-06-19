@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm
+from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm , PagoForm
 from django.db.models import Q
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
@@ -263,20 +263,11 @@ def reportes(request):
     return render(request, "reportes.html")
 
 @login_required
-def reporte_pacientes_view(request):
+def reporte_paciente_view(request):
     context = {
         "titulo": "Reporte de Pacientes",
     }
-    return render(request, "fisiogestion/pacientes_reporte.html", context)
-
-
-@login_required
-def telemedicina_view(request):
-    return render(request, "telemedicina_fisioterapeuta.html")
-
-@login_required
-def telemedicina_paciente_view(request):
-    return render(request, "telemedicina_paciente.html")
+    return render(request, "reporte_paciente.html", context)
 
 
 #CITAS FALTA ARREGLAR ESTO
@@ -328,17 +319,7 @@ def reportes(request):
 
 @login_required
 def calendario_view(request):
-    """
-    Vista para mostrar un calendario con las citas del fisioterapeuta.
-    """
-    # Obtener todas las citas del fisioterapeuta logueado
-    citas = Consulta.objects.filter(fisioterapeuta=request.user).order_by("fecha_consulta")
-
-    context = {
-        "citas": citas,
-        "page_title": "Calendario de Citas",
-    }
-    return render(request, "calendario.html", context)
+    return render(request, "calendario.html")
 
 
 @login_required
@@ -459,9 +440,103 @@ def eliminar_consulta(request, pk):
 
 
 @login_required
-def pagos_fisioterapeuta(request):    
-    return render(request, 'pagos_fisioterapeuta.html')
+def pagos_fisioterapeuta(request):
+    # Trae todos los pagos de las consultas donde el fisioterapeuta logueado es el responsable
+    pagos = (Pago.objects
+             .filter(consulta__fisioterapeuta=request.user)
+             .select_related('consulta__paciente', 'consulta__fisioterapeuta'))
+
+    return render(request, 'pagos_fisioterapeuta.html', {
+        'pagos': pagos
+    })
 
 @login_required
 def pagos_paciente(request):
-    return render(request, 'pagos_paciente.html')
+    # Traemos todos los pagos asociados a las consultas de este paciente
+    pagos = Pago.objects.filter(
+        consulta__paciente=request.user
+    ).select_related('consulta__fisioterapeuta')
+
+    return render(request, 'pagos_paciente.html', {
+        'pagos': pagos
+    })
+
+@login_required
+def pagos_administrador(request):
+    # Solo administradores
+    if request.user.rol != Usuario.ADMIN:
+        messages.error(request, "No tienes permiso para ver esta página.")
+        return redirect('dashboard')
+
+    # Traigo todos los pagos con sus consultas, pacientes, fisioterapeutas y facturas
+    pagos = (Pago.objects
+             .select_related('consulta__paciente', 'consulta__fisioterapeuta')
+             .prefetch_related('facturas')
+             .order_by('-fecha_pago'))
+
+    return render(request, 'pagos_administrador.html', {
+        'pagos': pagos
+    })
+
+@login_required
+def telemedicina_view(request):
+    return render(request, "telemedicina_fisioterapeuta.html")
+
+@login_required
+def telemedicina_paciente_view(request):
+    return render(request, "telemedicina_paciente.html")
+
+@login_required
+def agregar_pagos(request):
+    """
+    Gestiona la creación de un nuevo pago.
+    - Si la petición es GET, muestra el formulario vacío.
+    - Si la petición es POST, procesa los datos y guarda el pago.
+    """
+    if request.method == 'POST':
+        # Creamos una instancia del formulario con los datos enviados (POST) y los archivos
+        form = PagoForm(request.POST, request.FILES)
+        
+        # Verificamos si el formulario es válido según las reglas definidas en forms.py
+        if form.is_valid():
+            # Si es válido, guardamos el objeto en la base de datos
+            form.save()
+            
+            # Mostramos un mensaje de éxito
+            messages.success(request, '¡El pago ha sido registrado exitosamente!')
+            
+            # Redirigimos al usuario a otra página (ej. el dashboard o una lista de pagos)
+            return redirect('pagos_paciente') # Asegúrate que 'dashboard_admin' es una URL válida
+        else:
+            # Si el formulario no es válido, mostramos un mensaje de error
+            messages.error(request, 'Hubo un error en el formulario. Por favor, revisa los datos.')
+            
+    else:
+        # Si la petición es GET, creamos una instancia del formulario vacío
+        form = PagoForm()
+
+    # Preparamos el contexto para enviar el formulario al template
+    context = {
+        'form': form
+    }
+    
+    # Renderizamos la plantilla, pasándole el contexto
+    return render(request, 'agregar_pagos_paciente.html', context)
+
+@login_required
+def ver_factura_pdf(request, pk):
+    # 1) Recuperar el pago
+    pago = get_object_or_404(Pago, pk=pk)
+
+    # 2) Control de permisos (solo admin, paciente dueño o el fisioterapeuta asociado)
+    user = request.user
+    es_paciente = pago.consulta.paciente == user
+    es_fisio = pago.consulta.fisioterapeuta == user
+    if not (user.rol == Usuario.ADMIN or es_paciente or es_fisio):
+        raise Http404("No tienes permiso para ver este comprobante.")
+
+    # 3) Si existe el archivo, redirigir a su URL
+    if pago.imagen_referencia:
+        return redirect(pago.imagen_referencia.url)
+    else:
+        raise Http404("Este pago no tiene comprobante asociado.")
