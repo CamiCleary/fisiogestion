@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth import get_user_model
-from .forms import PacienteForm, FisioterapeutaForm, LoginForm
+from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm
 from django.db.models import Q
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
@@ -259,11 +259,11 @@ def eliminar_paciente(request, pk):
     # GET: muestra plantilla de confirmación
     return render(request, "confirmar_eliminar_paciente.html", {"paciente": paciente})
 
-
+@login_required
 def reportes(request):
     return render(request, "reportes.html")
 
-
+@login_required
 def reporte_pacientes_view(request):
     context = {
         "titulo": "Reporte de Pacientes",
@@ -273,33 +273,21 @@ def reporte_pacientes_view(request):
 
 @login_required
 def telemedicina_view(request):
+    return render(request, "telemedicina_fisioterapeuta.html")
 
-    context = {
-        "titulo_pagina": "Telemedicina y Archivos de Paciente",
-        "nombre_fisioterapeuta": "Dr. Juan Pérez",
-        "nombre_paciente": "María García",
-    }
-    return render(request, "telemedicina.html", context)
-
-
+@login_required
+def telemedicina_paciente_view(request):
+    return render(request, "telemedicina_paciente.html")
 
 
 #CITAS FALTA ARREGLAR ESTO
 @login_required
 def citas_view(request):
-    """
-    Vista para mostrar todas las citas en una tabla.
-    """
-    # Obtener todas las citas desde la base de datos.
-    # Puedes añadir filtros aquí, por ejemplo:
-    # citas = Consulta.objects.filter(fisioterapeuta=request.user) # Para el fisioterapeuta logueado
-    # citas = Consulta.objects.order_by('fecha_consulta') # Ordenar por fecha
 
-    # Por ahora, obtenemos todas las citas para demostración
     citas = Consulta.objects.all().order_by("fecha_consulta")
 
     context = {"citas": citas, "page_title": "Mis Citas"}  # Título para la página
-    return render(request, "fisiogestion/citas.html", context)
+    return render(request, "citas.html", context)
 
 @login_required
 def reportes(request):
@@ -338,3 +326,52 @@ def reportes(request):
         'citas_mensuales': citas_mensuales,
     }
     return render(request, 'reportes.html', context)
+
+@login_required
+def calendario_view(request):
+    """
+    Vista para mostrar un calendario con las citas del fisioterapeuta.
+    """
+    # Obtener todas las citas del fisioterapeuta logueado
+    citas = Consulta.objects.filter(fisioterapeuta=request.user).order_by("fecha_consulta")
+
+    context = {
+        "citas": citas,
+        "page_title": "Calendario de Citas",
+    }
+    return render(request, "calendario.html", context)
+
+@login_required
+def consultas_view(request):
+    """
+    Vista para mostrar las consultas del fisioterapeuta.
+    """
+    # Obtener todas las consultas del fisioterapeuta logueado
+    consultas = Consulta.objects.filter(fisioterapeuta=request.user).order_by("fecha_consulta")
+
+    context = {
+        "consultas": consultas,
+        "page_title": "Mis Consultas",
+    }
+    return render(request, "consultas.html", context)
+
+@login_required
+def crear_consulta(request):
+    """
+    Vista para crear una nueva consulta con paciente, fisioterapeuta y fecha/hora.
+    """
+    if request.method == "POST":
+        form = ConsultaForm(request.POST)
+        if form.is_valid():
+            consulta = form.save()
+            messages.success(request, f"Consulta #{consulta.id} creada con éxito.")
+            return redirect('lista_consultas')  # Asume que tienes esta vista y URL
+        else:
+            messages.error(request, "Por favor, corrige los errores del formulario.")
+    else:
+        form = ConsultaForm()
+
+    return render(request, 'crear_consulta.html', {
+        'form': form,
+        'titulo': 'Nueva Consulta'
+    })

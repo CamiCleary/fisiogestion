@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import get_user_model
-from .models import Usuario
+from .models import Usuario , Consulta
 
 Usuario = get_user_model()
 
@@ -151,3 +151,30 @@ class PacienteForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+    
+class ConsultaForm(forms.ModelForm):
+    fecha_consulta = forms.DateTimeField(
+        widget=forms.DateTimeInput(attrs={
+            'type': 'datetime-local',
+            'class': 'form-control'
+        })
+    )
+
+    class Meta:
+        model = Consulta
+        fields = ['paciente', 'fisioterapeuta', 'fecha_consulta']
+        widgets = {
+            'paciente': forms.Select(attrs={'class': 'form-select'}),
+            'fisioterapeuta': forms.Select(attrs={'class': 'form-select'}),
+        }
+        labels = {
+            'paciente': 'Paciente',
+            'fisioterapeuta': 'Fisioterapeuta',
+            'fecha_consulta': 'Fecha y hora de la consulta',
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Opcional: si quieres limitar fisioterapeutas a los activos
+        self.fields['fisioterapeuta'].queryset = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)
+        self.fields['paciente'].queryset = Usuario.objects.filter(rol=Usuario.PACIENTE)

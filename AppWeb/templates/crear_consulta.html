@@ -2,104 +2,143 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Nueva Cita</title>
-  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <title>{{ titulo }} – Fisiogestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon"/>
 
   <style>
     body {
-      background-color: #f0faf9;
+      background: #f0faf9;
       font-family: 'Inter', sans-serif;
+      padding-top: 60px;
+    }
+    .topbar {
+      position: fixed; top: 0; left: 0; right: 0;
+      height: 60px; background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      display: flex; align-items: center; padding: 0 24px; z-index: 1000;
+    }
+    .topbar .title { font-size: 1.25rem; color: #008f86; font-weight: 600; }
+    .topbar .btn-logout {
+      margin-left: auto; color: #e74c3c; font-size: 1.2rem;
+      text-decoration: none; transition: color .2s;
+    }
+    .topbar .btn-logout:hover { color: #c0392b; }
+
+    .container-form {
+      max-width: 720px; margin: auto;
+    }
+    .btn-back {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #00b89f; color: #fff; padding: 8px 14px;
+      border-radius: 6px; font-weight: 500; text-decoration: none;
+      transition: background .2s;
+    }
+    .btn-back:hover { background: #009e8a; }
+
+    .form-card {
+      background: #fff; border-radius: 12px; padding: 32px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08); margin-top: 20px;
     }
 
-    .btn-volver {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #00b89f;
-      color: #fff;
-      text-decoration: none;
-      padding: 10px 18px;
-      border-radius: 6px;
-      font-weight: 600;
+    .form-card h3 {
+      color: #008f86; text-align: center; margin-bottom: 24px;
+      font-size: 1.5rem; font-weight: 600;
     }
 
-    .btn-volver:hover {
-      background: #009e8a;
-      color: #fff;
-    }
-
-    .form-container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      padding: 36px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-    }
-
-    .form-label {
-      font-weight: 600;
-    }
-
+    .form-label { font-weight: 600; }
     .form-control, .form-select {
-      border-radius: 8px;
+      border-radius: 8px; transition: box-shadow .2s;
     }
+    .form-control:focus, .form-select:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0,184,159,0.25);
+    }
+
+    .alert { border-radius: 8px; }
+
+    .btn-submit {
+      background: #00b89f; color: #fff;
+      border-radius: 6px; padding: 10px 24px;
+      font-weight: 600; transition: background .2s;
+    }
+    .btn-submit:hover { background: #009e8a; }
   </style>
 </head>
 <body>
 
-<div class="container py-5">
-  <a href="{% url 'consultas_diarias' %}" class="btn-volver mb-3">
-    <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-      <path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-    Volver
-  </a>
-
-  <div class="mb-3 text-muted small">Consultas &gt; Nueva Cita</div>
-
-  <div class="form-container">
-    <h3 class="mb-4 text-center text-primary">Registrar Nueva Cita</h3>
-
-    <form method="POST">
-      {% csrf_token %}
-
-      {% if form.non_field_errors %}
-        <div class="alert alert-danger">
-          {{ form.non_field_errors }}
-        </div>
-      {% endif %}
-
-      <div class="row g-3">
-        <div class="col-md-6">
-          <label for="{{ form.hora.id_for_label }}" class="form-label">Hora:</label>
-          {{ form.hora }}
-          <div class="text-danger small">{{ form.hora.errors }}</div>
-        </div>
-
-        <div class="col-md-6">
-          <label for="{{ form.paciente.id_for_label }}" class="form-label">Paciente:</label>
-          {{ form.paciente }}
-          <div class="text-danger small">{{ form.paciente.errors }}</div>
-        </div>
-
-        <div class="col-12">
-          <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones:</label>
-          {{ form.observaciones }}
-          <div class="text-danger small">{{ form.observaciones.errors }}</div>
-        </div>
-      </div>
-
-      <div class="mt-4 d-flex gap-3 justify-content-end">
-        <button type="submit" class="btn btn-success">Guardar Cita</button>
-        <a href="{% url 'consultas_diarias' %}" class="btn btn-outline-secondary">Cancelar</a>
-      </div>
-    </form>
+  <div class="topbar">
+    <div class="title">{{ titulo }}</div>
+    <a href="{% url 'logout' %}" class="btn-logout" title="Cerrar sesión">
+      <i class="fas fa-sign-out-alt"></i>
+    </a>
   </div>
-</div>
 
+  <div class="container container-form" style="margin-top: 2%;">
+    <a href="{% url 'consultas' %}" class="btn-back">
+      <svg width="16" height="16" fill="none" viewBox="0 0 20 20">
+        <path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Volver
+    </a>
+
+    <div class="form-card">
+      <h3>{{ titulo }}</h3>
+
+      <form method="post" novalidate>
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+
+        <div class="row g-4">
+          <!-- Fecha y hora -->
+          <div class="col-md-6">
+            <label for="{{ form.fecha_consulta.id_for_label }}" class="form-label">Fecha y Hora</label>
+            {{ form.fecha_consulta }}
+            {% for err in form.fecha_consulta.errors %}
+              <div class="text-danger small mt-1">{{ err }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Paciente -->
+          <div class="col-md-6">
+            <label for="{{ form.paciente.id_for_label }}" class="form-label">Paciente</label>
+            {{ form.paciente }}
+            {% for err in form.paciente.errors %}
+              <div class="text-danger small mt-1">{{ err }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Fisioterapeuta -->
+          <div class="col-md-6">
+            <label for="{{ form.fisioterapeuta.id_for_label }}" class="form-label">Fisioterapeuta</label>
+            {{ form.fisioterapeuta }}
+            {% for err in form.fisioterapeuta.errors %}
+              <div class="text-danger small mt-1">{{ err }}</div>
+            {% endfor %}
+          </div>
+
+          <!-- Observaciones -->
+          <div class="col-12">
+            <label for="{{ form.observaciones.id_for_label }}" class="form-label">Observaciones</label>
+            {{ form.observaciones }}
+            {% for err in form.observaciones.errors %}
+              <div class="text-danger small mt-1">{{ err }}</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn-submit">Guardar Consultas</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/a2e0c1c0f0.js" crossorigin="anonymous"></script>
 </body>
 </html>

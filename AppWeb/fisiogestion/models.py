@@ -76,6 +76,7 @@ class Consulta(models.Model):
     paciente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='consultas_paciente', limit_choices_to={'rol': Usuario.PACIENTE})
     fisioterapeuta = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='consultas_fisioterapeuta', limit_choices_to={'rol': Usuario.FISIOTERAPEUTA})
     fecha_consulta = models.DateTimeField()
+    observaciones = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return f"Consulta {self.id} - {self.paciente} con {self.fisioterapeuta} el {self.fecha_consulta}"
@@ -99,17 +100,20 @@ class Diagnostico(models.Model):
     def __str__(self):
         return f"Diagnóstico {self.id} - Consulta {self.consulta.id}"
 
-
 class Pago(models.Model):
     consulta = models.ForeignKey(Consulta, on_delete=models.CASCADE, related_name='pagos')
     fecha_pago = models.DateTimeField(auto_now_add=True)
     monto = models.DecimalField(max_digits=10, decimal_places=2)
     metodo_pago = models.CharField(max_length=50)
+    imagen_referencia = models.ImageField(
+        upload_to='pagos/referencias/',
+        blank=True,
+        null=True,
+        help_text="Sube una imagen o captura como comprobante de pago"
+    )
 
     def __str__(self):
         return f"Pago {self.id} - {self.consulta} (${self.monto})"
-
-
 class Facturacion(models.Model):
     pago = models.ForeignKey(Pago, on_delete=models.CASCADE, related_name='facturas')
     fecha_factura = models.DateTimeField(auto_now_add=True)
