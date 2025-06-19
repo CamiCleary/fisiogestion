@@ -159,13 +159,23 @@ class ConsultaForm(forms.ModelForm):
             'class': 'form-control'
         })
     )
-
+class ConsultaForm(forms.ModelForm):
     class Meta:
         model = Consulta
         fields = ['paciente', 'fisioterapeuta', 'fecha_consulta', 'observaciones']
         widgets = {
             'paciente': forms.Select(attrs={'class': 'form-select'}),
             'fisioterapeuta': forms.Select(attrs={'class': 'form-select'}),
+            'observaciones': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,  # Ajusta la altura inicial
+                'placeholder': 'Ingrese las observaciones de la consulta...'
+            }),
+            'fecha_consulta': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'dd/mm/aaaa --:--',
+                'type': 'datetime-local'
+            }),
         }
         labels = {
             'paciente': 'Paciente',
@@ -175,6 +185,5 @@ class ConsultaForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Opcional: si quieres limitar fisioterapeutas a los activos
         self.fields['fisioterapeuta'].queryset = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)
         self.fields['paciente'].queryset = Usuario.objects.filter(rol=Usuario.PACIENTE)

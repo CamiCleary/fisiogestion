@@ -65,6 +65,23 @@
       font-weight: 600; transition: background .2s;
     }
     .btn-submit:hover { background: #009e8a; }
+
+    /* ✅ Mejora del área de observaciones */
+    textarea.form-control {
+      min-height: 150px;
+      resize: vertical;
+      padding: 12px;
+      font-size: 1rem;
+      border: 1px solid #ced4da;
+      border-radius: 8px;
+      box-shadow: none;
+      transition: box-shadow 0.2s;
+    }
+
+    textarea.form-control:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0,184,159,0.25);
+      border-color: #00b89f;
+    }
   </style>
 </head>
 <body>
