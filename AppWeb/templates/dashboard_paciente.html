@@ -91,85 +91,19 @@
       font-size: 1.5em;
       text-align: center;
     }
-<<<<<<< HEAD
     .tabla-consulta {
-=======
-
-    .resumen-mensaje {
-      font-size: 18px;
-      margin-bottom: 20px;
-      color: #444;
-      text-align: center;
-    }
-
-    .tabla-consultas {
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
       width: 100%;
       border-collapse: collapse;
       margin-top: 18px;
     }
-<<<<<<< HEAD
     .tabla-consulta th, .tabla-consulta td {
-=======
-
-    .tabla-consultas th, .tabla-consultas td {
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
       padding: 12px;
       border-bottom: 1px solid #eee;
       text-align: left;
     }
-<<<<<<< HEAD
     .tabla-consulta th {
-=======
-
-    .tabla-consultas th {
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
       background-color: #f3f3f3;
     }
-<<<<<<< HEAD
-=======
-
-    .tabla-consultas tr:hover {
-      background-color: #f9f9f9;
-    }
-
-    .acciones-btn {
-      display: flex;
-      flex-direction: row;
-      gap: 6px;
-      flex-wrap: wrap;
-      justify-content: flex-start;
-    }
-
-    .btn-editar, .btn-eliminar {
-      padding: 6px 12px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      text-decoration: none;
-      color: white;
-      display: inline-block;
-      transition: background 0.3s ease;
-    }
-
-    .btn-editar {
-      background-color: #ffc107;
-      color: #000;
-    }
-
-    .btn-editar:hover {
-      background-color: #e0a800;
-    }
-
-    .btn-eliminar {
-      background-color: #e74c3c;
-    }
-
-    .btn-eliminar:hover {
-      background-color: #c0392b;
-    }
-
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
     @media (max-width: 1100px) {
       .main { flex-direction: column; padding: 20px; }
       .resumen-central, .resumen-lateral { max-width: 100%; }
@@ -182,14 +116,8 @@
       <div class="logo">
         <img src="{% static 'images/logo.png' %}" alt="Fisiogestión" />
       </div>
-<<<<<<< HEAD
       <nav class="nav">
         <a href="{% url 'consultas' %}"class="nav-link active">Mis Consultas</a>
-=======
-      <nav class="nav flex-column mb-auto">
-        <a href="{% url 'registro_fisioterapeuta' %}" class="nav-link active">Fisioterapeutas</a>
-        <a href="{% url 'consultas' %}" class="nav-link">Mis pacientes</a>
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
         <a href="#" class="nav-link">Pagos</a>
         <a href="#" class="nav-link">Telemedicina</a>
         <a href="#" class="nav-link">Reportes</a>
@@ -215,20 +143,9 @@
       <p>Consultas totales: <strong>{{ total_consultas }}</strong></p>
       <p>Consultas hoy: <strong>{{ consultas_hoy.count }}</strong></p>
     </div>
-<<<<<<< HEAD
     <div class="resumen-central">
       <h2>Mis Consultas</h2>
       <table class="tabla-consulta">
-=======
-
-    <!-- Resumen central de consultas -->
-    <div class="resumen-central">
-      <h2>Resumen de Citas del Día</h2>
-      <div class="resumen-mensaje">
-        Buen día, <strong>Pacientes_Fisioterapeuta</strong>. Aquí tienes el detalle de tus consultas y pacientes para hoy.
-      </div>
-      <table class="tabla-consultas">
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
         <thead>
                 <tr>
                   <th>Fecha y Hora</th>
@@ -245,7 +162,6 @@
                     <td>
           </tr>
           {% empty %}
-<<<<<<< HEAD
           <tr><td colspan="4" class="text-center py-3">No tienes consultas para hoy.</td></tr>
           {% endfor %}
         </tbody>
@@ -254,8 +170,3 @@
   </div>
 </body>
 </html>
-=======
-          <tr><td colspan="6">No hay consultas para hoy.</td></tr>
-          {% endfor %} -->
-        </tbody>
->>>>>>> a9acd8fa0f0585b3aeee712abe7d037e9960d14b
