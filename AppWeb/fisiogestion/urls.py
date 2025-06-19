@@ -17,8 +17,10 @@ urlpatterns = [
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
     path('citas/', views.citas_view, name='citas'),
     path('calendario/', views.calendario_view, name='calendario'),
-    path('consultas/', views.consultas_view, name='consultas'),
+    path('consultas/', views.consultas, name='consultas'),
     path('consultas/nuevo/', views.crear_consulta, name='crear_consulta'),
+    path('consultas/editar/<int:pk>/', views.editar_consulta, name='editar_consulta'),
+    path('consultas/eliminar/<int:pk>/', views.eliminar_consulta, name='eliminar_consulta'),
     # Fisioterapeutas
     path('fisioterapeutas/', views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
     path('fisioterapeutas/nuevo/', views.crear_fisioterapeuta, name='registro_fisioterapeuta'),

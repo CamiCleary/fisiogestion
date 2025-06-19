@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h3 class="mb-4">¿Eliminar Consulta #{{ consulta.id }}?</h3>
+  <p>Paciente: {{ consulta.paciente }}<br>
+     Fecha: {{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Confirmar eliminación</button>
+    <a href="{% url 'consultas' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+{% endblock %}

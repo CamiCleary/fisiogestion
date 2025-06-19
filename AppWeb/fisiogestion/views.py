@@ -8,8 +8,7 @@ from django.db.models import Q
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
 from datetime import datetime
-
-from .models import Usuario, Consulta, Pago
+from .models import Usuario, Consulta, Pago, Consulta
 
 Usuario = get_user_model()
 
@@ -342,30 +341,40 @@ def calendario_view(request):
     return render(request, "calendario.html", context)
 
 @login_required
-def consultas_view(request):
+def consultas(request):
     """
-    Vista para mostrar las consultas del fisioterapeuta.
+    Muestra todas las consultas del fisioterapeuta logueado
+    y rellena el panel lateral con totales.
     """
-    # Obtener todas las consultas del fisioterapeuta logueado
-    consultas = Consulta.objects.filter(fisioterapeuta=request.user).order_by("fecha_consulta")
+    # 1) Sólo las consultas de este usuario
+    consultas = Consulta.objects.filter(fisioterapeuta=request.user) \
+                                .select_related('paciente') \
+                                .order_by('fecha_consulta')
 
-    context = {
-        "consultas": consultas,
-        "page_title": "Mis Consultas",
-    }
-    return render(request, "consultas.html", context)
+    # 2) Totales para el panel lateral
+    total_pacientes = Usuario.objects.filter(rol=Usuario.PACIENTE).count()
+    total_consultas = consultas.count()
+
+    return render(request, 'consultas.html', {
+        'consultas': consultas,
+        'total_pacientes': total_pacientes,
+        'total_consultas': total_consultas,
+    })
 
 @login_required
 def crear_consulta(request):
     """
-    Vista para crear una nueva consulta con paciente, fisioterapeuta y fecha/hora.
+    Vista para crear una nueva consulta
     """
     if request.method == "POST":
         form = ConsultaForm(request.POST)
         if form.is_valid():
-            consulta = form.save()
+            consulta = form.save(commit=False)
+            # Aseguramos que el fisioterapeuta sea el logueado
+            consulta.fisioterapeuta = request.user
+            consulta.save()
             messages.success(request, f"Consulta #{consulta.id} creada con éxito.")
-            return redirect('lista_consultas')  # Asume que tienes esta vista y URL
+            return redirect('consultas')
         else:
             messages.error(request, "Por favor, corrige los errores del formulario.")
     else:
@@ -374,4 +383,65 @@ def crear_consulta(request):
     return render(request, 'crear_consulta.html', {
         'form': form,
         'titulo': 'Nueva Consulta'
+    })
+
+@login_required
+def lista_consultas(request):
+    """
+    Mostrar todas las consultas registradas junto con un panel lateral
+    que muestra el total de pacientes y total de consultas.
+    """
+    # Contar cuantos pacientes existen
+    total_pacientes = Usuario.objects.filter(rol=Usuario.PACIENTE).count()
+
+    # Recuperar todas las consultas, ordenadas de más reciente a más antiguo
+    consultas = Consulta.objects.select_related('paciente', 'fisioterapeuta') \
+                                .order_by('-fecha_consulta')
+    total_consultas = consultas.count()
+
+    return render(request, 'consultas.html', {
+        'consultas': consultas,
+        'total_pacientes': total_pacientes,
+        'total_consultas': total_consultas,
+    })
+    
+
+
+@login_required
+def editar_consulta(request, pk):
+    """
+    Editar una consulta existente.
+    """
+    consulta = get_object_or_404(Consulta, pk=pk, fisioterapeuta=request.user)
+    if request.method == "POST":
+        form = ConsultaForm(request.POST, instance=consulta)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Consulta #{consulta.id} actualizada con éxito.")
+            return redirect('consultas')
+        else:
+            messages.error(request, "Por favor, corrige los errores del formulario.")
+    else:
+        form = ConsultaForm(instance=consulta)
+
+    return render(request, 'crear_consulta.html', {
+        'form': form,
+        'titulo': f'Editar Consulta #{consulta.id}'
+    })
+
+
+@login_required
+def eliminar_consulta(request, pk):
+    """
+    Eliminar una consulta existente.
+    """
+    consulta = get_object_or_404(Consulta, pk=pk, fisioterapeuta=request.user)
+    if request.method == "POST":
+        consulta.delete()
+        messages.success(request, f"Consulta #{pk} eliminada.")
+        return redirect('consultas')
+
+    # Si quieres una confirmación previa, renderiza un template distinto:
+    return render(request, 'confirmar_eliminar_consulta.html', {
+        'consulta': consulta
     })

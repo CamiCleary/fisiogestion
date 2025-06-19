@@ -162,7 +162,7 @@ class ConsultaForm(forms.ModelForm):
 
     class Meta:
         model = Consulta
-        fields = ['paciente', 'fisioterapeuta', 'fecha_consulta']
+        fields = ['paciente', 'fisioterapeuta', 'fecha_consulta', 'observaciones']
         widgets = {
             'paciente': forms.Select(attrs={'class': 'form-select'}),
             'fisioterapeuta': forms.Select(attrs={'class': 'form-select'}),
