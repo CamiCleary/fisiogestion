@@ -1,13 +1,13 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Reportes - Fisiogestión</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
@@ -34,7 +34,6 @@
     .topbar .title { font-size: 1.25rem; font-weight: 600; color: #008f86; }
     .topbar .logout { margin-left: auto; cursor: pointer; color: #e74c3c; }
 
-    /* Sidebar omitted for full-screen: focus on report body */
     .main {
       margin-top: 60px;
       flex-grow: 1;
@@ -100,53 +99,95 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.08);
       padding: 24px;
       margin-top: 24px;
+      position: relative;
     }
     .chart-wrapper h2 {
       color: #008f86;
-      margin-bottom: 16px;
+      margin-bottom: 24px;
       font-size: 1.4rem;
-    }
-    .chart-bars {
       display: flex;
-      align-items: flex-end;
+      align-items: center;
       gap: 12px;
-      height: 200px;
     }
-    .bar-wrapper {
-      flex: 1;
-      text-align: center;
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .chart-options {
+      display: flex;
+      gap: 12px;
+    }
+    .chart-option {
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: #f0faf9;
+      color: #008f86;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+    }
+    .chart-option.active {
+      background: #008f86;
+      color: white;
+    }
+    .chart-container {
+      height: 300px;
       position: relative;
     }
-    .bar-wrapper .bar {
-      width: 100%;
-      background-color: #00b89f;
-      border-radius: 4px 4px 0 0;
-      transition: height 0.4s ease;
+    .chart-stats {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
     }
-    .bar-wrapper .month {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: #444;
+    .chart-stat {
+      background: #f0faf9;
+      border-radius: 8px;
+      padding: 12px 16px;
+      flex: 1;
+      min-width: 150px;
     }
-    .bar-wrapper:hover .tooltip {
-      opacity: 1;
-      transform: translateY(-8px);
+    .chart-stat .label {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 4px;
     }
-    /* Tooltip */
-    .tooltip {
-      position: absolute;
-      bottom: 100%;
-      left: 50%;
-      transform: translateX(-50%) translateY(4px);
-      background: #004f4d;
-      color: white;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.75rem;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.2s, transform 0.2s;
-      pointer-events: none;
+    .chart-stat .value {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #004f4d;
+    }
+    .chart-stat .change {
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      margin-top: 4px;
+    }
+    .change.positive {
+      color: #27ae60;
+    }
+    .change.negative {
+      color: #e74c3c;
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .report-container {
+        flex-direction: column;
+      }
+      .card-summary {
+        min-width: 100%;
+      }
+      .chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .chart-options {
+        align-self: flex-end;
+      }
     }
   </style>
 </head>
@@ -192,20 +233,196 @@
       </div>
     </div>
 
-    <!-- Gráfico -->
+    <!-- Gráfico mejorado -->
     <div class="chart-wrapper">
-      <h2>Citas por Mes</h2>
-      <div class="chart-bars">
-        {% for mes, altura in citas_mensuales.items %}
-        <div class="bar-wrapper">
-          <div class="bar" style="height: {{ altura }}%;"></div>
-          <div class="tooltip">{{ altura }}%</div>
-          <span class="month">{{ mes }}</span>
+      <div class="chart-header">
+        <h2>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 3V19H21" stroke="#008f86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M7 14L10 10L13.5 13.5L18 9" stroke="#008f86" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Evolución de Citas Mensuales
+        </h2>
+        <div class="chart-options">
+          <div class="chart-option active">2024</div>
+          <div class="chart-option">2023</div>
         </div>
-        {% endfor %}
+      </div>
+      
+      <div class="chart-container">
+        <canvas id="citasChart"></canvas>
+      </div>
+      
+      <div class="chart-stats">
+        <div class="chart-stat">
+          <div class="label">Citas totales</div>
+          <div class="value">1,240</div>
+        </div>
+        <div class="chart-stat">
+          <div class="label">Mes más activo</div>
+          <div class="value">Mayo (210)</div>
+        </div>
+        <div class="chart-stat">
+          <div class="label">Variación anual</div>
+          <div class="value">+18.3%</div>
+          <div class="change positive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 19V5M5 12L12 5L19 12" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Incremento respecto a 2023
+          </div>
+        </div>
+        <div class="chart-stat">
+          <div class="label">Tendencia actual</div>
+          <div class="value">Al alza</div>
+          <div class="change positive">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 17L9 11L13 15L21 7" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Últimos 3 meses
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</body>
+        <!-- Al final del <div class="main"> -->
+    <div class="text-center mt-4">
+      <a href="{% url 'reporte_pdf' %}" target="_blank" class="btn btn-success">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-file-earmark-arrow-down" viewBox="0 0 16 16">
+          <path d="M8 5a.5.5 0 0 1 .5.5V9h2.5a.5.5 0 0 1 0 1H8.5v3.5a.5.5 0 0 1-1 0V10H5a.5.5 0 0 1 0-1h2.5V5.5A.5.5 0 0 1 8 5z"/>
+          <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3-.5a.5.5 0 0 1-.5-.5V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4h-2z"/>
+        </svg>
+        Descargar PDF
+      </a>
+    </div>
 
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Datos de ejemplo (en un caso real, estos vendrían de Django)
+      const citasData = {
+        meses: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+        citas: [120, 135, 160, 190, 210, 205, 195, 180, 175, 185, 170, 165],
+        promedio: 175,
+        maximo: 210
+      };
+      
+      // Crear el gráfico
+      const ctx = document.getElementById('citasChart').getContext('2d');
+      const citasChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: citasData.meses,
+          datasets: [{
+            label: 'Citas Mensuales',
+            data: citasData.citas,
+            backgroundColor: 'rgba(0, 184, 159, 0.1)',
+            borderColor: '#00b89f',
+            borderWidth: 3,
+            pointBackgroundColor: '#00b89f',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 6,
+            pointHoverRadius: 8,
+            tension: 0.3,
+            fill: true
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: '#fff',
+              titleColor: '#004f4d',
+              bodyColor: '#333',
+              borderColor: '#00b89f',
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 6,
+              usePointStyle: true,
+              callbacks: {
+                label: function(context) {
+                  return `Citas: ${context.parsed.y}`;
+                },
+                title: function(context) {
+                  return `Mes: ${context[0].label}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: false,
+              min: 100,
+              grid: {
+                color: 'rgba(0, 0, 0, 0.05)'
+              },
+              ticks: {
+                color: '#666',
+                padding: 8
+              },
+              title: {
+                display: true,
+                text: 'Número de Citas',
+                color: '#666',
+                font: {
+                  size: 12
+                }
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                color: '#666',
+                padding: 8
+              },
+              title: {
+                display: true,
+                text: 'Meses',
+                color: '#666',
+                font: {
+                  size: 12
+                }
+              }
+            }
+          },
+          interaction: {
+            mode: 'index',
+            intersect: false
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: true
+          }
+        }
+      });
+      
+      // Manejar cambio de año
+      document.querySelectorAll('.chart-option').forEach(option => {
+        option.addEventListener('click', function() {
+          document.querySelectorAll('.chart-option').forEach(opt => opt.classList.remove('active'));
+          this.classList.add('active');
+          
+          // En una implementación real, esto cargaría nuevos datos del servidor
+          // Simulamos un pequeño cambio en los datos
+          const newData = [...citasData.citas];
+          if(this.textContent === '2023') {
+            newData.forEach((val, i) => newData[i] = Math.round(val * 0.85));
+          } else {
+            newData.forEach((val, i) => newData[i] = citasData.citas[i]);
+          }
+          
+          citasChart.data.datasets[0].data = newData;
+          citasChart.update();
+        });
+      });
+    });
+  </script>
+</body>
 </html>

@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm # Solo si aún lo usas, si no, puedes quitarlo
 from django.contrib.auth import get_user_model
-from .models import Usuario, Consulta , Pago # Asegúrate de que HistorialMedico esté importado si lo usas en PacienteForm
+from .models import Usuario, Consulta , Pago, PlanTratamiento # Asegúrate de que HistorialMedico esté importado si lo usas en PacienteForm
 from django.utils import timezone # Importar timezone para comparaciones de fecha y hora
 
 Usuario = get_user_model()
@@ -239,3 +239,28 @@ class PagoForm(forms.ModelForm):
         
         # Cambiamos cómo se muestra cada opción en el <select> de consultas
         self.fields['consulta'].label_from_instance = lambda obj: f"{obj.fecha_consulta.strftime('%d/%m/%Y')} - {obj.paciente}"
+
+class PlanTratamientoForm(forms.ModelForm):
+    class Meta:
+        model = PlanTratamiento
+        fields = ['video_ejercicios', 'documentos_adjuntos', 'instrucciones']
+        labels = {
+            'video_ejercicios': 'Seleccionar Foto o Video',
+            'documentos_adjuntos': 'Adjuntar Documentos (PDF, DOCX...)',
+            'instrucciones': 'Descripción del contenido',
+        }
+        widgets = {
+            'video_ejercicios': forms.ClearableFileInput(attrs={
+                'accept': 'image/*,video/*',
+                'class': 'form-control'
+            }),
+            'documentos_adjuntos': forms.ClearableFileInput(attrs={
+                'accept': '.pdf,.docx',
+                'class': 'form-control'
+            }),
+            'instrucciones': forms.Textarea(attrs={
+                'placeholder': 'Describe el progreso o la condición...',
+                'rows': 3,
+                'class': 'form-control'
+            }),
+        }

@@ -39,8 +39,9 @@ urlpatterns = [
 
     # Reportes y telemedicina
     path('reportes/', views.reportes, name='reportes'),
+    path('reportes/pdf/', views.reporte_pdf, name='reporte_pdf'),
     path('reporte_paciente/', views.reporte_paciente_view, name='reporte_paciente'),
-    path('telemedicina/', views.telemedicina_view, name='telemedicina'),
+    path('telemedicina/', views.telemedicina, name='telemedicina'),
     path('telemedicina_paciente/', views.telemedicina_paciente_view, name='telemedicina_paciente'),
     
     # Pagos

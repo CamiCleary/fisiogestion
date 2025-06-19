@@ -2,20 +2,23 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.http import HttpResponse
 from django.http import Http404
 from django.contrib.auth import get_user_model
-from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm , PagoForm
+from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm , PagoForm , PlanTratamientoForm
 from django.db.models import Q
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
 from datetime import datetime, timedelta
 from django.http import JsonResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
 import json
 from django.utils import timezone # Importar timezone para manejar fechas con zonas horarias
 
 
 # Importar los modelos y formularios de tu app
-from .models import Usuario, Consulta, Pago, Horario # Asegúrate de importar Horario si lo usas
+from .models import Usuario, Consulta, Pago, Horario , PlanTratamiento, Teleconsulta # Asegúrate de importar Horario si lo usas
 from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm, AgendarCitaForm
 
 Usuario = get_user_model() # Obtener el modelo de usuario personalizado
@@ -722,3 +725,51 @@ def ver_factura_pdf(request, pk):
         return redirect(pago.imagen_referencia.url)
     else:
         raise Http404("Este pago no tiene comprobante asociado.")
+    
+@login_required
+def telemedicina(request):
+    return render(request, "telemedicina_fisioterapeuta.html")
+
+
+@login_required
+def reporte_pdf(request):
+    # 1) Totales generales
+    total_pacientes        = Usuario.objects.filter(rol=Usuario.PACIENTE).count()
+    total_fisioterapeutas  = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA).count()
+    mes_actual             = datetime.now().month
+    total_citas_mes        = Consulta.objects.filter(fecha_consulta__month=mes_actual).count()
+    ingresos_totales       = Pago.objects.aggregate(total=Sum('monto'))['total'] or 0
+
+    # 2) Datos para gráfico de citas por mes
+    datos_citas = (
+        Consulta.objects
+        .annotate(mes=TruncMonth('fecha_consulta'))
+        .values('mes')
+        .annotate(c=Count('id'))
+        .order_by('mes')
+    )
+    # Etiquetas cortas de meses y porcentaje respecto al máximo
+    meses_etq    = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic']
+    max_c        = max((d['c'] for d in datos_citas), default=1)
+    citas_mensuales = { meses_etq[d['mes'].month-1]: int((d['c']/max_c)*100) for d in datos_citas }
+
+    # 3) Contexto que pasamos al PDF
+    context = {
+        'total_pacientes'       : total_pacientes,
+        'total_fisioterapeutas' : total_fisioterapeutas,
+        'total_citas_mes'       : total_citas_mes,
+        'ingresos_totales'      : ingresos_totales,
+        'citas_mensuales'       : citas_mensuales,
+    }
+
+    # 4) Render a HTML y luego a PDF
+    template = get_template('reportes_pdf.html')
+    html     = template.render(context)
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="reporte.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse(f"Error al generar PDF:<br/><pre>{html}</pre>")
+    return response
+   
