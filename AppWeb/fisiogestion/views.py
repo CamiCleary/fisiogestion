@@ -340,26 +340,27 @@ def calendario_view(request):
     }
     return render(request, "calendario.html", context)
 
+
 @login_required
 def consultas(request):
     """
-    Muestra todas las consultas del fisioterapeuta logueado
+    Muestra TODAS las consultas registradas en el sistema
     y rellena el panel lateral con totales.
     """
-    # 1) Sólo las consultas de este usuario
-    consultas = Consulta.objects.filter(fisioterapeuta=request.user) \
-                                .select_related('paciente') \
-                                .order_by('fecha_consulta')
+    # 1) Recuperar TODAS las consultas, sin filtrar por usuario.
+    #    Las ordenamos por fecha más reciente primero.
+    todas_las_consultas = Consulta.objects.select_related('paciente', 'fisioterapeuta') \
+                                          .order_by('-fecha_consulta')
 
     # 2) Totales para el panel lateral
     total_pacientes = Usuario.objects.filter(rol=Usuario.PACIENTE).count()
-    total_consultas = consultas.count()
+    total_consultas = todas_las_consultas.count()
 
     return render(request, 'consultas.html', {
-        'consultas': consultas,
+        'consultas': todas_las_consultas,
         'total_pacientes': total_pacientes,
         'total_consultas': total_consultas,
-    })
+    })         
 
 @login_required
 def crear_consulta(request):
@@ -408,12 +409,16 @@ def lista_consultas(request):
     
 
 
+# views.py
+
 @login_required
 def editar_consulta(request, pk):
     """
-    Editar una consulta existente.
+    Editar una consulta existente (sin restringir por fisioterapeuta).
     """
-    consulta = get_object_or_404(Consulta, pk=pk, fisioterapeuta=request.user)
+    # Buscamos la consulta solo por su ID (pk), sin importar el fisioterapeuta.
+    consulta = get_object_or_404(Consulta, pk=pk) 
+    
     if request.method == "POST":
         form = ConsultaForm(request.POST, instance=consulta)
         if form.is_valid():
@@ -431,19 +436,23 @@ def editar_consulta(request, pk):
         'consulta': consulta,
     })
 
+# views.py
 
 @login_required
 def eliminar_consulta(request, pk):
     """
-    Eliminar una consulta existente.
+    Eliminar una consulta existente (sin restringir por fisioterapeuta).
     """
-    consulta = get_object_or_404(Consulta, pk=pk, fisioterapeuta=request.user)
+    # Buscamos la consulta solo por su ID (pk), sin importar el fisioterapeuta.
+    consulta = get_object_or_404(Consulta, pk=pk)
+
     if request.method == "POST":
+        consulta_id = consulta.id # Guardamos el ID para el mensaje
         consulta.delete()
-        messages.success(request, f"Consulta #{pk} eliminada.")
+        messages.success(request, f"Consulta #{consulta_id} eliminada.")
         return redirect('consultas')
 
-    # Si quieres una confirmación previa, renderiza un template distinto:
+    # Para la confirmación (método GET)
     return render(request, 'confirmar_eliminar_consulta.html', {
         'consulta': consulta
     })
