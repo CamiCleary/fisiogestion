@@ -25,7 +25,7 @@
 
     .sidebar {
       width: 240px;
-      background-color: #eaf6fb; /* Igual que bg-info-subtle */
+      background-color: #eaf6fb;
       padding: 32px 20px 20px 20px;
       display: flex;
       flex-direction: column;
@@ -84,7 +84,6 @@
       margin: 0 auto;
     }
 
-    /* Resumen central */
     .resumen-central {
       flex: 1;
       background: white;
@@ -111,26 +110,26 @@
       text-align: center;
     }
 
-    .tabla-citas {
+    .tabla-consultas {
       width: 100%;
       border-collapse: collapse;
       margin-top: 18px;
       margin-bottom: 10px;
     }
 
-    .tabla-citas th, .tabla-citas td {
+    .tabla-consultas th, .tabla-consultas td {
       padding: 12px;
       border-bottom: 1px solid #eee;
       text-align: left;
       font-size: 15px;
     }
 
-    .tabla-citas th {
+    .tabla-consultas th {
       background-color: #f3f3f3;
       color: #444;
     }
 
-    .tabla-citas tr:hover {
+    .tabla-consultas tr:hover {
       background-color: #f9f9f9;
     }
 
@@ -171,7 +170,6 @@
       background-color: #c0392b;
     }
 
-    /* Logout button */
     .logout-btn {
       position: absolute;
       top: 24px;
@@ -222,10 +220,10 @@
       </div>
       <nav class="nav flex-column mb-auto">
         <a href="{% url 'lista_pacientes' %}" class="nav-link">Mis Pacientes</a>
-        <a href="#" class="nav-link">Mis Citas</a>
+        <a href="{% url 'consultas' %}" class="nav-link">Mis Consultas</a>
         <a href="#" class="nav-link">Pagos</a>
         <a href="{% url 'telemedicina' %}" class="nav-link">Telemedicina</a>
-        <a href="#" class="nav-link">Reportes</a>
+        <a href="{% url 'reportes' %}" class="nav-link">Reportes</a>
       </nav>
     </div>
     <div class="admin">
@@ -235,7 +233,6 @@
   </div>
 
   <div class="main">
-    <!-- Botón logout -->
     <div class="logout-btn">
       <a href="{% url 'logout' %}" title="Cerrar sesión" style="text-decoration: none;">
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" viewBox="0 0 24 24" style="vertical-align: middle;">
@@ -246,44 +243,39 @@
     </div>
 
     <div class="resumen-central">
-      <h2>Bienvenido, {{ user.first_name }}</h2>
+      <h2>Consultas Programadas (Hoy)</h2>
       <div class="resumen-mensaje">
-        Aquí puedes administrar tus pacientes, revisar tus citas y gestionar otras funcionalidades importantes.
+        Bienvenido, <strong>Fisioterapeuta</strong>. Aquí tienes las próximas consultas del día.
       </div>
 
-      <!-- Tabla de Citas -->
-      <table class="tabla-citas">
+      <table class="tabla-consultas">
         <thead>
           <tr>
-            <th>Hora</th>
+            <th>Fecha y Hora</th>
             <th>Paciente</th>
-            <th>Motivo</th>
-            <th>Teléfono</th>
-            <th>Estado</th>
+            <th>Observaciones</th>
             <th>Acciones</th>
           </tr>
         </thead>
-        <tbody>
-          {% for cita in citas_hoy %}
-          <tr>
-            <td>{{ cita.hora }}</td>
-            <td>{{ cita.paciente.get_full_name }}</td>
-            <td>{{ cita.motivo }}</td>
-            <td>{{ cita.telefono }}</td>
-            <td>{{ cita.estado }}</td>
-            <td>
-              <div class="acciones-btn">
-                <a href="{% url 'editar_cita' cita.id %}" class="btn-editar">Editar</a>
-                <a href="{% url 'eliminar_cita' cita.id %}" class="btn-eliminar">Eliminar</a>
-              </div>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="6" class="text-center py-4">No tienes citas programadas para hoy.</td>
-          </tr>
-          {% endfor %}
-        </tbody>
+  <tbody>
+  {% for consulta in consultas_hoy %}
+  <tr>
+    <td>{{ consulta.fecha_consulta|date:"d/m/Y H:i" }}</td>
+    <td>{{ consulta.paciente.get_full_name }}</td>
+    <td>{{ consulta.observaciones }}</td>
+    <td>
+      <div class="acciones-btn">
+        <a href="{% url 'editar_consulta' consulta.id %}" class="btn-editar">Editar</a>
+        <a href="{% url 'eliminar_consulta' consulta.id %}" class="btn-eliminar">Eliminar</a>
+      </div>
+    </td>
+  </tr>
+  {% empty %}
+  <tr>
+    <td colspan="4" class="text-center py-4">No tienes consultas programadas para hoy.</td>
+  </tr>
+  {% endfor %}
+</tbody>
       </table>
     </div>
   </div>
