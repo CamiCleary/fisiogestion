@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include # Asegúrate de importar 'include' si lo usas en otras partes
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
@@ -15,12 +15,22 @@ urlpatterns = [
     path('pacientes/nuevo/', views.crear_paciente, name='registro_paciente'),
     path('pacientes/editar/<int:pk>/', views.editar_paciente, name='editar_paciente'),
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
+    
+    # Citas (si es una vista separada de calendario_view)
     path('citas/', views.citas_view, name='citas'),
-    path('calendario/', views.calendario_view, name='calendario'),
+    
+    # Calendario y sus APIs (agrupadas y sin duplicados)
+    path('calendario/', views.calendario_view, name='calendario'), # Única definición para la vista del calendario
+    path('api/calendario-eventos/', views.get_monthly_events_api, name='api_calendario_eventos'), # API para eventos mensuales
+    path('api/citas-del-dia/', views.get_daily_appointments_api, name='api_citas_del_dia'), # API para citas de un día específico
+    path('api/agendar-cita/', views.agendar_cita_api, name='api_agendar_cita'), # API para agendar nuevas citas via POST
+    
+    # Consultas (si es diferente de las citas del calendario)
     path('consultas/', views.consultas, name='consultas'),
     path('consultas/nuevo/', views.crear_consulta, name='crear_consulta'),
     path('consultas/editar/<int:pk>/', views.editar_consulta, name='editar_consulta'),
     path('consultas/eliminar/<int:pk>/', views.eliminar_consulta, name='eliminar_consulta'),
+    
     # Fisioterapeutas
     path('fisioterapeutas/', views.lista_fisioterapeutas, name='lista_fisioterapeutas'),
     path('fisioterapeutas/nuevo/', views.crear_fisioterapeuta, name='registro_fisioterapeuta'),
@@ -32,7 +42,6 @@ urlpatterns = [
     path('reporte_paciente/', views.reporte_paciente_view, name='reporte_paciente'),
     path('telemedicina/', views.telemedicina_view, name='telemedicina'),
     path('telemedicina_paciente/', views.telemedicina_paciente_view, name='telemedicina_paciente'),
-    
     
     # Pagos
     path('pagos_fisioterapeuta/', views.pagos_fisioterapeuta, name='pagos_fisioterapeuta'),
@@ -46,5 +55,6 @@ urlpatterns = [
     ),
 ]
 
+# Configuración para servir archivos de medios en desarrollo (MEDIA_URL)
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

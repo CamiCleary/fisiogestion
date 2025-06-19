@@ -9,11 +9,8 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
 
-  <!-- FullCalendar CSS -->
-  <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
-
   <style>
-    /* Estilos globales y de la barra lateral (copiados de dashboard_pacientes.txt y mejorados para responsividad) */
+    /* Estilos globales y de la barra lateral (copiados y adaptados) */
     * {
       box-sizing: border-box;
       margin: 0;
@@ -106,13 +103,15 @@
         justify-content: center;
     }
 
+    /* Estilos del contenedor del calendario */
     .calendario-container {
         background: white;
         padding: 38px 32px 32px 32px;
         border-radius: 15px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.08);
         flex: 2; /* Ocupa más espacio que el formulario */
-        min-width: 400px; /* Ancho mínimo para el calendario */
+        min-width: 400px;
+        max-width: 700px; /* Limitar el ancho para que no sea demasiado grande */
     }
 
     .calendario-container h2 {
@@ -122,63 +121,114 @@
       text-align: center;
     }
 
-    /* FullCalendar overrides */
-    #calendar {
-      width: 100%;
-      font-size: 14px;
-      margin-top: 20px;
-    }
-
-    .fc .fc-toolbar-title {
-        font-size: 1.5em;
+    /* CUSTOM CALENDAR STYLES */
+    #calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
         color: #0a4d68;
-    }
-    .fc .fc-button {
-        background-color: #00b89f;
-        border-color: #00b89f;
-        color: white;
-        border-radius: 8px;
-        padding: 8px 15px;
-        font-size: 0.9em;
-        text-transform: none;
-        cursor: pointer;
-    }
-    .fc .fc-button:hover {
-        background-color: #009e8a;
-        border-color: #009e8a;
-    }
-    .fc-theme-standard td, .fc-theme-standard th {
-        border-color: #e0e0e0;
-    }
-    .fc .fc-daygrid-day-frame {
-        padding: 5px;
-    }
-    .fc-event {
-        background-color: #008f86;
-        border-color: #008f86;
-        border-radius: 5px;
-        padding: 3px 5px;
-        font-size: 0.85em;
-        white-space: normal;
-        overflow: hidden;
-        margin-bottom: 2px;
-    }
-    .fc-event .fc-event-title {
-        color: white;
-    }
-    .fc-day-other .fc-daygrid-day-top {
-        opacity: 0.6;
+        font-size: 1.5em;
+        font-weight: bold;
     }
 
-    /* Estilos del formulario de agendar cita */
+    #calendar-header .nav-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    #calendar-header button {
+        background-color: #00b89f;
+        border: none;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        font-size: 0.9em;
+    }
+
+    #calendar-header button:hover {
+        background-color: #009e8a;
+    }
+
+    #calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr); /* 7 columnas para los días de la semana */
+        gap: 5px;
+    }
+
+    .day-name {
+        text-align: center;
+        font-weight: bold;
+        color: #0a4d68;
+        padding: 10px 5px;
+        font-size: 0.9em;
+    }
+
+    .calendar-day {
+        background-color: #f8fafc;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        min-height: 80px; /* Altura para las celdas del día */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 5px;
+        font-weight: bold;
+        color: #333;
+        transition: background-color 0.2s, border-color 0.2s;
+        cursor: pointer;
+        font-size: 1.1em;
+    }
+
+    .calendar-day.empty {
+        background-color: #eaf6fb;
+        border-color: #e0e0e0;
+        cursor: default;
+    }
+
+    .calendar-day:not(.empty):hover {
+        background-color: #e0f2f7; /* Hover effect for active days */
+        border-color: #a7d9e7;
+    }
+
+    /* Styles for days with events */
+    .calendar-day.has-event {
+        background-color: #ccfbf1; /* Light green background for days with events */
+        border: 1px solid #00b89f; /* Teal border */
+    }
+
+    .calendar-day.has-event .event-dot {
+        width: 8px;
+        height: 8px;
+        background-color: #00b89f; /* Teal color for the dot */
+        border-radius: 50%;
+        margin-top: 5px; /* Space between number and dot */
+        display: block; /* To center it below the number */
+    }
+
+    .calendar-day.today {
+        border: 2px solid #008f86; /* Highlight today's date */
+        background-color: #eaf9f6;
+    }
+
+    .calendar-day.today.has-event {
+        background-color: #a7f3d0; /* Even lighter green for today with events */
+        border-color: #008f86;
+    }
+
+
+    /* Estilos del formulario de agendar cita (manteniendo los anteriores) */
     .form-container {
-        background: white; /* Cambiado a blanco para consistencia */
+        background: white;
         padding: 25px;
-        border-radius: 15px; /* Bordes redondeados consistentes */
-        box-shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra consistente */
-        flex: 1; /* Ocupa el espacio restante */
-        min-width: 300px; /* Ancho mínimo para el formulario */
-        max-width: 450px; /* Ancho máximo para el formulario */
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        flex: 1;
+        min-width: 300px;
+        max-width: 450px;
     }
 
     .form-container h3 {
@@ -401,22 +451,16 @@
         padding: 25px 20px;
         min-width: unset; /* Elimina min-width para móviles */
       }
-      #calendar {
-        font-size: 12px;
+      /* Ajustes para el calendario custom en responsividad */
+      #calendar-grid {
+          gap: 3px;
       }
-      .fc .fc-toolbar-title {
-          font-size: 1.2em;
+      .calendar-day {
+          min-height: 60px; /* Reducir altura en móviles */
+          font-size: 1em;
       }
-
-      /* Responsividad de la lista de consultas del día */
-      #dailyAppointmentsList li {
-          flex-direction: column;
-          align-items: flex-start;
-      }
-      #dailyAppointmentsList .actions {
-          margin-top: 10px;
-          width: 100%;
-          justify-content: flex-end;
+      .calendar-day .event-dot {
+          margin-top: 3px;
       }
     }
 
@@ -451,11 +495,16 @@
         .form-container {
             padding: 15px;
         }
-        #calendar {
-            font-size: 11px; /* Aún más pequeño para pantallas muy pequeñas */
+        #calendar-header {
+            font-size: 1.2em;
         }
-        .fc .fc-toolbar-title {
-            font-size: 1em;
+        #calendar-header button {
+            font-size: 0.8em;
+            padding: 6px 10px;
+        }
+        .calendar-day {
+            font-size: 0.9em;
+            min-height: 50px;
         }
     }
   </style>
@@ -471,33 +520,62 @@
     </div>
     <div class="content-area">
         <div class="calendar-form-section">
-            <!-- Contenedor del Calendario -->
+            <!-- Contenedor del Calendario CUSTOM -->
             <div class="calendario-container">
               <h2>Calendario de Citas</h2>
-              <div id='calendar'></div>
+              <div id='calendar'>
+                <div id="calendar-header">
+                  <div class="nav-buttons">
+                    <button id="prevMonth">&lt;</button>
+                    <button id="todayButton">Hoy</button> 
+                    <button id="nextMonth">&gt;</button>
+                  </div>
+                  <span id="currentMonthYear"></span>
+                </div>
+                <div id="calendar-grid">
+                  <!-- Day names -->
+                  <div class="day-name">Lun</div>
+                  <div class="day-name">Mar</div>
+                  <div class="day-name">Mié</div>
+                  <div class="day-name">Jue</div>
+                  <div class="day-name">Vie</div>
+                  <div class="day-name">Sáb</div>
+                  <div class="day-name">Dom</div>
+                  <!-- Days will be populated by JavaScript -->
+                </div>
+              </div>
             </div>
 
             <!-- Contenedor del Formulario para Agendar Cita -->
             <div class="form-container">
               <h3>Agendar Nueva Cita</h3>
               
-              {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-              {% endif %}
+              <!-- Mensajes del formulario (implementados con JS) -->
+              <div id="form-messages"></div>
 
-              <form method="post" action="{% url 'calendario' %}">
-                {% csrf_token %}
+              <form id="agendar-cita-form" method="post" action="{% url 'calendario' %}"> {# ACTION PARA API #}
+                {% csrf_token %} {# Mantener para compatibilidad si vuelves a Django #}
+                <input type="hidden" id="selected-date-input" name="selected_date">
+                
                 <div class="form-group">
-                    <label for="{{ form.fisioterapeuta.id_for_label }}">Fisioterapeuta:</label>
-                    {{ form.fisioterapeuta }}
+                    <label for="fisioterapeuta-select">Fisioterapeuta:</label>
+                    <select id="fisioterapeuta-select" name="fisioterapeuta_id" class="form-control" required> {# CAMBIADO A fisioterapeuta_id #}
+                        <option value="">--- Selecciona un Fisioterapeuta ---</option>
+                        {# Estas opciones deben ser generadas por Django en una aplicación real #}
+                        {# Por ejemplo, en tu view, pasarías `fisioterapeutas = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)` #}
+                        {# Y aquí harías un bucle: {% for fisio in fisioterapeutas %}<option value="{{ fisio.id }}">{{ fisio.nombre }} {{ fisio.apellido }}</option>{% endfor %} #}
+                        <option value="1">Dr. Juan Perez (ID 1)</option> {# Ejemplo con ID #}
+                        <option value="2">Dra. Maria Lopez (ID 2)</option> {# Ejemplo con ID #}
+                        <option value="3">Dr. Carlos Gomez (ID 3)</option> {# Ejemplo con ID #}
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.fecha_consulta.id_for_label }}">Fecha y Hora de la Cita:</label>
-                    {{ form.fecha_consulta }}
+                    <label for="hora-inicio">Hora de Inicio:</label>
+                    <input type="time" id="hora-inicio" name="hora_inicio" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="hora-fin">Hora de Fin:</label>
+                    <input type="time" id="hora-fin" name="hora_fin" class="form-control" required>
                 </div>
                 
                 <button type="submit" class="btn-submit">Guardar Cita</button>
@@ -509,130 +587,150 @@
         <div class="daily-appointments-section">
             <h3 id="dailyAppointmentsTitle">Citas del Día: Selecciona una fecha</h3>
             <ul id="dailyAppointmentsList">
-                <!-- Las consultas del día se cargarán aquí vía JavaScript -->
-                <li style="text-align: center; color: #666;">Haz clic en una fecha en el calendario para ver las consultas de ese día.</li>
+                <li style="text-align: center; color: #666;">Haz clic en una fecha en el calendario para ver las citas de ese día.</li>
             </ul>
         </div>
 
     </div>
   </div>
 
-  <!-- FullCalendar JS -->
-  <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js'></script>
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      var calendarEl = document.getElementById('calendar');
-      // Carga los eventos desde Django. Asegúrate de que eventos_json esté serializado correctamente.
-      var events = JSON.parse('{{ eventos_json|safe }}'); 
-      var csrftoken = '{{ csrf_token }}'; // Obtén el token CSRF para solicitudes AJAX
+      const currentMonthYearEl = document.getElementById('currentMonthYear');
+      const calendarGrid = document.getElementById('calendar-grid');
+      const prevMonthBtn = document.getElementById('prevMonth');
+      const nextMonthBtn = document.getElementById('nextMonth');
+      const todayButton = document.getElementById('todayButton'); // Get the new button
 
-      var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        locale: 'es', // Idioma español
-        headerToolbar: {
-          left: 'prev,next today',
-          center: 'title',
-          right: 'dayGridMonth,timeGridWeek,timeGridDay'
-        },
-        events: events, // Carga los eventos iniciales
-        editable: false, // Deshabilita arrastrar y soltar eventos por defecto para pacientes
-        selectable: true, // Permite seleccionar fechas
+      const selectedDateInput = document.getElementById('selected-date-input');
+      const fisioterapeutaSelect = document.getElementById('fisioterapeuta-select');
+      const horaInicioInput = document.getElementById('hora-inicio');
+      const horaFinInput = document.getElementById('hora-fin');
 
-        // Cuando se hace clic en un día del calendario
-        dateClick: function(info) {
-          // 1. Pre-llenar el formulario
-          var datetimeInput = document.querySelector('input[name="fecha_consulta"]');
-          if (datetimeInput) {
-            // FullCalendar info.dateStr ya está en formato YYYY-MM-DD
-            // Para datetime-local, necesitamos YYYY-MM-DDTHH:MM
-            // Podemos establecer una hora por defecto si no se selecciona una hora específica,
-            // o dejarla vacía para que el usuario la elija.
-            // Para este ejemplo, pre-llenaremos con la fecha y una hora por defecto si no hay tiempo específico
-            var today = new Date();
-            var hours = today.getHours().toString().padStart(2, '0');
-            var minutes = today.getMinutes().toString().padStart(2, '0');
-            datetimeInput.value = info.dateStr + 'T' + hours + ':' + minutes;
+      const dailyAppointmentsTitle = document.getElementById('dailyAppointmentsTitle');
+      const dailyAppointmentsList = document.getElementById('dailyAppointmentsList');
+      const agendarCitaForm = document.getElementById('agendar-cita-form');
+      const formMessagesArea = document.getElementById('form-messages');
+
+      let currentMonth = new Date().getMonth();
+      let currentYear = new Date().getFullYear();
+      let eventDates = []; // This will now hold dates fetched from Django
+
+      // Function to get CSRF token from Django
+      function getCookie(name) {
+          let cookieValue = null;
+          if (document.cookie && document.cookie !== '') {
+              const cookies = document.cookie.split(';');
+              for (let i = 0; i < cookies.length; i++) {
+                  const cookie = cookies[i].trim();
+                  // Does this cookie string begin with the name we want?
+                  if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                      cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                      break;
+                  }
+              }
           }
-          // Puedes desplazar el scroll hacia el formulario para mayor comodidad
-          document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+          return cookieValue;
+      }
+      const csrftoken = getCookie('csrftoken');
 
-          // 2. Cargar y mostrar las consultas de ese día
-          var selectedDate = info.dateStr; // Formato YYYY-MM-DD
-          fetchDailyAppointments(selectedDate);
-        },
-        
-        // Cuando se hace clic en un evento (cita) en el calendario
-        eventClick: function(info) {
-            // Puedes mostrar un modal con los detalles de la cita
-            // alert('Cita: ' + info.event.title + '\nInicio: ' + info.event.start.toLocaleString('es-ES'));
-            // Para futuras implementaciones, aquí podrías abrir un modal para editar/eliminar la cita
-        },
-
-        // Evento que se dispara cuando el calendario se renderiza por primera vez o se cambia de vista/mes
-        // Esto es útil para cargar las consultas del día actual por defecto
-        datesSet: function(info) {
-            // Llama a la función para cargar consultas del día actual al cargar el calendario
-            // Si no hay una fecha seleccionada previamente, carga las de hoy
-            // Esto evita que la sección "Citas del Día" esté vacía al cargar la página
-            if (!document.getElementById('dailyAppointmentsList').getAttribute('data-loaded-date')) {
-                const today = new Date();
-                const todayStr = today.getFullYear() + '-' + 
-                                 (today.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                                 today.getDate().toString().padStart(2, '0');
-                fetchDailyAppointments(todayStr);
+      async function fetchEventsAndRenderCalendar() {
+        try {
+            // Updated URL to match potential Django setup for API
+            const response = await fetch(`/api/calendario-eventos/?year=${currentYear}&month=${currentMonth + 1}`); // Month is 1-indexed for API
+            if (!response.ok) {
+                // If the API call fails, assume no events for now, but log the error.
+                console.error('Error fetching calendar events:', response.status, response.statusText);
+                eventDates = []; // No events if API fails
+                // Optionally display a user message here
+                // displayMessage(formMessagesArea, 'Error al cargar los eventos del calendario. (Código: ' + response.status + ')', 'error');
+            } else {
+                eventDates = await response.json(); // Array of 'YYYY-MM-DD' dates
             }
+            renderCalendarGrid(); // Render the calendar grid with fetched events
+        } catch (error) {
+            console.error('Error fetching calendar events:', error);
+            displayMessage(formMessagesArea, 'Error de conexión al cargar los eventos del calendario. Intente de nuevo.', 'error');
+            eventDates = []; // Ensure events is empty on connection error
+            renderCalendarGrid(); // Render anyway to show calendar structure
         }
-      });
-
-      calendar.render();
-
-      // Función para obtener las consultas de un día específico a través de una API
-      function fetchDailyAppointments(dateString) {
-          document.getElementById('dailyAppointmentsTitle').textContent = 'Citas del Día: ' + formatDateDisplay(dateString);
-          document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #666;">Cargando consultas...</li>'; // Mensaje de carga
-          document.getElementById('dailyAppointmentsList').setAttribute('data-loaded-date', dateString); // Guarda la fecha cargada
-
-          fetch(`/api/consultas-del-dia/?date=${dateString}`, {
-              method: 'GET',
-              headers: {
-                  'X-CSRFToken': csrftoken, // Incluye el token CSRF para seguridad
-                  'Content-Type': 'application/json'
-              },
-          })
-          .then(response => {
-              if (!response.ok) {
-                  throw new Error('Network response was not ok ' + response.statusText);
-              }
-              return response.json();
-          })
-          .then(data => {
-              var list = document.getElementById('dailyAppointmentsList');
-              list.innerHTML = ''; // Limpia la lista
-              if (data.length === 0) {
-                  list.innerHTML = '<li style="text-align: center; color: #666;">No hay consultas para este día.</li>';
-              } else {
-                  data.forEach(function(cita) {
-                      var listItem = document.createElement('li');
-                      listItem.innerHTML = `
-                          <strong>${cita.fecha_hora}</strong>
-                          <span>Paciente: ${cita.paciente_nombre}</span>
-                          <span>Fisioterapeuta: ${cita.fisioterapeuta_nombre}</span>
-                          <div class="actions">
-                              <a href="#" class="btn-editar">Editar</a>
-                              <a href="#" class="btn-eliminar">Eliminar</a>
-                          </div>
-                      `;
-                      list.appendChild(listItem);
-                  });
-              }
-          })
-          .catch(error => {
-              console.error('Error al obtener consultas del día:', error);
-              document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #e74c3c;">Error al cargar las consultas.</li>';
-          });
       }
 
-      // Función auxiliar para formatear la fecha para el título
+      function renderCalendarGrid() {
+        calendarGrid.innerHTML = ''; // Clear previous days
+        // Add day names (re-add them as the grid is cleared)
+        const dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+        dayNames.forEach(name => {
+          const dayNameEl = document.createElement('div');
+          dayNameEl.className = 'day-name';
+          dayNameEl.textContent = name;
+          calendarGrid.appendChild(dayNameEl);
+        });
+
+        const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+        const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+        const numDaysInMonth = lastDayOfMonth.getDate();
+
+        // Get the day of the week for the first day of the month (0=Sunday, 1=Monday, ...)
+        // Adjust to make Monday=0, Sunday=6
+        let firstDayOfWeek = firstDayOfMonth.getDay();
+        if (firstDayOfWeek === 0) firstDayOfWeek = 6; // Sunday becomes 6
+        else firstDayOfWeek--; // Monday becomes 0, Tuesday 1, etc.
+
+        // Fill in leading empty days
+        for (let i = 0; i < firstDayOfWeek; i++) {
+          const emptyDay = document.createElement('div');
+          emptyDay.className = 'calendar-day empty';
+          calendarGrid.appendChild(emptyDay);
+        }
+
+        // Fill in actual days
+        for (let day = 1; day <= numDaysInMonth; day++) {
+          const dayEl = document.createElement('div');
+          dayEl.className = 'calendar-day';
+          dayEl.textContent = day;
+          
+          const fullDate = `${currentYear}-${(currentMonth + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
+          dayEl.dataset.date = fullDate; // Store full date for easy access
+
+          // Check if today
+          const today = new Date();
+          if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+            dayEl.classList.add('today');
+          }
+
+          // Check for events on this day using fetched eventDates
+          if (eventDates.includes(fullDate)) {
+            dayEl.classList.add('has-event');
+            const dot = document.createElement('span');
+            dot.className = 'event-dot';
+            dayEl.appendChild(dot);
+          }
+
+          dayEl.addEventListener('click', function() {
+            // Set the hidden input for the selected date
+            selectedDateInput.value = dayEl.dataset.date;
+            
+            // Clear time inputs (optional, can leave for user convenience)
+            horaInicioInput.value = '';
+            horaFinInput.value = '';
+            fisioterapeutaSelect.value = ''; // Clear selected physiotherapist
+
+            // Optional: auto-scroll to form
+            document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
+            
+            // Fetch and display daily appointments
+            fetchDailyAppointments(dayEl.dataset.date);
+          });
+
+          calendarGrid.appendChild(dayEl);
+        }
+
+        // Update month/year display
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+        currentMonthYearEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+      }
+
       function formatDateDisplay(dateString) {
           const [year, month, day] = dateString.split('-');
           const date = new Date(year, month - 1, day); // Month is 0-indexed
@@ -640,12 +738,103 @@
           return date.toLocaleDateString('es-ES', options);
       }
 
-      // Llamar a fetchDailyAppointments al cargar la página para el día actual
+      function displayMessage(container, message, type) {
+          container.innerHTML = `<ul class="messages"><li class="${type}">${message}</li></ul>`;
+          setTimeout(() => {
+              container.innerHTML = '';
+          }, 5000); // Clear message after 5 seconds
+      }
+
+      // Event listener for form submission
+      agendarCitaForm.addEventListener('submit', async function(event) {
+          event.preventDefault(); // Prevent default form submission
+
+          const selectedDate = selectedDateInput.value;
+          const fisioterapeutaId = fisioterapeutaSelect.value;
+          const horaInicio = horaInicioInput.value;
+          const horaFin = horaFinInput.value;
+
+          if (!selectedDate || !fisioterapeutaId || !horaInicio || !horaFin) {
+              displayMessage(formMessagesArea, 'Por favor, completa todos los campos del formulario.', 'error');
+              return;
+          }
+
+          const formData = new FormData();
+          formData.append('fisioterapeuta_id', fisioterapeutaId); // Changed to fisioterapeuta_id to match backend
+          formData.append('selected_date', selectedDate);
+          formData.append('hora_inicio', horaInicio);
+          formData.append('hora_fin', horaFin);
+          formData.append('csrfmiddlewaretoken', csrftoken); // Add CSRF token
+
+          try {
+              // Ensure this URL matches your Django project's urls.py for agendar_cita_api
+              const response = await fetch('/api/agendar-cita/', { 
+                  method: 'POST',
+                  body: formData, 
+              });
+              const data = await response.json();
+
+              if (data.success) {
+                  displayMessage(formMessagesArea, data.message, 'success');
+                  // Re-fetch and re-render calendar to show new event
+                  await fetchEventsAndRenderCalendar(); 
+                  // Clear form fields
+                  selectedDateInput.value = '';
+                  fisioterapeutaSelect.value = '';
+                  horaInicioInput.value = '';
+                  horaFinInput.value = '';
+                  // Reset daily appointments section to current day's appointments
+                  const today = new Date();
+                  const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+                  fetchDailyAppointments(todayStr); // Reload today's appointments after a new booking
+
+              } else {
+                  displayMessage(formMessagesArea, data.message, 'error');
+              }
+          } catch (error) {
+              console.error('Error al enviar el formulario:', error);
+              displayMessage(formMessagesArea, 'Error de conexión al agendar la cita. Intente de nuevo.', 'error');
+          }
+      });
+
+
+      prevMonthBtn.addEventListener('click', () => {
+        currentMonth--;
+        if (currentMonth < 0) {
+          currentMonth = 11;
+          currentYear--;
+        }
+        fetchEventsAndRenderCalendar(); // Fetch new events for the month
+      });
+
+      nextMonthBtn.addEventListener('click', () => {
+        currentMonth++;
+        if (currentMonth > 11) {
+          currentMonth = 0;
+          currentYear++;
+        }
+        fetchEventsAndRenderCalendar(); // Fetch new events for the month
+      });
+
+      // New 'Hoy' button functionality
+      todayButton.addEventListener('click', () => {
+        const today = new Date();
+        currentMonth = today.getMonth();
+        currentYear = today.getFullYear();
+        fetchEventsAndRenderCalendar(); // Load calendar for today's month
+        const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+        fetchDailyAppointments(todayStr); // Load appointments for today
+      });
+
+
+      // Initial render and fetch
+      fetchEventsAndRenderCalendar();
+      
+      // Load current day's appointments on initial load
       const today = new Date();
-      const todayStr = today.getFullYear() + '-' + 
-                       (today.getMonth() + 1).toString().padStart(2, '0') + '-' + 
-                       today.getDate().toString().padStart(2, '0');
-      fetchDailyAppointments(todayStr); // Carga las consultas de hoy por defecto
+      const todayStr = `${today.getFullYear()}-${(today.getMonth() + 1).toString().padStart(2, '0')}-${today.getDate().toString().padStart(2, '0')}`;
+      fetchDailyAppointments(todayStr);
+
     });
   </script>
 </body>

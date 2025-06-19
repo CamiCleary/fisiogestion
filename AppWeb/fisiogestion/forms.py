@@ -1,7 +1,8 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm # Solo si aún lo usas, si no, puedes quitarlo
 from django.contrib.auth import get_user_model
-from .models import Usuario , Consulta , Pago
+from .models import Usuario, Consulta , Pago # Asegúrate de que HistorialMedico esté importado si lo usas en PacienteForm
+from django.utils import timezone # Importar timezone para comparaciones de fecha y hora
 
 Usuario = get_user_model()
 
@@ -14,46 +15,40 @@ class LoginForm(forms.Form):
     )
 
 class FisioterapeutaForm(forms.ModelForm):
-    # Hacemos que el campo de contraseña sea requerido y use el widget de contraseña
     password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
 
     class Meta:
         model = Usuario
-        # Define los campos que quieres en el formulario
         fields = [
             'nombre', 'apellido', 'email', 'telefono', 
             'cedula', 'direccion', 'rol', 'especialidad', 
             'info_adicional', 'password'
         ]
+        widgets = { # Añadir widgets aquí para placeholders y clases
+            'nombre': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Juan'}),
+            'apellido': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Pérez'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'juan.perez@fisiogestion.com'}),
+            'telefono': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+58 414-1234567'}),
+            'cedula': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'V-12345678'}),
+            'direccion': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Av. Principal, Edificio X'}),
+            'especialidad': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Fisioterapia Deportiva'}),
+            'info_adicional': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Información adicional del fisioterapeuta'}),
+        }
 
     def __init__(self, *args, **kwargs):
-        """
-        Sobrescribimos el __init__ para añadir clases de Bootstrap a todos los campos
-        y hacer que el campo 'rol' sea de solo lectura si ya tiene un valor inicial.
-        """
         super().__init__(*args, **kwargs)
         # Ponemos el rol como Fisioterapeuta por defecto y lo hacemos de solo lectura
         self.fields['rol'].initial = Usuario.FISIOTERAPEUTA
         self.fields['rol'].widget.attrs['readonly'] = True
         
-        # Asignamos la clase 'form-control' de Bootstrap a todos los campos
+        # Aseguramos que todos los campos tengan la clase 'form-control' si no tienen un widget específico
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            # Añadimos placeholders genéricos
-            if field_name == "password":
-                field.widget.attrs['placeholder'] = 'Contraseña segura'
-            else:
-                 field.widget.attrs['placeholder'] = field.label or field_name.capitalize()
+            if 'class' not in field.widget.attrs:
+                field.widget.attrs['class'] = 'form-control'
 
 
     def save(self, commit=True):
-        """
-        Sobrescribimos el método save para hashear la contraseña. ¡ESTO ES CRUCIAL!
-        """
-        # Obtenemos la instancia del usuario, pero aún no la guardamos en la BD
         user = super().save(commit=False)
-        
-        # Obtenemos la contraseña del formulario y la establecemos de forma segura
         password = self.cleaned_data["password"]
         user.set_password(password) # set_password se encarga del hasheo
         
@@ -105,60 +100,7 @@ class PacienteForm(forms.ModelForm):
         if commit:
             user.save()
         return user
-    # Hacemos que el campo de contraseña sea requerido y use el widget de contraseña
-    password = forms.CharField(widget=forms.PasswordInput, label="Contraseña")
-
-    class Meta:
-        model = Usuario
-        # Define los campos que quieres en el formulario
-        fields = [
-            'nombre', 'apellido', 'email', 'telefono', 
-            'cedula', 'direccion', 'rol',
-            'info_adicional', 'password'
-        ]
-
-    def __init__(self, *args, **kwargs):
-        """
-        Sobrescribimos el __init__ para añadir clases de Bootstrap a todos los campos
-        y hacer que el campo 'rol' sea de solo lectura si ya tiene un valor inicial.
-        """
-        super().__init__(*args, **kwargs)
-        # Ponemos el rol como Fisioterapeuta por defecto y lo hacemos de solo lectura
-        self.fields['rol'].initial = Usuario.PACIENTE
-        self.fields['rol'].widget.attrs['readonly'] = True
-        
-        # Asignamos la clase 'form-control' de Bootstrap a todos los campos
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-            # Añadimos placeholders genéricos
-            if field_name == "password":
-                field.widget.attrs['placeholder'] = 'Contraseña segura'
-            else:
-                 field.widget.attrs['placeholder'] = field.label or field_name.capitalize()
-
-
-    def save(self, commit=True):
-        """
-        Sobrescribimos el método save para hashear la contraseña. ¡ESTO ES CRUCIAL!
-        """
-        # Obtenemos la instancia del usuario, pero aún no la guardamos en la BD
-        user = super().save(commit=False)
-        
-        # Obtenemos la contraseña del formulario y la establecemos de forma segura
-        password = self.cleaned_data["password"]
-        user.set_password(password) # set_password se encarga del hasheo
-        
-        if commit:
-            user.save()
-        return user
     
-class ConsultaForm(forms.ModelForm):
-    fecha_consulta = forms.DateTimeField(
-        widget=forms.DateTimeInput(attrs={
-            'type': 'datetime-local',
-            'class': 'form-control'
-        })
-    )
 class ConsultaForm(forms.ModelForm):
     class Meta:
         model = Consulta
@@ -168,7 +110,7 @@ class ConsultaForm(forms.ModelForm):
             'fisioterapeuta': forms.Select(attrs={'class': 'form-select'}),
             'observaciones': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 5,  # Ajusta la altura inicial
+                'rows': 5,
                 'placeholder': 'Ingrese las observaciones de la consulta...'
             }),
             'fecha_consulta': forms.DateTimeInput(attrs={
@@ -181,12 +123,64 @@ class ConsultaForm(forms.ModelForm):
             'paciente': 'Paciente',
             'fisioterapeuta': 'Fisioterapeuta',
             'fecha_consulta': 'Fecha y hora de la consulta',
+            'observaciones': 'Observaciones' # Asegurarse de tener un label para observaciones
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Filtra los fisioterapeutas y pacientes por su rol
         self.fields['fisioterapeuta'].queryset = Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA)
         self.fields['paciente'].queryset = Usuario.objects.filter(rol=Usuario.PACIENTE)
+        
+    # Calendario de citas
+    
+class AgendarCitaForm(forms.ModelForm): # Cambiado a forms.ModelForm
+    """
+    Formulario para agendar una nueva cita.
+    Este formulario ahora es un ModelForm para interactuar directamente con el modelo Consulta.
+    """
+    # Campo para seleccionar el fisioterapeuta
+    fisioterapeuta = forms.ModelChoiceField(
+        queryset=Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA),
+        empty_label="--- Selecciona un Fisioterapeuta ---",
+        label="Fisioterapeuta",
+        widget=forms.Select(attrs={'class': 'form-control rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'})
+    )
+
+    # Campo para la fecha y hora de la consulta (representa el inicio de la cita)
+    fecha_consulta = forms.DateTimeField(
+        label="Fecha y Hora de la Cita",
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control rounded-lg px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500'})
+    )
+
+    class Meta:
+        model = Consulta
+        fields = ['fisioterapeuta', 'fecha_consulta']
+        # El campo 'paciente' se asignará en la vista ('agendar_cita_api')
+        # Otros campos como 'observaciones' podrían ser añadidos si es necesario
+        # widgets = {
+        #     'fisioterapeuta': forms.Select(attrs={'class': 'form-control'}),
+        #     'fecha_consulta': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+        # }
+
+
+    # Método de validación personalizado para el formulario completo
+    def clean(self):
+        cleaned_data = super().clean()
+        fecha_consulta = cleaned_data.get('fecha_consulta') 
+
+        # Validación: Asegurarse de que la fecha y hora de la cita no estén en el pasado
+        if fecha_consulta:
+            # Comparamos la fecha y hora de la cita con la fecha y hora actual del servidor.
+            # Usamos timezone.now() para manejar datetimes con información de zona horaria (aware datetimes).
+            if fecha_consulta < timezone.now():
+                self.add_error('fecha_consulta', 'No se puede agendar una cita en el pasado.')
+        
+        # Aquí podrías añadir validaciones adicionales, como:
+        # - Verificar la disponibilidad real del fisioterapeuta (requeriría lógica más compleja que interactúe con el modelo Horario).
+        # - Verificar solapamientos con otras citas del mismo fisioterapeuta.
+        
+        return cleaned_data
         
 class PagoForm(forms.ModelForm):
     
