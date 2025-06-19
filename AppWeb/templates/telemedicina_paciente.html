@@ -80,11 +80,10 @@
       {% for archivo in archivos %}
       <li class="media-item">
         <div class="item-thumbnail">
-          {% if archivo.archivo.url.endswith:".mp4" or archivo.archivo.url.endswith:".webm" %}
             <video src="{{ archivo.archivo.url }}" controls></video>
-          {% else %}
+
             <img src="{{ archivo.archivo.url }}" alt="Archivo">
-          {% endif %}
+
         </div>
         <div class="item-details">
           <div class="item-description">{{ archivo.descripcion }}</div>

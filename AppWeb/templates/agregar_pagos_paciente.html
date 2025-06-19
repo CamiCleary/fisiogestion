@@ -1,0 +1,92 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registrar Nuevo Pago</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f0f4f8; }
+    main { min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
+    .form-container { max-width: 800px; width: 100%; }
+    .shadow { box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); }
+    .text-fisiogestion-primary { color: #00B89F !important; }
+    .btn-back, .btn-save-payment {
+        background-color: #00B89F; color: white; font-weight: 500; padding: 10px 18px;
+        border-radius: 8px; text-decoration: none; transition: background-color 0.3s;
+        border: none; display: inline-flex; align-items: center; gap: 8px;
+    }
+    .btn-back:hover, .btn-save-payment:hover { background-color: #009e8a; color: white; }
+    .form-label { font-weight: 600; color: #333; margin-bottom: 5px; }
+    .form-control, .form-select { border-radius: 8px; }
+    .form-control:focus, .form-select:focus { border-color: #00B89F; box-shadow: 0 0 0 0.25rem rgba(0, 184, 159, 0.25); }
+    .form-text.text-muted { font-size: 0.85em; }
+    .alert { border-radius: 8px; }
+  </style>
+</head>
+<body>
+<main>
+  <div class="form-container">
+    <div class="bg-white p-4 p-md-5 shadow rounded">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="mb-0 text-fisiogestion-primary">Registrar Nuevo Pago</h3>
+        <a href="javascript:history.back()" class="btn-back d-none d-md-flex"><i class="fas fa-arrow-left"></i> Volver</a>
+      </div>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}" role="alert">
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label for="{{ form.consulta.id_for_label }}" class="form-label">{{ form.consulta.label }}</label>
+            {{ form.consulta }}
+            {% if form.consulta.errors %}<div class="text-danger small mt-1">{{ form.consulta.errors.as_text }}</div>{% endif %}
+          </div>
+
+          <div class="col-md-6">
+            <label for="{{ form.fecha_pago.id_for_label }}" class="form-label">{{ form.fecha_pago.label }}</label>
+            {{ form.fecha_pago }}
+            {% if form.fecha_pago.errors %}<div class="text-danger small mt-1">{{ form.fecha_pago.errors.as_text }}</div>{% endif %}
+          </div>
+          
+          <div class="col-md-6">
+            <label for="{{ form.monto.id_for_label }}" class="form-label">{{ form.monto.label }}</label>
+            {{ form.monto }}
+            {% if form.monto.errors %}<div class="text-danger small mt-1">{{ form.monto.errors.as_text }}</div>{% endif %}
+          </div>
+          
+          <div class="col-md-6">
+            <label for="{{ form.metodo_pago.id_for_label }}" class="form-label">{{ form.metodo_pago.label }}</label>
+            {{ form.metodo_pago }}
+            {% if form.metodo_pago.errors %}<div class="text-danger small mt-1">{{ form.metodo_pago.errors.as_text }}</div>{% endif %}
+          </div>
+
+          <div class="col-12">
+            <label for="{{ form.imagen_referencia.id_for_label }}" class="form-label">{{ form.imagen_referencia.label }}</label>
+            {{ form.imagen_referencia }}
+            {% if form.imagen_referencia.errors %}<div class="text-danger small mt-1">{{ form.imagen_referencia.errors.as_text }}</div>{% endif %}
+            <div class="form-text text-muted">Sube una imagen o captura como comprobante de pago.</div>
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+          <button type="submit" class="btn-save-payment"><i class="fas fa-save me-2"></i>Guardar Pago</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -118,9 +118,9 @@
       </div>
       <nav class="nav">
         <a href="{% url 'consultas' %}"class="nav-link active">Mis Consultas</a>
-        <a href="#" class="nav-link">Pagos</a>
-        <a href="#" class="nav-link">Telemedicina</a>
-        <a href="#" class="nav-link">Reportes</a>
+        <a href="{% url 'pagos_paciente' %}" class="nav-link">Pagos</a>
+        <a href="{% url 'telemedicina_paciente' %}" class="nav-link">Telemedicina</a>
+        <a href="{% url 'citas' %}" class="nav-link">Citas</a>
       </nav>
     </div>
     <div class="admin">

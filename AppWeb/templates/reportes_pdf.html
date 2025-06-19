@@ -1,0 +1,477 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reporte Completo - Fisiogestión</title>
+  <style>
+    /* Estilos mejorados para PDF */
+    body {
+      font-family: 'Inter', sans-serif;
+      color: #333;
+      line-height: 1.6;
+      padding: 20px;
+      background-color: #f8fcfb;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 15px;
+      margin-bottom: 25px;
+      border-bottom: 2px solid #00b89f;
+    }
+    
+    .logo {
+      height: 60px;
+    }
+    
+    .header-info {
+      text-align: right;
+    }
+    
+    h1 {
+      color: #008f86;
+      font-size: 24px;
+      margin: 15px 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e0f2f1;
+    }
+    
+    h2 {
+      color: #008f86;
+      font-size: 18px;
+      margin: 25px 0 15px;
+      background: #f0faf9;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+    
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+    
+    .card {
+      flex: 1;
+      min-width: 200px;
+      background: white;
+      border: 1px solid #e0f2f1;
+      border-radius: 10px;
+      padding: 15px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    .card-title {
+      font-size: 14px;
+      color: #008f86;
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+    
+    .card-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #004f4d;
+    }
+    
+    .card-desc {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+    }
+    
+    .stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin: 25px 0;
+    }
+    
+    .stat-card {
+      flex: 1;
+      min-width: 180px;
+      background: #f0faf9;
+      border-radius: 8px;
+      padding: 15px;
+      border-left: 4px solid #008f86;
+    }
+    
+    .stat-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 5px;
+    }
+    
+    .stat-value {
+      font-size: 18px;
+      font-weight: 600;
+      color: #004f4d;
+    }
+    
+    .change {
+      font-size: 12px;
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .change.positive {
+      color: #27ae60;
+    }
+    
+    .change.negative {
+      color: #e74c3c;
+    }
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    th {
+      background-color: #008f86;
+      color: white;
+      text-align: left;
+      padding: 12px 15px;
+      font-weight: 600;
+    }
+    
+    td {
+      padding: 10px 15px;
+      border-bottom: 1px solid #e0f2f1;
+    }
+    
+    tr:nth-child(even) {
+      background-color: #f8fcfb;
+    }
+    
+    .footer {
+      margin-top: 40px;
+      padding-top: 15px;
+      border-top: 1px solid #e0f2f1;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .highlight {
+      background-color: #eafaf9;
+      font-weight: 600;
+    }
+    
+    .section {
+      margin-bottom: 35px;
+      page-break-inside: avoid;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <img src="{% static 'images/logo2.png' %}" class="logo" alt="Fisiogestión Logo">
+    <div class="header-info">
+      <h1>Reporte General Completo</h1>
+      <div>Generado el: {% now "d/m/Y H:i" %}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Resumen Clínico</h2>
+    
+    <div class="card-container">
+      <div class="card">
+        <div class="card-title">Pacientes</div>
+        <div class="card-value">{{ total_pacientes }}</div>
+        <div class="card-desc">Total registrados</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Fisioterapeutas</div>
+        <div class="card-value">{{ total_fisioterapeutas }}</div>
+        <div class="card-desc">Profesionales activos</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Citas este mes</div>
+        <div class="card-value">{{ total_citas_mes }}</div>
+        <div class="card-desc">Programadas y completadas</div>
+      </div>
+      
+      <div class="card">
+        <div class="card-title">Ingresos Totales</div>
+        <div class="card-value">${{ ingresos_totales }}</div>
+        <div class="card-desc">Acumulado anual</div>
+      </div>
+    </div>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-label">Pacientes nuevos (último mes)</div>
+        <div class="stat-value">24</div>
+        <div class="change positive">+15% vs mes anterior</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Tasa de ocupación</div>
+        <div class="stat-value">82%</div>
+        <div class="change positive">+7% vs trimestre anterior</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Sesiones promedio por paciente</div>
+        <div class="stat-value">5.7</div>
+        <div class="change">Estable</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Ingresos promedio por sesión</div>
+        <div class="stat-value">$45.200</div>
+        <div class="change positive">+3.2% vs año anterior</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Actividad Mensual ({{ current_year }})</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Mes</th>
+          <th>Citas Programadas</th>
+          <th>Citas Completadas</th>
+          <th>Ingresos</th>
+          <th>Nuevos Pacientes</th>
+          <th>% Ocupación</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enero</td>
+          <td>120</td>
+          <td>115</td>
+          <td>$5.240.000</td>
+          <td>18</td>
+          <td>78%</td>
+        </tr>
+        <tr>
+          <td>Febrero</td>
+          <td>135</td>
+          <td>130</td>
+          <td>$5.890.000</td>
+          <td>22</td>
+          <td>82%</td>
+        </tr>
+        <tr>
+          <td>Marzo</td>
+          <td>160</td>
+          <td>155</td>
+          <td>$6.980.000</td>
+          <td>25</td>
+          <td>85%</td>
+        </tr>
+        <tr>
+          <td>Abril</td>
+          <td>150</td>
+          <td>145</td>
+          <td>$6.520.000</td>
+          <td>20</td>
+          <td>83%</td>
+        </tr>
+        <tr>
+          <td>Mayo</td>
+          <td>170</td>
+          <td>165</td>
+          <td>$7.420.000</td>
+          <td>28</td>
+          <td>87%</td>
+        </tr>
+        <tr>
+          <td>Junio</td>
+          <td>155</td>
+          <td>150</td>
+          <td>$6.780.000</td>
+          <td>21</td>
+          <td>84%</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Totales</strong></td>
+          <td><strong>890</strong></td>
+          <td><strong>860</strong></td>
+          <td><strong>$38.830.000</strong></td>
+          <td><strong>134</strong></td>
+          <td><strong>83%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Rendimiento por Fisioterapeuta</h2>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Profesional</th>
+          <th>Especialidad</th>
+          <th>Citas Atendidas</th>
+          <th>Pacientes Únicos</th>
+          <th>Ingresos Generados</th>
+          <th>Satisfacción</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Dra. Camila Rojas</td>
+          <td>Traumatología</td>
+          <td>142</td>
+          <td>38</td>
+          <td>$6.240.000</td>
+          <td>4.8 ★</td>
+        </tr>
+        <tr>
+          <td>Dr. Javier Méndez</td>
+          <td>Deportiva</td>
+          <td>128</td>
+          <td>35</td>
+          <td>$5.630.000</td>
+          <td>4.7 ★</td>
+        </tr>
+        <tr>
+          <td>Dra. Fernanda Torres</td>
+          <td>Neurología</td>
+          <td>118</td>
+          <td>28</td>
+          <td>$5.180.000</td>
+          <td>4.9 ★</td>
+        </tr>
+        <tr>
+          <td>Dr. Carlos Díaz</td>
+          <td>Postoperatorio</td>
+          <td>135</td>
+          <td>32</td>
+          <td>$5.940.000</td>
+          <td>4.6 ★</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Totales</strong></td>
+          <td>-</td>
+          <td><strong>523</strong></td>
+          <td><strong>133</strong></td>
+          <td><strong>$22.990.000</strong></td>
+          <td><strong>4.75 ★</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Análisis Financiero</h2>
+    
+    <div class="stats-container">
+      <div class="stat-card">
+        <div class="stat-label">Ingresos mensual promedio</div>
+        <div class="stat-value">$6.471.667</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Crecimiento anual</div>
+        <div class="stat-value">18.3%</div>
+        <div class="change positive">+$1.230.000 mensuales</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">Gastos operativos</div>
+        <div class="stat-value">32% de ingresos</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-label">ROI por paciente</div>
+        <div class="stat-value">3.8x</div>
+      </div>
+    </div>
+    
+    <table>
+      <thead>
+        <tr>
+          <th>Concepto</th>
+          <th>Monto Mensual</th>
+          <th>% de Ingresos</th>
+          <th>Variación Anual</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Ingresos por sesiones</td>
+          <td>$6.471.667</td>
+          <td>100%</td>
+          <td class="positive">+18.3%</td>
+        </tr>
+        <tr>
+          <td>Personal profesional</td>
+          <td>$3.560.000</td>
+          <td>55%</td>
+          <td class="positive">+12.1%</td>
+        </tr>
+        <tr>
+          <td>Operaciones y administración</td>
+          <td>$780.000</td>
+          <td>12%</td>
+          <td class="positive">+8.7%</td>
+        </tr>
+        <tr>
+          <td>Inversiones en equipamiento</td>
+          <td>$420.000</td>
+          <td>6.5%</td>
+          <td class="positive">+25.0%</td>
+        </tr>
+        <tr>
+          <td>Marketing y captación</td>
+          <td>$310.000</td>
+          <td>4.8%</td>
+          <td class="positive">+15.2%</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Beneficio neto</strong></td>
+          <td><strong>$1.401.667</strong></td>
+          <td><strong>21.7%</strong></td>
+          <td class="positive"><strong>+24.5%</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Proyecciones y Recomendaciones</h2>
+    
+    <div style="background: #f0faf9; padding: 20px; border-radius: 8px;">
+      <h3 style="color: #008f86; margin-top: 0;">Oportunidades identificadas</h3>
+      <ul style="margin-bottom: 20px;">
+        <li>Capacidad disponible para incrementar en 12-15 sesiones diarias</li>
+        <li>Especialidad de columna vertebral con demanda insatisfecha (+23%)</li>
+        <li>Horario extendido (19:00-21:00) con potencial de captar profesionales</li>
+      </ul>
+      
+      <h3 style="color: #008f86;">Acciones recomendadas</h3>
+      <ul>
+        <li>Implementar programa de fidelización para pacientes recurrentes</li>
+        <li>Ampliar equipo con especialista en terapia manual (+1 profesional)</li>
+        <li>Digitalizar 30% de sesiones de seguimiento</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    Reporte generado por Fisiogestión - Sistema de Gestión Clínica<br>
+    Datos actualizados al {% now "d/m/Y" %} | Confidencial
+  </div>
+</body>
+</html>
