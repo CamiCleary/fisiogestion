@@ -68,7 +68,7 @@
       }
 
       /* Activar el enlace "Mis Citas" cuando esta vista esté activa */
-      .nav a[href="{% url 'citas' %}"].active,
+      .nav a[href="{% url 'consultas' %}"].active,
       .nav a:hover {
         background-color: #b6e6f2;
         color: #0a4d68;
@@ -199,27 +199,27 @@
         text-align: center;
       }
 
-      .tabla-citas {
+      .tabla-consultas {
         width: 100%;
         border-collapse: collapse;
         margin-top: 18px;
         margin-bottom: 10px;
       }
 
-      .tabla-citas th,
-      .tabla-citas td {
+      .tabla-consultas th,
+      .tabla-consultas td {
         padding: 12px;
         border-bottom: 1px solid #eee;
         text-align: left;
         font-size: 15px;
       }
 
-      .tabla-citas th {
+      .tabla-consultas th {
         background-color: #f3f3f3;
         color: #444;
       }
 
-      .tabla-citas tr:hover {
+      .tabla-consultas tr:hover {
         background-color: #f9f9f9;
       }
 
@@ -291,8 +291,8 @@
         <div class="resumen-datos">
           <div class="dato">
             <div class="dato-titulo">Total</div>
-            <div class="dato-numero">{{ citas|length }}</div>
-            {# Muestra el número total de citas #}
+            <div class="dato-numero">{{ consultas|length }}</div>
+            {# Muestra el número total de consultas #}
           </div>
           <div class="dato">
             <div class="dato-titulo">Pendientes</div>
@@ -309,13 +309,13 @@
         </div>
       </div>
 
-      <!-- Resumen central de citas -->
+      <!-- Resumen central de consultas -->
       <div class="resumen-central">
         <h2>Listado de Citas</h2>
         <div class="resumen-mensaje">
-          Aquí puedes ver todas las citas registradas en el sistema.
+          Aquí puedes ver todas las consultas registradas en el sistema.
         </div>
-        <table class="tabla-citas">
+        <table class="tabla-consultas">
           <thead>
             <tr>
               <th>Fecha y Hora</th>
@@ -325,7 +325,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for cita in citas %}
+            {% for cita in consultas %}
             <tr>
               <td>{{ cita.fecha_consulta|date:"d/m/Y H:i" }}</td>
               {# Formato de fecha y hora #}
@@ -345,7 +345,7 @@
             </tr>
             {% empty %}
             <tr>
-              <td colspan="4">No hay citas registradas en el sistema.</td>
+              <td colspan="4">No hay consultas registradas en el sistema.</td>
             </tr>
             {% endfor %}
           </tbody>

@@ -93,7 +93,7 @@
         flex: 1;
         display: flex;
         flex-direction: column;
-        gap: 30px; /* Espacio entre calendario/form y lista de citas */
+        gap: 30px; /* Espacio entre calendario/form y lista de consultas */
         max-width: 1200px;
         margin: 0 auto;
     }
@@ -408,7 +408,7 @@
           font-size: 1.2em;
       }
 
-      /* Responsividad de la lista de citas del día */
+      /* Responsividad de la lista de consultas del día */
       #dailyAppointmentsList li {
           flex-direction: column;
           align-items: flex-start;
@@ -469,7 +469,7 @@
       <nav class="nav flex-column mb-auto">
         <a href="{% url 'registro_fisioterapeuta' %}" class="nav-link">Fisioterapeutas</a>
         <a href="{% url 'registro_paciente' %}" class="nav-link">Mis pacientes</a>
-        <a href="{% url 'citas' %}" class="nav-link">Mis Citas</a>
+        <a href="{% url 'consultas' %}" class="nav-link">Mis Citas</a>
         <a href="{% url 'calendario' %}" class="nav-link active">Calendario</a> {# Nuevo enlace activo #}
         <a href="#" class="nav-link">Pagos</a>
         <a href="#" class="nav-link">Telemedicina</a>
@@ -533,8 +533,8 @@
         <div class="daily-appointments-section">
             <h3 id="dailyAppointmentsTitle">Citas del Día: Selecciona una fecha</h3>
             <ul id="dailyAppointmentsList">
-                <!-- Las citas del día se cargarán aquí vía JavaScript -->
-                <li style="text-align: center; color: #666;">Haz clic en una fecha en el calendario para ver las citas de ese día.</li>
+                <!-- Las consultas del día se cargarán aquí vía JavaScript -->
+                <li style="text-align: center; color: #666;">Haz clic en una fecha en el calendario para ver las consultas de ese día.</li>
             </ul>
         </div>
 
@@ -580,7 +580,7 @@
           // Puedes desplazar el scroll hacia el formulario para mayor comodidad
           document.querySelector('.form-container').scrollIntoView({ behavior: 'smooth' });
 
-          // 2. Cargar y mostrar las citas de ese día
+          // 2. Cargar y mostrar las consultas de ese día
           var selectedDate = info.dateStr; // Formato YYYY-MM-DD
           fetchDailyAppointments(selectedDate);
         },
@@ -593,9 +593,9 @@
         },
 
         // Evento que se dispara cuando el calendario se renderiza por primera vez o se cambia de vista/mes
-        // Esto es útil para cargar las citas del día actual por defecto
+        // Esto es útil para cargar las consultas del día actual por defecto
         datesSet: function(info) {
-            // Llama a la función para cargar citas del día actual al cargar el calendario
+            // Llama a la función para cargar consultas del día actual al cargar el calendario
             // Si no hay una fecha seleccionada previamente, carga las de hoy
             // Esto evita que la sección "Citas del Día" esté vacía al cargar la página
             if (!document.getElementById('dailyAppointmentsList').getAttribute('data-loaded-date')) {
@@ -610,13 +610,13 @@
 
       calendar.render();
 
-      // Función para obtener las citas de un día específico a través de una API
+      // Función para obtener las consultas de un día específico a través de una API
       function fetchDailyAppointments(dateString) {
           document.getElementById('dailyAppointmentsTitle').textContent = 'Citas del Día: ' + formatDateDisplay(dateString);
-          document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #666;">Cargando citas...</li>'; // Mensaje de carga
+          document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #666;">Cargando consultas...</li>'; // Mensaje de carga
           document.getElementById('dailyAppointmentsList').setAttribute('data-loaded-date', dateString); // Guarda la fecha cargada
 
-          fetch(`/api/citas-del-dia/?date=${dateString}`, {
+          fetch(`/api/consultas-del-dia/?date=${dateString}`, {
               method: 'GET',
               headers: {
                   'X-CSRFToken': csrftoken, // Incluye el token CSRF para seguridad
@@ -633,7 +633,7 @@
               var list = document.getElementById('dailyAppointmentsList');
               list.innerHTML = ''; // Limpia la lista
               if (data.length === 0) {
-                  list.innerHTML = '<li style="text-align: center; color: #666;">No hay citas para este día.</li>';
+                  list.innerHTML = '<li style="text-align: center; color: #666;">No hay consultas para este día.</li>';
               } else {
                   data.forEach(function(cita) {
                       var listItem = document.createElement('li');
@@ -651,8 +651,8 @@
               }
           })
           .catch(error => {
-              console.error('Error al obtener citas del día:', error);
-              document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #e74c3c;">Error al cargar las citas.</li>';
+              console.error('Error al obtener consultas del día:', error);
+              document.getElementById('dailyAppointmentsList').innerHTML = '<li style="text-align: center; color: #e74c3c;">Error al cargar las consultas.</li>';
           });
       }
 
@@ -669,7 +669,7 @@
       const todayStr = today.getFullYear() + '-' + 
                        (today.getMonth() + 1).toString().padStart(2, '0') + '-' + 
                        today.getDate().toString().padStart(2, '0');
-      fetchDailyAppointments(todayStr); // Carga las citas de hoy por defecto
+      fetchDailyAppointments(todayStr); // Carga las consultas de hoy por defecto
     });
   </script>
 </body>
