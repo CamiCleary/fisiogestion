@@ -245,7 +245,55 @@ def eliminar_paciente(request, pk):
 
 @login_required
 def reportes(request):
-    return render(request, "reportes.html")
+    # Totales
+    total_usuarios  = Usuario.objects.count()
+    total_consultas = Consulta.objects.count()
+    total_pagos     = Pago.objects.count()
+    suma_pagos      = Pago.objects.aggregate(total=Sum('monto'))['total'] or 0
+
+    # Consultas por mes
+    consultas_qs = (
+        Consulta.objects
+        .values('fecha_consulta__year', 'fecha_consulta__month')
+        .annotate(c=Count('id'))
+        .order_by('fecha_consulta__year','fecha_consulta__month')
+    )
+    meses = [f"{item['fecha_consulta__year']}-{item['fecha_consulta__month']:02d}" for item in consultas_qs]
+    consultas_por_mes = [item['c'] for item in consultas_qs]
+
+    # Ingresos mensuales
+    pagos_qs = (
+        Pago.objects
+        .values('fecha_pago__year', 'fecha_pago__month')
+        .annotate(total=Sum('monto'))
+        .order_by('fecha_pago__year','fecha_pago__month')
+    )
+    ingresos_mensuales_labels = [f"{item['fecha_pago__year']}-{item['fecha_pago__month']:02d}" for item in pagos_qs]
+    ingresos_mensuales_data   = [float(item['total']) for item in pagos_qs]
+
+    # Pagos por usuario (top 5)
+    pagos_user_qs = (
+        Pago.objects
+        .values('consulta__paciente__nombre')
+        .annotate(count=Count('id'))
+        .order_by('-count')[:5]
+    )
+    usuarios_con_pagos = [item['consulta__paciente__nombre'] for item in pagos_user_qs]
+    pagos_por_usuario  = [item['count'] for item in pagos_user_qs]
+
+    context = {
+        'total_usuarios': total_usuarios,
+        'total_consultas': total_consultas,
+        'total_pagos': total_pagos,
+        'suma_pagos': suma_pagos,
+        'meses': meses,
+        'consultas_por_mes': consultas_por_mes,
+        'ingresos_mensuales_labels': ingresos_mensuales_labels,
+        'ingresos_mensuales_data': ingresos_mensuales_data,
+        'usuarios_con_pagos': usuarios_con_pagos,
+        'pagos_por_usuario': pagos_por_usuario,
+    }
+    return render(request, 'reportes.html', context)
 
 @login_required
 def reporte_paciente_view(request):

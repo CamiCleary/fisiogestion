@@ -25,12 +25,6 @@
         </div>
         <h2 class="mb-4 text-center text-primary">Listado de Pagos (Administrador)</h2>
 
-        {% if messages %}
-        {% for m in messages %}
-        <div class="alert alert-{{ m.tags }}">{{ m }}</div>
-        {% endfor %}
-        {% endif %}
-
         <div class="table-responsive">
             <table class="table table-striped table-bordered align-middle">
                 <thead class="table-dark text-white">
