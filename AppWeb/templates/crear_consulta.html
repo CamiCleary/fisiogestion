@@ -104,8 +104,14 @@
     <div class="form-card">
       <h3>{{ titulo }}</h3>
 
-      <form method="post" novalidate>
-        {% csrf_token %}
+<form method="post" 
+      action="{% if titulo|slice:":6" == "Editar" %}
+                {% url 'editar_consulta' consulta.id %}
+             {% else %}
+                {% url 'crear_consulta' %}
+             {% endif %}"
+      novalidate>
+  {% csrf_token %}
 
         {% if form.non_field_errors %}
           <div class="alert alert-danger">{{ form.non_field_errors }}</div>

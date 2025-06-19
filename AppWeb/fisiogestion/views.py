@@ -382,7 +382,8 @@ def crear_consulta(request):
 
     return render(request, 'crear_consulta.html', {
         'form': form,
-        'titulo': 'Nueva Consulta'
+        'titulo': 'Nueva Consulta',
+        'consulta': None,
     })
 
 @login_required
@@ -426,7 +427,8 @@ def editar_consulta(request, pk):
 
     return render(request, 'crear_consulta.html', {
         'form': form,
-        'titulo': f'Editar Consulta #{consulta.id}'
+        'titulo': f'Editar Consulta #{consulta.id}',
+        'consulta': consulta,
     })
 
 
