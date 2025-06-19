@@ -534,9 +534,30 @@ def pagos_administrador(request):
         'pagos': pagos
     })
 
-@login_required
-def telemedicina_view(request):
-    return render(request, "telemedicina_fisioterapeuta.html")
+    # 1. Recuperamos la teleconsulta
+    tele = get_object_or_404(Teleconsulta, id=teleconsulta_id)
+
+    if request.method == 'POST':
+        # 2. Procesamos el form con ficheros
+        form = PlanTratamientoForm(request.POST, request.FILES)
+        if form.is_valid():
+            plan = form.save(commit=False)
+            plan.teleconsulta = tele
+            plan.save()
+            # Opcional: mensaje de éxito aquí, o django.contrib.messages
+            return redirect('telemedicina', teleconsulta_id=tele.id)
+    else:
+        # 3. GET -> form vacío
+        form = PlanTratamientoForm()
+
+    # 4. Obtenemos todos los planes para listar
+    planes = tele.planes.order_by('-fecha_creacion')
+
+    return render(request, "telemedicina_fisioterapeuta.html", {
+        'teleconsulta': tele,
+        'form': form,
+        'planes': planes,
+    })
 
 @login_required
 def telemedicina_paciente_view(request):
