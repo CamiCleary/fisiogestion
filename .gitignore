@@ -1,10 +1,12 @@
 .env
 AppWeb/templates/venv
 AppWeb/__pycache__
-AppWeb/fisiogestion/__pycache__/
+AppWeb/fisiogestion/__pycache__
 fisiogestion/migrations/
 AppWeb/AppWeb/venv
 AppWeb/AppWeb/__pycache__/
 AppWeb/AppWeb/__init__.py
 AppWeb/AppWeb/AppWeb/venv
 .vscode/
+AppWeb/fisiogestion/migrations
+AppWeb/fisiogestion/__pycache__

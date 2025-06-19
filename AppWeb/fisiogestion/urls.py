@@ -32,6 +32,11 @@ urlpatterns = [
     path('pacientes/reporte/', views.reporte_pacientes_view, name='reporte_pacientes'),
     path('telemedicina/', views.telemedicina_view, name='telemedicina'),
     path('telemedicina-paciente/', views.telemedicina_paciente_view, name='telemedicina-paciente'),
+    
+    
+    # Pagos
+    path('pagos_fisioterapeuta/', views.pagos_fisioterapeuta, name='pagos_fisioterapeuta'),
+    path('pagos_paciente/', views.pagos_paciente, name='pagos_paciente'),
 ]
 
 if settings.DEBUG:

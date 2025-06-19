@@ -272,7 +272,7 @@
         <a href="{% url 'lista_pacientes' %}" class="nav-link">Pacientes</a>
         <a href="{% url 'consultas' %}" class="nav-link">Todas las consulta</a>
         <a href="{% url 'reportes' %}" class="nav-link">Reportes</a>
-        <a href="#" class="nav-link">Pagos</a>
+        <a href="{% url 'pagos_paciente' %}" class="nav-link">Pagos</a>
         <a href="{% url 'telemedicina' %}" class="nav-link">Telemedicina</a>
       </nav>
     </div>
@@ -327,27 +327,22 @@
       <div class="resumen-mensaje">
         Bienvenido, <strong>Administrador Global</strong>. Aquí tienes las próximas consultas del día.
       </div>
+      {% if consultas %}
       <table class="tabla-consulta">
         <thead>
           <tr>
             <th>Fecha y Hora</th>
             <th>Fisioterapeuta</th>
             <th>Paciente</th>
-            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          {% for consulta in citas_hoy %}
+          {% for c in consultas %}
+          {% csrf_token %}
           <tr>
-            <td>{{ consulta.hora|default:"-" }}</td>
-            <td>{{ consulta.fisioterapeuta.get_full_name|default:"-" }}</td>
-            <td>{{ consulta.paciente.get_full_name|default:"-" }}</td>
-            <td>
-              <div class="acciones-btn">
-                <a href="{% url 'editar_consulta' consulta.id %}" class="btn-editar">Editar</a>
-                <a href="{% url 'eliminar_consulta' consulta.id %}" class="btn-eliminar">Eliminar</a>
-              </div>
-            </td>
+            <td>{{ c.fecha_consulta|date:"d/m/Y H:i" }}</td>
+            <td>{{ c.paciente }}</td>
+            <td>{{ c.observaciones }}</td>
           </tr>
           {% empty %}
           <tr>
@@ -356,7 +351,11 @@
           {% endfor %}
         </tbody>
       </table>
-
+              {% else %}
+          <tr>
+            <td colspan="4" class="text-center py-4">No hay consultas programadas para hoy.</td>
+          </tr>
+        {% endif %}
       <!-- Widget adicional: últimos registros -->
       <h2>Últimos Registros</h2>
       <ul class="list-group w-100 mt-2">

@@ -456,3 +456,12 @@ def eliminar_consulta(request, pk):
     return render(request, 'confirmar_eliminar_consulta.html', {
         'consulta': consulta
     })
+
+
+@login_required
+def pagos_fisioterapeuta(request):    
+    return render(request, 'pagos_fisioterapeuta.html')
+
+@login_required
+def pagos_paciente(request):
+    return render(request, 'pagos_paciente.html')
