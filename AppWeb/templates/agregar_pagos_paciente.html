@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar Nuevo Pago</title>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Favicon -->
+    <link
+      rel="shortcut icon"
+      href="{% static 'images/logo2.png' %}"
+      type="image/x-icon"
+    />
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+        margin: 0;
+        padding: 0;
+      }
+
+      main {
+        padding: 20px; /* Responsive padding */
+        background-color: #f0f4f8;
+        min-height: 100vh; /* Ensure it takes full viewport height for vertical centering */
+        display: flex;
+        justify-content: center; /* Center horizontally */
+        align-items: center; /* Center vertically */
+      }
+
+      .container-fluid {
+        max-width: 800px; /* Max width for the form container */
+        width: 100%;
+        padding: 0 15px;
+      }
+
+      .shadow {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      }
+
+      /* Custom class for primary teal color text (for titles) */
+      .text-fisiogestion-primary {
+        color: #00b89f !important;
+      }
+
+      /* Custom button styles */
+      .btn-back,
+      .btn-save-payment {
+        background-color: #00b89f;
+        color: white;
+        font-weight: 500;
+        padding: 8px 15px;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        border: none;
+        white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .btn-back:hover,
+      .btn-save-payment:hover {
+        background-color: #009e8a;
+        color: white;
+      }
+
+      /* Form specific styles */
+      .form-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .form-control,
+      .form-select {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        font-size: 1rem;
+      }
+
+      .form-control:focus,
+      .form-select:focus {
+        border-color: #00b89f;
+        box-shadow: 0 0 0 0.25rem rgba(0, 184, 159, 0.25);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 576px) {
+        main {
+          padding: 15px;
+        }
+        .btn-back,
+        .btn-save-payment {
+          width: 100%; /* Full width for buttons on small screens */
+          justify-content: center;
+        }
+        .d-grid.gap-2 {
+          gap: 10px; /* Space between stacked buttons */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container-fluid">
+      <div class="row g-4 justify-content-center">
+        <div class="col-12">
+          <div class="bg-white p-4 shadow rounded">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="mb-0 text-fisiogestion-primary">
+                Registrar Nuevo Pago
+              </h3>
+              <a href="javascript:history.back()" class="btn-back"
+                ><i class="fas fa-arrow-left me-2"></i>Volver</a
+              >
+            </div>
+
+            <form
+              method="post"
+              action="{% url 'guardar_pago' %}"
+              enctype="multipart/form-data"
+            >
+              {% csrf_token %}
+
+              <div class="mb-3">
+                <label for="id_fecha_pago" class="form-label"
+                  >Fecha y Hora del Pago:</label
+                >
+                <input
+                  type="datetime-local"
+                  class="form-control"
+                  id="id_fecha_pago"
+                  name="fecha_pago"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="id_metodo_pago" class="form-label"
+                  >Método de Pago:</label
+                >
+                <select
+                  class="form-select"
+                  id="id_metodo_pago"
+                  name="metodo_pago"
+                  required
+                >
+                  <option value="">Seleccione un método</option>
+                  <option value="Transferencia">Transferencia</option>
+                  <option value="Pago Móvil">Pago Móvil</option>
+                  <option value="Efectivo">Efectivo</option>
+                  <option value="Tarjeta">Tarjeta de Débito/Crédito</option>
+                </select>
+              </div>
+
+              <div class="mb-3">
+                <label for="id_monto" class="form-label">Monto ($):</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  class="form-control"
+                  id="id_monto"
+                  name="monto"
+                  placeholder="Ej: 15.50"
+                  required
+                />
+              </div>
+
+              <div class="mb-3">
+                <label for="id_comprobante" class="form-label"
+                  >Comprobante (opcional):</label
+                >
+                <input
+                  type="file"
+                  class="form-control"
+                  id="id_comprobante"
+                  name="comprobante"
+                  accept="image/*,application/pdf"
+                />
+              </div>
+
+              <div class="mb-4">
+                <label for="id_consulta" class="form-label"
+                  >Consulta Asociada:</label
+                >
+                <select
+                  class="form-select"
+                  id="id_consulta"
+                  name="consulta"
+                  required
+                >
+                  <option value="">Seleccione una consulta</option>
+                  {# Este es un placeholder. En Django, poblarías esto con un
+                  bucle: {% for consulta in consultas %}
+                  <option value="{{ consulta.id }}">
+                    {{ consulta.fecha_consulta|date:"d/m/Y H:i" }} - Paciente:
+                    {{ consulta.paciente.nombre }} {{ consulta.paciente.apellido
+                    }}
+                  </option>
+                  {% endfor %} #}
+                  <option value="1">
+                    2025-06-20 10:00 - Paciente: Juan Pérez
+                  </option>
+                  <option value="2">
+                    2025-06-20 11:30 - Paciente: María Gómez
+                  </option>
+                  <option value="3">
+                    2025-06-21 09:00 - Paciente: Laura García
+                  </option>
+                </select>
+              </div>
+
+              <div class="d-grid gap-2">
+                <button type="submit" class="btn-save-payment">
+                  <i class="fas fa-save me-2"></i>Guardar Pago
+                </button>
+                <a
+                  href="javascript:history.back()"
+                  class="btn-back"
+                  style="background-color: #6c757d; border-color: #6c757d"
+                  ><i class="fas fa-times me-2"></i>Cancelar</a
+                >
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
