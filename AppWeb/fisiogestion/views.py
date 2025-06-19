@@ -3,9 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import HttpResponse
+from django.views.generic import TemplateView
 from django.http import Http404
 from django.contrib.auth import get_user_model
-from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm , PagoForm , PlanTratamientoForm
+from .forms import PacienteForm, FisioterapeutaForm, LoginForm, ConsultaForm , PagoForm , PlanTratamientoForm, HorarioForm
 from django.db.models import Q
 from django.db.models.functions import TruncMonth
 from django.db.models import Count, Sum
@@ -370,177 +371,47 @@ def telemedicina_paciente_view(request):
     return render(request, "telemedicina_paciente.html")
 
 @login_required
-def citas_view(request):
-    # Esta vista podría ser para una tabla de todas las citas, no el calendario interactivo.
-    # El calendario se maneja en calendario_view.
-    citas = Consulta.objects.all().order_by("fecha_consulta") # Puedes filtrar por usuario logueado si es necesario
-    context = {"citas": citas, "page_title": "Lista de Citas"}
-    return render(request, "citas.html", context)
+def horarios_list(request):
+    horarios = (
+        Horario.objects
+        .select_related('fisioterapeuta')
+        .all()
+        .order_by('dia_semana', 'hora_inicio')
+    )
+    # Si quieres contar cuántos horarios hay a partir de hoy:
+    proximos = horarios.count()  # o lógica distinta, pues no hay fecha_consulta
+    return render(request, 'citas.html', {
+        'consultas': horarios,   # tu plantilla lee 'consultas'
+        'proximas': proximos,
+        'page_title': 'Lista de Horarios'
+    })
 
 @login_required
-def calendario_view(request):
-    """
-    Vista principal para mostrar el calendario interactivo.
-    Solo maneja la solicitud GET para renderizar la página y pasar el formulario.
-    Las acciones POST de agendar cita se manejan en agendar_cita_api.
-    """
-    form = AgendarCitaForm() # Siempre inicializa un formulario vacío para el GET
-
-    # La lógica para obtener y formatear los eventos para FullCalendar
-    # se ha movido principalmente a get_monthly_events_api para peticiones AJAX.
-    # Sin embargo, pasamos un set inicial por si el calendario lo necesita al cargar.
-    
-    # Obtener todas las citas existentes para mostrar en el calendario (solo al cargar la página)
-    if hasattr(request.user, 'rol') and request.user.rol == Usuario.PACIENTE:
-        citas_existentes = Consulta.objects.filter(paciente=request.user).order_by('fecha_consulta')
-    elif hasattr(request.user, 'rol') and request.user.rol == Usuario.FISIOTERAPEUTA:
-        citas_existentes = Consulta.objects.filter(fisioterapeuta=request.user).order_by('fecha_consulta')
-    else: # Para otros roles o admins, mostrar todas las citas
-        citas_existentes = Consulta.objects.all().order_by('fecha_consulta')
-
-    eventos = []
-    for cita in citas_existentes:
-        paciente_nombre_completo = f"{cita.paciente.nombre} {cita.paciente.apellido}" if hasattr(cita.paciente, 'nombre') and hasattr(cita.paciente, 'apellido') else cita.paciente.email # Usar email si nombre/apellido no existen
-        fisioterapeuta_nombre_completo = f"{cita.fisioterapeuta.nombre} {cita.fisioterapeuta.apellido}" if hasattr(cita.fisioterapeuta, 'nombre') and hasattr(cita.fisioterapeuta, 'apellido') else cita.fisioterapeuta.email # Usar email si nombre/apellido no existen
-        
-        eventos.append({
-            'title': f"Cita {paciente_nombre_completo} ({fisioterapeuta_nombre_completo})", # Título del evento
-            'start': cita.fecha_consulta.isoformat(),
-            'id': cita.id,
-            'fisioterapeuta_nombre': fisioterapeuta_nombre_completo,
-            'paciente_nombre': paciente_nombre_completo,
-            'hora_inicio': cita.fecha_consulta.strftime('%H:%M'),
-        })
-    
-    context = {
-        'form': form, # Pasa la instancia del formulario al contexto
-        'eventos_json': json.dumps(eventos), # Los eventos iniciales para el calendario JavaScript
-        'page_title': 'Mi Calendario',
-    }
-    return render(request, 'fisiogestion/calendario.html', context)
-
+def editar_horario(request, pk):
+    horario = get_object_or_404(Horario, pk=pk)
+    form = HorarioForm(request.POST or None, instance=horario)
+    if request.method == 'POST' and form.is_valid():
+        form.save()
+        messages.success(request, "Horario actualizado correctamente.")
+        return redirect('citas')
+    return render(request, 'cita_form.html', {
+        'form': form,
+        'page_title': 'Editar Horario'
+    })
 
 @login_required
-def get_monthly_events_api(request):
-    """
-    API para obtener eventos del calendario para un rango de fechas (usado por FullCalendar).
-    FullCalendar enviará 'start' y 'end' como parámetros GET.
-    """
-    start_str = request.GET.get('start')
-    end_str = request.GET.get('end')
-
-    if not start_str or not end_str:
-        return JsonResponse({'error': 'Fechas de inicio y fin son requeridas'}, status=400)
-
-    try:
-        # Convertir strings a objetos datetime. FullCalendar envía en formato ISO 8601.
-        start_date = datetime.fromisoformat(start_str.replace('Z', '+00:00')) # Manejar 'Z' de UTC
-        end_date = datetime.fromisoformat(end_str.replace('Z', '+00:00'))
-    except ValueError:
-        return JsonResponse({'error': 'Formato de fecha inválido. Use ISO 8601'}, status=400)
-
-    # Filtrar citas dentro del rango de fechas y por el rol del usuario
-    if hasattr(request.user, 'rol') and request.user.rol == Usuario.PACIENTE:
-        citas = Consulta.objects.filter(
-            paciente=request.user,
-            fecha_consulta__range=[start_date, end_date]
-        ).order_by('fecha_consulta')
-    elif hasattr(request.user, 'rol') and request.user.rol == Usuario.FISIOTERAPEUTA:
-        citas = Consulta.objects.filter(
-            fisioterapeuta=request.user,
-            fecha_consulta__range=[start_date, end_date]
-        ).order_by('fecha_consulta')
-    else: # Admin o otros roles pueden ver todas las citas en el rango
-        citas = Consulta.objects.filter(
-            fecha_consulta__range=[start_date, end_date]
-        ).order_by('fecha_consulta')
-
-    eventos = []
-    for cita in citas:
-        paciente_nombre_completo = f"{cita.paciente.nombre} {cita.paciente.apellido}" if hasattr(cita.paciente, 'nombre') and hasattr(cita.paciente, 'apellido') else cita.paciente.email
-        fisioterapeuta_nombre_completo = f"{cita.fisioterapeuta.nombre} {cita.fisioterapeuta.apellido}" if hasattr(cita.fisioterapeuta, 'nombre') and hasattr(cita.fisioterapeuta, 'apellido') else cita.fisioterapeuta.email
-        
-        eventos.append({
-            'title': f"Cita {paciente_nombre_completo} ({fisioterapeuta_nombre_completo})",
-            'start': cita.fecha_consulta.isoformat(),
-            'id': cita.id,
-            'fisioterapeuta_nombre': fisioterapeuta_nombre_completo,
-            'paciente_nombre': paciente_nombre_completo,
-            'hora_inicio': cita.fecha_consulta.strftime('%H:%M'),
-        })
-    return JsonResponse(eventos, safe=False)
-
-
-@login_required
-def agendar_cita_api(request):
-    """
-    API para agendar una nueva cita via POST (usado por el formulario del calendario).
-    Devuelve una respuesta JSON.
-    """
+def eliminar_horario(request, pk):
+    horario = get_object_or_404(Horario, pk=pk)
     if request.method == 'POST':
-        form = AgendarCitaForm(request.POST)
-        if form.is_valid():
-            cita = form.save(commit=False)
-            
-            # Asigna el paciente logueado a la cita
-            # Es crucial que el usuario logueado sea un paciente para agendar
-            if hasattr(request.user, 'rol') and request.user.rol == Usuario.PACIENTE:
-                cita.paciente = request.user
-                try:
-                    cita.save()
-                    return JsonResponse({'success': True, 'message': 'Cita agendada exitosamente.'})
-                except Exception as e:
-                    return JsonResponse({'success': False, 'message': f'Error al guardar la cita: {e}'}, status=500)
-            else:
-                return JsonResponse({'success': False, 'message': 'Acceso denegado. Solo los pacientes pueden agendar citas.'}, status=403)
-        else:
-            # Si el formulario no es válido, devuelve los errores
-            errors = form.errors.as_json() # Opcional: form.errors.as_ul() para HTML
-            return JsonResponse({'success': False, 'message': 'Errores de validación.', 'errors': json.loads(errors)}, status=400)
-    return JsonResponse({'success': False, 'message': 'Método no permitido.'}, status=405)
+        horario.delete()
+        messages.success(request, "Horario eliminado.")
+        return redirect('citas')
+    return render(request, 'cita_confirm_delete.html', {
+        'horario': horario,
+        'page_title': 'Eliminar Horario'
+    })
 
 
-@login_required
-def get_daily_appointments_api(request):
-    selected_date_str = request.GET.get('date')
-    if not selected_date_str:
-        return JsonResponse({'error': 'No se proporcionó la fecha'}, status=400)
-
-    try:
-        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
-    except ValueError:
-        return JsonResponse({'error': 'Formato de fecha inválido. Use YYYY-MM-DD'}, status=400)
-
-    if hasattr(request.user, 'rol') and request.user.rol == Usuario.PACIENTE:
-        citas_del_dia = Consulta.objects.filter(
-            paciente=request.user,
-            fecha_consulta__date=selected_date
-        ).order_by('fecha_consulta__time')
-    elif hasattr(request.user, 'rol') and request.user.rol == Usuario.FISIOTERAPEUTA:
-        citas_del_dia = Consulta.objects.filter(
-            fisioterapeuta=request.user,
-            fecha_consulta__date=selected_date
-        ).order_by('fecha_consulta__time')
-    else:
-        citas_del_dia = Consulta.objects.filter(
-            fecha_consulta__date=selected_date
-        ).order_by('fecha_consulta__time')
-
-    data = []
-    for cita in citas_del_dia:
-        paciente_nombre_completo = f"{cita.paciente.nombre} {cita.paciente.apellido}" if hasattr(cita.paciente, 'nombre') and hasattr(cita.paciente, 'apellido') else cita.paciente.email
-        fisioterapeuta_nombre_completo = f"{cita.fisioterapeuta.nombre} {cita.fisioterapeuta.apellido}" if hasattr(cita.fisioterapeuta, 'nombre') and hasattr(cita.fisioterapeuta, 'apellido') else cita.fisioterapeuta.email
-
-        data.append({
-            'id': cita.id,
-            'paciente_nombre': paciente_nombre_completo,
-            'fisioterapeuta_nombre': fisioterapeuta_nombre_completo,
-            'fecha_hora': cita.fecha_consulta.strftime('%H:%M'),
-            'fecha_completa': cita.fecha_consulta.strftime('%Y-%m-%d %H:%M'),
-        })
-    return JsonResponse(data, safe=False)
-
-# --- Vistas de Consultas ---
 
 @login_required
 def consultas(request):
@@ -773,3 +644,15 @@ def reporte_pdf(request):
         return HttpResponse(f"Error al generar PDF:<br/><pre>{html}</pre>")
     return response
    
+   
+@login_required
+def calendario(request):
+    if request.method == 'POST':
+        form = HorarioForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Horario creado exitosamente.")
+            return redirect('citas')  # Ajusta este nombre de URL según tu configuración
+    else:
+        form = HorarioForm()
+    return render(request, 'calendario.html', {'form': form})

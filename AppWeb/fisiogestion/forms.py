@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm # Solo si aún lo usas, si no, puedes quitarlo
 from django.contrib.auth import get_user_model
-from .models import Usuario, Consulta , Pago, PlanTratamiento # Asegúrate de que HistorialMedico esté importado si lo usas en PacienteForm
+from .models import Usuario, Consulta , Pago, PlanTratamiento, Horario # Asegúrate de que HistorialMedico esté importado si lo usas en PacienteForm
 from django.utils import timezone # Importar timezone para comparaciones de fecha y hora
 
 Usuario = get_user_model()
@@ -264,3 +264,42 @@ class PlanTratamientoForm(forms.ModelForm):
                 'class': 'form-control'
             }),
         }
+        
+
+class HorarioForm(forms.ModelForm):
+    DIAS_SEMANA = [
+        ('Lunes', 'Lunes'),
+        ('Martes', 'Martes'),
+        ('Miércoles', 'Miércoles'),
+        ('Jueves', 'Jueves'),
+        ('Viernes', 'Viernes'),
+        ('Sábado', 'Sábado'),
+        ('Domingo', 'Domingo'),
+    ]
+
+    # Sobrescribimos el campo para usar un ChoiceField
+    dia_semana = forms.ChoiceField(choices=DIAS_SEMANA, widget=forms.Select(attrs={'class': 'form-control'}))
+    
+    # Aseguramos que el queryset para fisioterapeuta esté filtrado
+    fisioterapeuta = forms.ModelChoiceField(
+        queryset=Usuario.objects.filter(rol=Usuario.FISIOTERAPEUTA),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Horario
+        fields = ['fisioterapeuta', 'dia_semana', 'hora_inicio', 'hora_fin']
+        widgets = {
+            'hora_inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+            'hora_fin': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control'}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        hora_inicio = cleaned_data.get("hora_inicio")
+        hora_fin = cleaned_data.get("hora_fin")
+
+        if hora_inicio and hora_fin and hora_inicio >= hora_fin:
+            raise forms.ValidationError("La hora de inicio debe ser anterior a la hora de fin.")
+
+        return cleaned_data

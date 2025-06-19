@@ -1,356 +1,164 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Citas - Fisiogestión</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-      rel="stylesheet"/>
-    <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon">
-
-    <style>
-      /* Estilos del dashboard_pacientes.txt */
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-        font-family: "Inter", sans-serif;
-      }
-
-      body {
-        display: flex;
-        background-color: #f0faf9;
-        height: 100vh;
-        color: #333;
-      }
-
-      .sidebar {
-        width: 240px;
-        background-color: #eaf6fb; /* Igual que bg-info-subtle */
-        padding: 32px 20px 20px 20px;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.05);
-      }
-
-      .logo {
-        text-align: center;
-        margin-bottom: 32px;
-      }
-
-      .logo img {
-        width: 130px;
-      }
-
-      .nav {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        margin-bottom: 20px;
-      }
-
-      .nav a {
-        text-decoration: none;
-        color: #0a4d68;
-        padding: 10px 15px;
-        border-radius: 8px;
-        transition: 0.3s ease;
-        font-weight: 500;
-        background: transparent;
-        font-size: 16px;
-      }
-
-      /* Activar el enlace "Mis Citas" cuando esta vista esté activa */
-      .nav a[href="{% url 'consultas' %}"].active,
-      .nav a:hover {
-        background-color: #b6e6f2;
-        color: #0a4d68;
-      }
-
-      .admin {
-        font-size: 14px;
-        color: #666;
-        text-align: center;
-        margin-top: 30px;
-      }
-
-      .main {
-        flex-grow: 1;
-        padding: 40px;
-        display: flex;
-        gap: 30px;
-        align-items: flex-start;
-        overflow-y: auto;
-      }
-
-      .resumen-lateral {
-        background: white;
-        padding: 28px 24px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        min-width: 320px;
-        max-width: 340px;
-        margin-top: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .resumen-lateral h3 {
-        color: #008f86;
-        margin-bottom: 18px;
-        font-size: 1.2em;
-        text-align: center;
-      }
-
-      .resumen-datos {
-        display: flex;
-        justify-content: space-around;
-        width: 100%;
-        margin-bottom: 18px;
-        gap: 10px;
-      }
-
-      .dato {
-        background: #f0faf9;
-        border-radius: 10px;
-        padding: 14px 18px;
-        min-width: 90px;
-        text-align: center;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-      }
-
-      .dato-titulo {
-        font-size: 14px;
-        color: #008f86;
-        margin-bottom: 4px;
-        font-weight: 600;
-      }
-
-      .dato-numero {
-        font-size: 22px;
-        font-weight: 700;
-        color: #004f4d;
-      }
-
-      .quick-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .quick-actions button {
-        background-color: #00b89f;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 10px 0;
-        font-size: 15px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s;
-        width: 100%;
-      }
-
-      .quick-actions button:hover {
-        background-color: #009e8a;
-      }
-      .quick-actions .delete-cita {
-        background-color: #e74c3c;
-      }
-      .quick-actions .delete-cita:hover {
-        background-color: #c0392b;
-      }
-
-      /* Resumen central */
-      .resumen-central {
-        flex: 1;
-        background: white;
-        padding: 38px 32px 32px 32px;
-        border-radius: 15px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-        max-width: 700px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .resumen-central h2 {
-        color: #008f86;
-        margin-bottom: 18px;
-        font-size: 1.5em;
-        text-align: center;
-      }
-
-      .resumen-mensaje {
-        font-size: 18px;
-        margin-bottom: 20px;
-        color: #444;
-        text-align: center;
-      }
-
-      .tabla-consultas {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 18px;
-        margin-bottom: 10px;
-      }
-
-      .tabla-consultas th,
-      .tabla-consultas td {
-        padding: 12px;
-        border-bottom: 1px solid #eee;
-        text-align: left;
-        font-size: 15px;
-      }
-
-      .tabla-consultas th {
-        background-color: #f3f3f3;
-        color: #444;
-      }
-
-      .tabla-consultas tr:hover {
-        background-color: #f9f9f9;
-      }
-
-      .acciones-btn {
-        display: flex;
-        flex-direction: row;
-        gap: 6px;
-        flex-wrap: wrap;
-        justify-content: flex-start;
-      }
-
-      .btn-editar,
-      .btn-eliminar {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        font-size: 14px;
-        text-decoration: none;
-        color: white;
-        display: inline-block;
-        transition: background 0.3s ease;
-      }
-
-      .btn-editar {
-        background-color: #ffc107;
-        color: #000;
-      }
-
-      .btn-editar:hover {
-        background-color: #e0a800;
-      }
-
-      .btn-eliminar {
-        background-color: #e74c3c;
-      }
-
-      .btn-eliminar:hover {
-        background-color: #c0392b;
-      }
-
-      @media (max-width: 1100px) {
-        .main {
-          flex-direction: column;
-          gap: 20px;
-          padding: 20px;
-        }
-        .resumen-central {
-          max-width: 100%;
-        }
-        .resumen-lateral {
-          max-width: 100%;
-          min-width: unset;
-          margin-bottom: 20px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="main">
-          <div style="margin-bottom: 5px; margin-right: 2%;">
-      <a href="{% url 'dashboard' %}" style="display: inline-flex; align-items: center; gap: 8px; background: #00b89f; color: #fff; text-decoration: none; padding: 10px 18px; border-radius: 6px; font-weight: 600;">
-        <svg width="20" height="20" fill="none" viewBox="0 0 20 20"><path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </a>
-    </div>
-
-      <!-- Resumen lateral derecho - Puedes ajustar estos datos o eliminarlos si no son relevantes para esta vista -->
-      <div class="resumen-lateral">
-        <h3>Resumen de Citas</h3>
-        <div class="resumen-datos">
-          <div class="dato">
-            <div class="dato-titulo">Total</div>
-            <div class="dato-numero">{{ consultas|length }}</div>
-            {# Muestra el número total de consultas #}
-          </div>
-          <div class="dato">
-            <div class="dato-titulo">Pendientes</div>
-            <div class="dato-numero">X</div>
-            {# Necesitarías lógica adicional en la vista para esto #}
-          </div>
-        </div>
-        <div class="quick-actions">
-          <button onclick="window.location.href='#'">Agendar Nueva Cita</button>
-          <button onclick="window.location.href='{% url 'calendario'%}';">Ver Calendario</button>
-          <button class="delete-cita" onclick="window.location.href='#'">
-            Cancelar Cita
-          </button>
-        </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{{ page_title }} – Fisiogestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="shortcut icon" href="{% static 'images/logo2.png' %}" type="image/x-icon"/>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f0faf9;
+      padding: 40px 20px;
+    }
+    .card-main {
+      max-width: 1000px;
+      margin: 0 auto;
+      border: none;
+      border-radius: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    }
+    .card-body {
+      padding: 2.5rem 2rem;
+    }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #00b89f;
+      color: #fff;
+      padding: 8px 16px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: background .2s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .back-button:hover { background: #009e8a; }
+    h1 {
+      margin: 0;
+      color: #00b89f;
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    .summary-panel {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .summary-panel .title { font-size: 0.9rem; color: #777; }
+    .summary-panel .value { font-size: 1.8rem; font-weight: 600; color: #333; }
+    .table-wrapper {
+      border-radius: 10px;
+      overflow-x: auto;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+    }
+    .table {
+      min-width: 800px;
+      background: #fff;
+      border: none;
+    }
+    .table th {
+      background: #fdfdfd;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .table td, .table th {
+      padding: 12px 15px;
+      color: #555;
+    }
+    .table tbody tr:nth-child(even) { background: #f8f8f8; }
+    .btn-edit { background: #00b89f; color: #fff; }
+    .btn-edit:hover { background: #009e8a; }
+    .btn-delete { background: #e74c3c; color: #fff; }
+    .btn-delete:hover { background: #c0392b; }
+    @media (max-width:768px) {
+      .header-row { flex-direction: column; align-items: flex-start; gap: .75rem; }
+      .table { min-width: 600px; }
+    }
+    @media (max-width:576px) {
+      .table { min-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card card-main">
+    <div class="card-body">
+      <!-- HEADER -->
+      <div class="header-row">
+        <a href="{% url 'dashboard' %}" class="back-button">
+          <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
+            <path d="M12.5 15l-5-5 5-5" stroke="#fff" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Volver
+        </a>
+        <h1>{{ page_title }}</h1>
+        <a href="{% url 'calendario' %}" class="btn btn-primary">Agendar Nueva</a>
       </div>
 
-      <!-- Resumen central de consultas -->
-      <div class="resumen-central">
-        <h2>Listado de Citas</h2>
-        <div class="resumen-mensaje">
-          Aquí puedes ver todas las consultas registradas en el sistema.
+      <!-- RESUMEN + TABLA -->
+      <div class="row gx-4">
+        <div class="col-md-3">
+          <div class="summary-panel">
+            <div class="title">Total Citas</div>
+            <div class="value">{{ consultas|length }}</div>
+          </div>
+          <div class="summary-panel">
+            <div class="title">Próximas</div>
+            <div class="value">{{ proximas }}</div>
+          </div>
         </div>
-        <table class="tabla-consultas">
-          <thead>
-            <tr>
-              <th>Fecha y Hora</th>
-              <th>Paciente</th>
-              <th>Fisioterapeuta</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for cita in consultas %}
-            <tr>
-              <td>{{ cita.fecha_consulta|date:"d/m/Y H:i" }}</td>
-              {# Formato de fecha y hora #}
-              <td>{{ cita.paciente.nombre }} {{ cita.paciente.apellido }}</td>
-              <td>
-                {{ cita.fisioterapeuta.nombre }} {{ cita.fisioterapeuta.apellido
-                }}
-              </td>
-              <td>
-                <div class="acciones-btn">
-                  {# Los enlaces de editar y eliminar requerirían URLs y vistas
-                  específicas en tu proyecto #}
-                  <a href="#" class="btn-editar">Editar</a>
-                  <a href="#" class="btn-eliminar">Eliminar</a>
-                </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="4">No hay consultas registradas en el sistema.</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="col-md-9">
+          <p class="text-muted mb-2">Aquí están todas las consultas registradas.</p>
+          <div class="table-wrapper">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Día</th>
+                  <th>Desde</th>
+                  <th>Hasta</th>
+                  <th>Fisioterapeuta</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for h in consultas %}
+                <tr>
+                  <td>{{ h.dia_semana }}</td>
+                  <td>{{ h.hora_inicio|time:"H:i" }}</td>
+                  <td>{{ h.hora_fin|time:"H:i" }}</td>
+                  <td>{{ h.fisioterapeuta.nombre }} {{ h.fisioterapeuta.apellido }}</td>
+                  <td>
+                    <a href="{% url 'cita_editar' h.pk %}" class="btn btn-sm btn-edit me-1">Editar</a>
+                    <form action="{% url 'cita_eliminar' h.pk %}" method="post" class="d-inline" onsubmit="return confirm('¿Eliminar cita?');">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-sm btn-delete">Eliminar</button>
+                    </form>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center py-4">No hay horarios registrados.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
-  </body>
+  </div>
+</body>
 </html>

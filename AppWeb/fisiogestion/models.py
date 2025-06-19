@@ -86,7 +86,7 @@ class HistorialMedico(models.Model):
     # Apunta al modelo 'Usuario', filtrando por el rol de paciente.
     paciente = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='historiales_paciente', limit_choices_to={'rol': Usuario.PACIENTE})
     detalle = models.TextField()
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_creacion = models.DateTimeField()
 
     def __str__(self):
         return f"Historial {self.id} - {self.paciente} ({self.fecha_creacion:%Y-%m-%d})"

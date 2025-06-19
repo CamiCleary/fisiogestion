@@ -17,13 +17,12 @@ urlpatterns = [
     path('pacientes/eliminar/<int:pk>/', views.eliminar_paciente, name='eliminar_paciente'),
     
     # Citas (si es una vista separada de calendario_view)
-    path('citas/', views.citas_view, name='citas'),
+    path('citas/', views.horarios_list, name='citas'),
+    path('citas/<int:pk>/editar/', views.editar_horario, name='cita_editar'),
+    path('citas/<int:pk>/eliminar/', views.eliminar_horario, name='cita_eliminar'),
     
     # Calendario y sus APIs (agrupadas y sin duplicados)
-    path('calendario/', views.calendario_view, name='calendario'), # Única definición para la vista del calendario
-    path('api/calendario-eventos/', views.get_monthly_events_api, name='api_calendario_eventos'), # API para eventos mensuales
-    path('api/citas-del-dia/', views.get_daily_appointments_api, name='api_citas_del_dia'), # API para citas de un día específico
-    path('api/agendar-cita/', views.agendar_cita_api, name='api_agendar_cita'), # API para agendar nuevas citas via POST
+    path('calendario/', views.calendario, name='calendario'), # Única definición para la vista del calendario
     
     # Consultas (si es diferente de las citas del calendario)
     path('consultas/', views.consultas, name='consultas'),

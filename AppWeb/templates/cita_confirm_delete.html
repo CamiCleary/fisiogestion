@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page_title }} - Fisiogestión</title>
+  <link href="{% static 'css/horario.css' %}" rel="stylesheet">
+</head>
+<body>
+  <div class="container my-5">
+    <div class="header-section">
+      <h2 class="mb-4">{{ page_title }}</h2>
+      <a href="{% url 'citas' %}" class="back-button">&larr; Volver</a>
+    </div>
+    <p>¿Seguro que deseas eliminar la cita de 
+       {{ consulta.paciente.nombre }} {{ consulta.paciente.apellido }} 
+       el {{ consulta.fecha_consulta|date:"d/m/Y H:i" }}?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Confirmar eliminación</button>
+      <a href="{% url 'consultas' %}" class="btn btn-outline-primary">Cancelar</a>
+    </form>
+  </div>
+</body>
+</html>

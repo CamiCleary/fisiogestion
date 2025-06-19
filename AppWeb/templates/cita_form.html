@@ -1,0 +1,29 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ page_title }} - Fisiogestión</title>
+  <link href="{% static 'css/horario.css' %}" rel="stylesheet">
+</head>
+<body>
+  <div class="container my-5">
+    <div class="header-section">
+      <h2 class="mb-4">{{ page_title }}</h2>
+      <a href="{% url 'citas' %}" class="back-button">&larr; Volver</a>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="form-group">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  </div>
+</body>
+</html>
